@@ -92,10 +92,22 @@
 			setTimeout(rst_scr_btn,100);
 			};
 
-		document.getElementById('settingsBox4').onclick = function() { 
+		document.getElementById('settingsBox4').onclick = function() {
 			document.getElementById('settingsBox4').style.border = "1px solid blue";
 			document.getElementById('FileUploadL4').click();
 			setTimeout(rst_scr_btn,100);
+			};
+
+	document.getElementById('p1PhotoBtn').onclick = function() {
+			document.getElementById('p1PhotoBtn').style.border = "1px solid blue";
+			document.getElementById('FileUploadP1Photo').click();
+			setTimeout(function() { document.getElementById('p1PhotoBtn').style.border = "none"; }, 100);
+			};
+
+	document.getElementById('p2PhotoBtn').onclick = function() {
+			document.getElementById('p2PhotoBtn').style.border = "1px solid blue";
+			document.getElementById('FileUploadP2Photo').click();
+			setTimeout(function() { document.getElementById('p2PhotoBtn').style.border = "none"; }, 100);
 			};
 
 	if ( localStorage.getItem("useSalotto") != "yes" && localStorage.getItem("useClock") != "yes" && localStorage.getItem("useCustomLogo") != "yes" ) {
@@ -168,6 +180,10 @@
 	if (localStorage.getItem("customLogo3") != null) {document.getElementById("l3Img").src = localStorage.getItem("customLogo3");} else { document.getElementById("l3Img").src = "./common/images/placeholder.png"; };
 	if (localStorage.getItem("customLogo0") != null) {document.getElementById("l0Img").src = localStorage.getItem("customLogo0");} else { document.getElementById("l0Img").src = "./common/images/placeholder.png"; };
 	if (localStorage.getItem("customLogo4") != null) {document.getElementById("l4Img").src = localStorage.getItem("customLogo4");} else { document.getElementById("l4Img").src = "./common/images/placeholder.png"; };
+
+	// Load player photos from localStorage
+	if (localStorage.getItem("player1_photo") != null) {document.getElementById("p1PhotoImg").src = localStorage.getItem("player1_photo");} else { document.getElementById("p1PhotoImg").src = "./common/images/placeholder.png"; };
+	if (localStorage.getItem("player2_photo") != null) {document.getElementById("p2PhotoImg").src = localStorage.getItem("player2_photo");} else { document.getElementById("p2PhotoImg").src = "./common/images/placeholder.png"; };
 
 	if (localStorage.getItem("slideShow") == "yes") { document.getElementById("logoSlideshowChk").checked = true; logoSlideshow(); };
 	if (localStorage.getItem("obsTheme") == "28") { document.getElementById("obsTheme").value = "28"; }

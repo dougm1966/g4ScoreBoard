@@ -64,7 +64,25 @@
 					if (xL == 4) { setTimeout(logoOther, 50); };
 				}
 			}
-				
+
+			function playerPhotoPost(input, player) {
+				if (input.files && input.files[0]) {
+					const reader = new FileReader();
+					reader.readAsDataURL(input.files[0]);
+					reader.addEventListener("load", function () {
+						// convert image file to base64 string and save to localStorage
+						try {
+							localStorage.setItem("player" + player + "_photo", reader.result);
+						} catch(err) {
+							alert("the selected image exceedes the maximium file size");
+						}
+						document.getElementById("p" + player + "PhotoImg").src = localStorage.getItem("player" + player + "_photo");
+						// broadcast photo update to browser source
+						setTimeout(function() { bc.postMessage({clockDisplay:'postPlayerPhoto'}); }, 50);
+					}, false);
+				}
+			}
+
 			function logoOther() {
 				bc.postMessage({clockDisplay:'postLogo'});
 			}

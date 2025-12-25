@@ -31,8 +31,8 @@ for more information about Salotto please visit https://salotto.app
 	<body onload="checkForUpdate()">
 		<div id="mainDiv">
 			 <center><div id="topPlayerGameInfo" class="obs28"><p style="font-size:1px">&nbsp;</p>
-			Player/Team 1 Name:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="p1Name" placeholder="Player 1"><br><p style="font-size:1px">&nbsp;</p>
-			Player/Team 2 Name:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="p2Name" placeholder="Player 2"><br><p style="font-size:1px">&nbsp;</p>
+			Player/Team 1 Name:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="p1Name" placeholder="Player 1">&nbsp;<span class="tooltip hover photoUploadBtn" id="p1PhotoBtn"><input type="file" id="FileUploadP1Photo" onchange="playerPhotoPost(this,1)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />Photo<span class="tooltiptext"><img id="p1PhotoImg" src="" style="height:30px; max-width:70px; border-radius:50%"></span></span><br><p style="font-size:1px">&nbsp;</p>
+			Player/Team 2 Name:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="p2Name" placeholder="Player 2">&nbsp;<span class="tooltip hover photoUploadBtn" id="p2PhotoBtn"><input type="file" id="FileUploadP2Photo" onchange="playerPhotoPost(this,2)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />Photo<span class="tooltiptext"><img id="p2PhotoImg" src="" style="height:30px; max-width:70px; border-radius:50%"></span></span><br><p style="font-size:1px">&nbsp;</p>
 			<text style="font-size:4px">&nbsp;</text>Game and Race Info:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="raceInfoTxt" placeholder=""><br><p style="font-size:1px">&nbsp;</p>
 			<text style="font-size:8.5px">&nbsp;&nbsp;&nbsp;</text>Wager / Other Info:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="wagerInfoTxt" placeholder=""><p style="font-size:5px" /p></div>
 			<p style="font-size:12px">&nbsp;</p>

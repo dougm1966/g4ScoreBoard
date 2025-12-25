@@ -57,7 +57,7 @@
             }
             #player1Name, #player2Name {
                 width:250px;
-
+                position:relative;
             }
             #player1Name {
                  background-image: linear-gradient(to left, white , steelblue);
@@ -173,6 +173,25 @@
                right:60px;
                width:50px;
                height:50px;
+            }
+            .playerPhoto {
+               width:22px;
+               height:22px;
+               border-radius:50%;
+               object-fit:cover;
+               position:absolute;
+               top:50%;
+               transform:translateY(-50%);
+               display:none;
+            }
+            #player1-photo {
+               left:3px;
+            }
+            #player2-photo {
+               right:3px;
+            }
+            .playerPhoto.photoVisible {
+               display:block;
             }
             #raceInfo {
                 background-image: linear-gradient(to right, grey, white);

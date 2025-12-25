@@ -57,7 +57,7 @@
             #player1Name, #player2Name {
                 width:250px;
 				font-size:15pt;
-
+                position:relative;
             }
             #player1Name {
                  background-image: linear-gradient(to left, white , steelblue);
@@ -158,21 +158,24 @@
                 left: 1025px;
                 z-index:9;
             }
-           #player1Image {
+            .playerPhoto {
+               width:22px;
+               height:22px;
+               border-radius:50%;
+               object-fit:cover;
                position:absolute;
-               top:8px;
-               z-index:9;
-               left:60px;
-               width:50px;
-               height:50px;
+               top:50%;
+               transform:translateY(-50%);
+               display:none;
             }
-            #player2Image {
-               position:absolute;
-               top:8px;
-               z-index:9;
-               right:60px;
-               width:50px;
-               height:50px;
+            #player1-photo {
+               left:3px;
+            }
+            #player2-photo {
+               right:3px;
+            }
+            .playerPhoto.photoVisible {
+               display:block;
             }
             #raceInfo {
                 background-image: linear-gradient(to right, grey, white);
@@ -207,7 +210,7 @@
 				left:5%;
 				bottom:36px;
 				height: 3px;
-				background: ;
+				background: transparent;
 				border-radius:5px;
  
 			}

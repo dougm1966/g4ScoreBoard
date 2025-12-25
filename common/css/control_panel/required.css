@@ -172,8 +172,23 @@
 	bottom: 5px;
 	text-align:center;
 	}
-	#FileUploadL0, #FileUploadL1, #FileUploadL2, #FileUploadL3, #FileUploadL4 {
+	#FileUploadL0, #FileUploadL1, #FileUploadL2, #FileUploadL3, #FileUploadL4, #FileUploadP1Photo, #FileUploadP2Photo {
     display: none;
+	}
+
+	.photoUploadBtn {
+		cursor: pointer;
+		font-size: 7pt;
+		padding: 2px 6px;
+		border-radius: 3px;
+		background: #3c404b;
+		color: lightgrey;
+		display: inline-block;
+		min-height: auto;
+		vertical-align: middle;
+	}
+	.photoUploadBtn:hover {
+		background: #4f535e;
 	}
 
 	#btnFile {

@@ -75,10 +75,11 @@
 				
 				if (event.data.name != null) {
 					console.log("event.data.player: "+event.data.player+" event.data.name: " + event.data.name);
+					var nameSpan = document.querySelector("#player"+event.data.player+"Name .playerNameText");
 					if (!event.data.name == ""){
-						document.getElementById("player"+event.data.player+"Name").innerHTML = event.data.name;
+						nameSpan.innerHTML = event.data.name;
 						} else {
-							document.getElementById("player"+event.data.player+"Name").innerHTML = "Player "+event.data.player;
+							nameSpan.innerHTML = "Player "+event.data.player;
 						}
 				}
 				
@@ -105,6 +106,7 @@
 					if (event.data.clockDisplay == "hidecustomLogo") { customHide(); };
 					if (event.data.clockDisplay == "showcustomLogo") { customShow(); };
 					if (event.data.clockDisplay == "postLogo") { postLogo(); };
+					if (event.data.clockDisplay == "postPlayerPhoto") { loadPlayerPhotos(); };
 					if (event.data.clockDisplay == "logoSlideShow-show")  {
 						customHide(); 
 						document.getElementById("logoSlideshowDiv").classList.replace("fadeOutElm", "fadeInElm");
@@ -155,19 +157,24 @@
 			document.getElementById("player2Score").innerHTML = 0;
 			}
 
-			if (localStorage.getItem("wagerInfo") != ""){
-			document.getElementById("wagerInfo").classList.remove("noShow");
+			if (localStorage.getItem("wagerInfo") != null && localStorage.getItem("wagerInfo") != ""){
+				document.getElementById("wagerInfo").classList.remove("noShow");
+			} else {
+				document.getElementById("wagerInfo").classList.add("noShow");
+				document.getElementById("wagerInfo").classList.remove("fadeInElm");
 			}
-	
-			if (localStorage.getItem("raceInfo") != null){
+
+			if (localStorage.getItem("raceInfo") != null && localStorage.getItem("raceInfo") != ""){
 				document.getElementById("raceInfo").classList.remove("noShow");
+			} else {
+				document.getElementById("raceInfo").classList.add("noShow");
+				document.getElementById("raceInfo").classList.remove("fadeInElm");
 			}
 		
-			document.getElementById("player1Name").innerHTML = localStorage.getItem("p1NameCtrlPanel");
-			document.getElementById("raceInfo").innerHTML = localStorage.getItem("raceInfo");
-			document.getElementById("player2Name").innerHTML = localStorage.getItem("p2NameCtrlPanel");			
-			document.getElementById("wagerInfo").innerHTML = localStorage.getItem("wagerInfo");			
-			document.getElementById("raceInfo").innerHTML = localStorage.getItem("raceInfo");			
+			document.querySelector("#player1Name .playerNameText").innerHTML = localStorage.getItem("p1NameCtrlPanel") || "Player 1";
+			document.getElementById("raceInfo").innerHTML = localStorage.getItem("raceInfo") || "";
+			document.querySelector("#player2Name .playerNameText").innerHTML = localStorage.getItem("p2NameCtrlPanel") || "Player 2";
+			document.getElementById("wagerInfo").innerHTML = localStorage.getItem("wagerInfo") || "";			
 	
 			if (localStorage.getItem("useCustomLogo") == "yes") {
 				document.getElementById("g4Logo").classList.replace("fadeOutElm","fadeInElm");			
@@ -204,5 +211,25 @@
 
 			}
 			
+			// Load player photos from localStorage
+			loadPlayerPhotos();
+
 			let slideIndex = 0;
 			showSlides();
+
+			function loadPlayerPhotos() {
+				var p1Photo = document.getElementById("player1-photo");
+				var p2Photo = document.getElementById("player2-photo");
+				if (localStorage.getItem("player1_photo") != null && localStorage.getItem("player1_photo") != "") {
+					p1Photo.src = localStorage.getItem("player1_photo");
+					p1Photo.classList.add("photoVisible");
+				} else {
+					p1Photo.classList.remove("photoVisible");
+				}
+				if (localStorage.getItem("player2_photo") != null && localStorage.getItem("player2_photo") != "") {
+					p2Photo.src = localStorage.getItem("player2_photo");
+					p2Photo.classList.add("photoVisible");
+				} else {
+					p2Photo.classList.remove("photoVisible");
+				}
+			}
