@@ -22,6 +22,9 @@
 	function getDefaultConfig() {
 		return {
 			showFrameArt: false,
+			showTop: true,
+			showLeft: true,
+			showRight: true,
 			frameBgColor: '#ffffff',
 			frameBgAlpha: 50,
 			frameBgAlphaMode: 'transparency_v2',
@@ -95,6 +98,26 @@
 
 		document.body.style.setProperty('--ads-divider-alpha', String(dividerAlpha));
 		document.body.style.setProperty('--ads-divider-rgb', `${divR}, ${divG}, ${divB}`);
+	}
+
+	function applyRegionVisibility(cfg) {
+		const root = document.getElementById('frameRoot');
+		if (!root) return;
+
+		const showTop = cfg && cfg.showTop !== false;
+		const showLeft = cfg && cfg.showLeft !== false;
+		const showRight = cfg && cfg.showRight !== false;
+
+		root.style.setProperty('--ads-top-h', showTop ? '125px' : '0px');
+		root.style.setProperty('--ads-left-w', showLeft ? '125px' : '0px');
+		root.style.setProperty('--ads-right-w', showRight ? '125px' : '0px');
+
+		const top = document.getElementById('adsTop');
+		if (top) top.style.display = showTop ? '' : 'none';
+		const left = document.getElementById('adsLeft');
+		if (left) left.style.display = showLeft ? '' : 'none';
+		const right = document.getElementById('adsRight');
+		if (right) right.style.display = showRight ? '' : 'none';
 	}
 
 	function isGuidesOn(cfg) {
@@ -313,6 +336,7 @@
 		const cfg = loadConfig();
 		const guidesOn = isGuidesOn(cfg);
 		document.body.classList.toggle('ads-guides-on', guidesOn);
+		applyRegionVisibility(cfg);
 
 		applyFrameBg(cfg.frameBgColor, cfg.frameBgAlpha);
 

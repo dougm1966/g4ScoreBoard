@@ -289,34 +289,23 @@
 		<section class="section-card" id="adsSection">
 			<div class="section-card__title">Advertising</div>
 
-			<div class="checkbox-row">
+			<div class="grid-section" style="grid-template-columns: 1fr 1fr; gap: var(--grid-gap);">
+				<div class="btn btn--primary hover obs28" id="adsTabAds" onclick="adsSelectTabAndRefresh()">Ads</div>
+				<div class="btn hover obs28" id="adsTabSettings" onclick="adsSelectTab('settings')">Settings</div>
+			</div>
+
+			<div id="adsPanelAds">
+				<div class="checkbox-row">
 				<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-					<label class="checkbox-label" style="margin:0;">
-						<input type="checkbox" class="smallSize" id="adsFrameArtChk" onchange="adsToggleFrameArt()">
-						<span>Guides</span>
-					</label>
 					<label class="checkbox-label" style="margin:0; display:flex; align-items:center; gap:8px;">
 						<span>Background</span>
 						<span id="adsFrameBgOpen" onclick="adsOpenFrameBgModal()" style="cursor:pointer; font-weight:700; text-decoration: underline;">Select Color</span>
 						<span id="adsFrameBgSummary" style="min-width: 90px; opacity: 0.9;"></span>
 					</label>
 				</div>
-			</div>
-
-			<div class="grid-section" style="grid-template-columns: 1fr 1fr; gap: var(--grid-gap);">
-				<div class="btn btn--primary hover obs28" id="adsRefreshBtn" onclick="adsRefresh()">Refresh Ads</div>
-				<div class="btn hover obs28" id="adsAdvancedToggleBtn" onclick="adsToggleAdvanced()">Advanced</div>
-			</div>
-
-			<div class="grid-section grid-cols-1 noShow" id="adsAdvancedPanel">
-				<div class="grid-section" style="grid-template-columns: 1fr 1fr; gap: var(--grid-gap);">
-					<div class="btn hover obs28" onclick="adsLoadIntoEditor()">Load Layout</div>
-					<div class="btn btn--primary hover obs28" onclick="adsSaveFromEditor()">Save Layout</div>
 				</div>
-				<textarea id="adsLayoutJson" class="input-field" style="height: 180px; font-family: monospace;"></textarea>
-			</div>
 
-			<div class="grid-section grid-cols-1" id="adsRows">
+				<div class="grid-section grid-cols-1" id="adsRows">
 				<div class="ads-row" data-region="top" data-index="1">
 					<div class="ads-row__label">T1</div>
 					<div class="ads-row__controls">
@@ -662,6 +651,30 @@
 							<img id="adRight3Img" src="" alt="">
 						</div>
 						<input type="text" class="input-field ads-title" id="adRight3Title" placeholder="Title (optional)" oninput="adsSetTitle('right',3,this.value)">
+					</div>
+				</div>
+				</div>
+			</div>
+
+			<div id="adsPanelSettings" class="noShow">
+				<div class="checkbox-row">
+					<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+						<label class="checkbox-label" style="margin:0;">
+							<input type="checkbox" class="smallSize" id="adsFrameArtChk" onchange="adsToggleFrameArt()">
+							<span>Dividers</span>
+						</label>
+						<label class="checkbox-label" style="margin:0;">
+							<input type="checkbox" class="smallSize" id="adsShowTopChk" onchange="adsToggleRegion('top')">
+							<span>Show Top</span>
+						</label>
+						<label class="checkbox-label" style="margin:0;">
+							<input type="checkbox" class="smallSize" id="adsShowLeftChk" onchange="adsToggleRegion('left')">
+							<span>Show Left</span>
+						</label>
+						<label class="checkbox-label" style="margin:0;">
+							<input type="checkbox" class="smallSize" id="adsShowRightChk" onchange="adsToggleRegion('right')">
+							<span>Show Right</span>
+						</label>
 					</div>
 				</div>
 			</div>

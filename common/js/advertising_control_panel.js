@@ -10,6 +10,24 @@ const adsBc = new BroadcastChannel(ADS_CHANNEL_MAIN);
 let adsFrameBgLivePending = false;
 let adsFrameBgLiveLatest = { color: '#ffffff', alpha: 50 };
 
+function adsSelectTab(tab) {
+	const adsPanel = document.getElementById('adsPanelAds');
+	const settingsPanel = document.getElementById('adsPanelSettings');
+	const btnAds = document.getElementById('adsTabAds');
+	const btnSettings = document.getElementById('adsTabSettings');
+
+	const t = tab === 'settings' ? 'settings' : 'ads';
+	if (adsPanel) adsPanel.classList.toggle('noShow', t !== 'ads');
+	if (settingsPanel) settingsPanel.classList.toggle('noShow', t !== 'settings');
+	if (btnAds) btnAds.classList.toggle('btn--primary', t === 'ads');
+	if (btnSettings) btnSettings.classList.toggle('btn--primary', t === 'settings');
+}
+
+function adsSelectTabAndRefresh() {
+	adsSelectTab('ads');
+	adsRefresh();
+}
+
 function adsModalPreventDefault(e) {
 	if (!e) return;
 	e.preventDefault();
@@ -243,6 +261,9 @@ function adsInitFrameBgModal() {
 function adsGetDefaultConfig() {
 	return {
 		showFrameArt: false,
+		showTop: true,
+		showLeft: true,
+		showRight: true,
 		frameBgColor: '#ffffff',
 		frameBgAlpha: 50,
 		frameBgAlphaMode: 'transparency_v2',
@@ -689,6 +710,13 @@ function adsApplyConfigToBasicControls(cfg) {
 	const frameArtChk = document.getElementById('adsFrameArtChk');
 	if (frameArtChk) frameArtChk.checked = !!cfg.showFrameArt;
 
+	const showTopChk = document.getElementById('adsShowTopChk');
+	if (showTopChk) showTopChk.checked = cfg.showTop !== false;
+	const showLeftChk = document.getElementById('adsShowLeftChk');
+	if (showLeftChk) showLeftChk.checked = cfg.showLeft !== false;
+	const showRightChk = document.getElementById('adsShowRightChk');
+	if (showRightChk) showRightChk.checked = cfg.showRight !== false;
+
 	const bgSummary = document.getElementById('adsFrameBgSummary');
 	if (bgSummary) {
 		const hex = adsNormalizeHexColor(cfg.frameBgColor, '#ffffff');
@@ -793,35 +821,29 @@ async function adsRefreshPreviews() {
 	await adsSetPreview('adRight3Img', adsKey('right', 3));
 }
 
-function adsLoadIntoEditor() {
-	const cfg = adsLoadConfig();
-	adsApplyConfigToBasicControls(cfg);
-	adsSyncEditor(cfg);
-}
-
-function adsSaveFromEditor() {
-	const textarea = document.getElementById('adsLayoutJson');
-	const raw = textarea ? textarea.value : '';
-	const parsed = adsSafeParseJson(raw, null);
-	if (!parsed) {
-		alert('Invalid JSON');
-		return;
-	}
-	adsNormalizePlacementPositions(parsed);
-	adsSaveConfig(parsed);
-	adsApplyConfigToBasicControls(parsed);
-	adsSyncEditor(parsed);
-	adsRefresh();
-}
-
 function adsToggleFrameArt() {
 	const chk = document.getElementById('adsFrameArtChk');
 	const cfg = adsLoadConfig();
 	cfg.showFrameArt = !!(chk && chk.checked);
 	adsSaveConfig(cfg);
-	adsLoadIntoEditor();
 	adsRefresh();
 }
+
+	function adsToggleRegion(region) {
+		const cfg = adsLoadConfig();
+		if (region === 'top') {
+			const chk = document.getElementById('adsShowTopChk');
+			cfg.showTop = !!(chk && chk.checked);
+		} else if (region === 'left') {
+			const chk = document.getElementById('adsShowLeftChk');
+			cfg.showLeft = !!(chk && chk.checked);
+		} else if (region === 'right') {
+			const chk = document.getElementById('adsShowRightChk');
+			cfg.showRight = !!(chk && chk.checked);
+		}
+		adsSaveConfig(cfg);
+		adsRefresh();
+	}
 
 function adsRefresh() {
 	try {
@@ -830,12 +852,6 @@ function adsRefresh() {
 		// ignore
 	}
 	adsRefreshPreviews();
-}
-
-function adsToggleAdvanced() {
-	const panel = document.getElementById('adsAdvancedPanel');
-	if (!panel) return;
-	panel.classList.toggle('noShow');
 }
 
 function triggerAdUpload(region, index) {
@@ -896,7 +912,8 @@ async function adsInit() {
 	await adsHydrateHasImageFlags(cfg);
 	adsNormalizePlacementPositions(cfg);
 	adsSaveConfig(cfg);
-	adsLoadIntoEditor();
+	adsApplyConfigToBasicControls(cfg);
+	adsSelectTab('ads');
 	try {
 		const frames = document.querySelectorAll('input[id$="Frame"]');
 		for (const el of frames) {

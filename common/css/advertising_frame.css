@@ -12,6 +12,7 @@ body {
 	position: relative;
 	--ads-divider-alpha: 0.35;
 	--ads-divider-rgb: 255, 255, 255;
+	--ads-inner-corner-radius: 16px;
 }
 
 #frameRoot {
@@ -23,8 +24,11 @@ body {
 	background: transparent;
 	transform-origin: top left;
 	display: grid;
-	grid-template-columns: 125px 1670px 125px;
-	grid-template-rows: 125px 955px;
+	--ads-top-h: 125px;
+	--ads-left-w: 125px;
+	--ads-right-w: 125px;
+	grid-template-columns: var(--ads-left-w) 1fr var(--ads-right-w);
+	grid-template-rows: var(--ads-top-h) 1fr;
 	grid-template-areas:
 		"top top top"
 		"left center right";
@@ -36,9 +40,13 @@ body {
 	display: grid;
 	grid-template-columns: repeat(6, 1fr);
 	grid-template-rows: 1fr;
-	gap: 0;
+	gap: 4px;
 	background: transparent;
 	z-index: 2;
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+	box-sizing: border-box;
+	overflow: hidden;
 }
 
 #adsLeft {
@@ -47,9 +55,11 @@ body {
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-template-rows: repeat(3, 1fr);
-	gap: 0;
+	gap: 4px;
 	background: transparent;
 	z-index: 2;
+	border-top-right-radius: var(--ads-inner-corner-radius);
+	overflow: hidden;
 }
 
 #adsRight {
@@ -58,9 +68,11 @@ body {
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-template-rows: repeat(3, 1fr);
-	gap: 0;
+	gap: 4px;
 	background: transparent;
 	z-index: 2;
+	border-top-left-radius: var(--ads-inner-corner-radius);
+	overflow: hidden;
 }
 
 .ad-tile {
@@ -80,15 +92,15 @@ body {
 .ads-divider--v {
 	top: 10%;
 	height: 80%;
-	width: 1px;
-	transform: translateX(-0.5px);
+	width: 2px;
+	transform: translateX(-1px);
 }
 
 .ads-divider--h {
 	left: 10%;
 	width: 80%;
-	height: 1px;
-	transform: translateY(-0.5px);
+	height: 2px;
+	transform: translateY(-1px);
 }
 
 .ad-tile img {
