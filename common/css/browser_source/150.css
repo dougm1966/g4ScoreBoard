@@ -153,12 +153,14 @@
                 top: 35.5px;
                 right: 690px;
                 z-index:9;
+                padding-left: 3px;
             }
 			 #g4Logo {
                 position:absolute;
                 top: 35.5px;
                 left: 690px;
                 z-index:9;
+                padding-left: 3px;
             }
             .playerPhoto {
                width:22px;
