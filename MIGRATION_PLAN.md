@@ -1,7 +1,9 @@
-# G4ScoreBoard Migration Plan: localStorage to Project Storage
+# PCPLScoreBoard Migration Plan: localStorage to IndexedDB
 
 ## Project Overview
-**Goal:** Replace localStorage image storage with direct file storage while keeping the exact same upload interface for users.
+**Goal:** Replace localStorage(base64) image storage with IndexedDB(binary) storage while keeping the exact same upload interface (click Upload, pick file, done).
+
+**Why IndexedDB:** IndexedDB can store large binary blobs and avoids base64 overhead, providing substantially more storage headroom than localStorage inside OBS Browser Source (Chromium/CEF).
 
 **Benefits:**
 - No localStorage limits (currently ~5MB causing 2.27MB upload failures)
@@ -14,60 +16,54 @@
 ---
 
 ## Phase 1: Setup & Foundation
-- [ ] Create project directory structure
-- [ ] Test direct file access with relative paths
-- [ ] Create backup of current localStorage data
-- [ ] Verify CORS compatibility for local files
+- [ ] Define IndexedDB database schema (db name, store name, keys)
+- [ ] Add a small IndexedDB storage wrapper (get/set/delete)
+- [ ] Create backup/export path for existing localStorage images (one-time migration)
+- [ ] Verify IndexedDB persistence in OBS Browser Source across restarts
 
 ### Tasks:
 
-#### 1.1 Directory Structure Creation
-- [ ] Create `media/` root folder
-- [ ] Create `media/images/` subfolder
-- [ ] Create `media/images/players/` subfolder
-- [ ] Create `media/images/sponsors/` subfolder
-- [ ] Create `media/images/slideshow/` subfolder
-- [ ] Create `media/images/ads/` subfolder (future advertising)
+#### 1.1 IndexedDB Schema
+- [ ] DB name: `pcplscoreboard`
+- [ ] Object store: `images`
+- [ ] Primary key: the existing logical key (e.g. `leftSponsorLogo`, `player1_photo`, `sponsorAd_001`)
 
-#### 1.2 File Access Testing
-- [ ] Test relative paths like `./media/images/player1_photo.png`
-- [ ] Verify CORS works with local file access
-- [ ] Test in different browsers (Chrome, Firefox, Edge)
-- [ ] Confirm OBS browser sources can access local files
-- [ ] Test file:// protocol if needed for CORS issues
+#### 1.2 Persistence Testing (OBS)
+- [ ] Store a test blob in IndexedDB
+- [ ] Reload browser source (OBS)
+- [ ] Restart OBS
+- [ ] Confirm blob still exists and loads
 
-#### 1.3 Data Backup
-- [ ] Export all current localStorage images to files
-- [ ] Create migration script to convert base64 to image files
-- [ ] Document current localStorage keys and their new file paths
-- [ ] Test migration with sample data
+#### 1.3 Migration Prep (from localStorage)
+- [ ] Identify all current image keys in localStorage
+- [ ] Create a one-time migration routine: localStorage(base64) -> IndexedDB(blob)
+- [ ] Decide whether to keep localStorage as temporary fallback during rollout
 
 ---
 
 ## Phase 2: Upload System Updates (Keep Current UI)
-- [ ] Modify existing upload functions to save files directly
-- [ ] Keep current upload buttons and interface unchanged
-- [ ] Replace localStorage storage with file path storage
-- [ ] Test upload functionality
+- [ ] Keep current upload buttons and user workflow unchanged
+- [ ] Replace base64-in-localStorage writes with IndexedDB(blob) writes
+- [ ] Add 8-12 advertising image upload slots (keys) using the same mechanism
+- [ ] Test end-to-end workflow
 
 ### Tasks:
 
 #### 2.1 Update Upload Functions
-- [ ] Modify `logoPost()` function to save files instead of base64
-- [ ] Modify `playerPhotoPost()` function to save files instead of base64
-- [ ] Replace FileReader with direct file saving
-- [ ] Store only file paths in localStorage (tiny strings)
+- [ ] Update `logoPost()` to store the uploaded file as a Blob in IndexedDB
+- [ ] Update `playerPhotoPost()` to store the uploaded file as a Blob in IndexedDB
+- [ ] Add new `adImagePost(slot)` (or similar) to store sponsor ad images in IndexedDB
 - [ ] Keep same error handling and user feedback
 
 #### 2.2 File Management (Same UI)
-- [ ] Update delete functions to remove files from folders
 - [ ] Keep existing delete buttons and interface
-- [ ] Update preview to show file-based images
+- [ ] Update delete behavior to remove the image from IndexedDB
+- [ ] Update preview to show the stored image
 - [ ] Maintain same user experience
-- [ ] Test all file operations
+- [ ] Test hide/show behavior for each image slot
 
 #### 2.3 Display Integration
-- [ ] Update image loading to use file paths
+- [ ] Update image loading to use IndexedDB
 - [ ] Test with current upload interface
 - [ ] Verify BroadcastChannel messaging works
 - [ ] Keep all existing UI elements unchanged
@@ -76,7 +72,7 @@
 
 ## Phase 3: Display System Updates
 - [ ] Update image loading in browser sources
-- [ ] Replace localStorage.getItem() with file paths
+- [ ] Replace localStorage.getItem() with IndexedDB reads
 - [ ] Update BroadcastChannel messaging
 - [ ] Test all display locations
 
@@ -85,19 +81,19 @@
 #### 3.1 Browser Source Updates
 - [ ] Update `browser_source/ui.js` load functions
 - [ ] Update `browser_compact/ui.js` load functions
-- [ ] Replace localStorage image loading with file path loading
+- [ ] Replace localStorage image loading with IndexedDB image loading
 - [ ] Update `loadPlayerPhotos()` function
 - [ ] Update `loadLogos()` function
 - [ ] Update `loadLogo()` function
 
 #### 3.2 Messaging System Updates
-- [ ] Update BroadcastChannel messages to send file paths instead of data
+- [ ] Keep BroadcastChannel messages small (send "imageUpdated" + key)
 - [ ] Modify control panel broadcast functions
 - [ ] Update browser source message handlers
 - [ ] Test real-time image updates
 
 #### 3.3 Fallback Handling
-- [ ] Add fallback to localStorage for migration period
+- [ ] Add fallback to localStorage for migration period (optional)
 - [ ] Handle missing files gracefully
 - [ ] Add loading state indicators
 - [ ] Test error scenarios
@@ -131,6 +127,14 @@
 - [ ] Test with different OBS setups
 - [ ] Test BroadcastChannel reliability
 - [ ] Test with different network conditions
+
+### IndexedDB Smoke Test Checklist (do this early)
+- [ ] Upload a left sponsor logo in the control panel
+- [ ] Verify it appears in the browser source
+- [ ] Reload the browser source
+- [ ] Restart OBS
+- [ ] Verify the logo is still present
+- [ ] Upload 8-12 ad images and verify they all persist
 
 ---
 
@@ -173,9 +177,8 @@
 ### Tasks:
 
 #### 6.1 Advertising Storage Structure
-- [ ] Expand `media/images/ads/` folder structure
-- [ ] Create ad naming conventions
-- [ ] Plan ad metadata storage (JSON file or database)
+- [ ] Define advertising image keys (e.g. `sponsorAd_001` ... `sponsorAd_012`)
+- [ ] Plan ad metadata storage (localStorage JSON or IndexedDB store)
 - [ ] Design ad category organization
 
 #### 6.2 Ad Management Interface
@@ -194,69 +197,46 @@
 
 ## Implementation Notes
 
-### File Naming Conventions
-```
-players/
-  player1_photo.png
-  player2_photo.png
+### IndexedDB Structure
+- Database: `pcplscoreboard`
+- Store: `images`
+- Value: Blob (stored file) plus minimal metadata
 
-sponsors/
-  left_sponsor_logo.png
-  right_sponsor_logo.png
-
-slideshow/
-  custom_logo_1.png
-  custom_logo_2.png
-  custom_logo_3.png
-
-ads/
-  sponsor_ad_001.png
-  sponsor_ad_002.png
-  ...
-```
-
-### API Endpoint Structure
-**No API needed** - direct file access
-
-### File Path Structure
-```
-./media/images/players/player1_photo.png
-./media/images/players/player2_photo.png
-./media/images/sponsors/left_sponsor_logo.png
-./media/images/sponsors/right_sponsor_logo.png
-./media/images/slideshow/custom_logo_1.png
-./media/images/slideshow/custom_logo_2.png
-./media/images/slideshow/custom_logo_3.png
-./media/images/sponsors/custom_logo.png
-```
+### Key Naming
+- Keep existing keys for compatibility:
+  - `leftSponsorLogo`, `rightSponsorLogo`
+  - `customLogo1`, `customLogo2`, `customLogo3`
+  - `player1_photo`, `player2_photo`
+- Add ads:
+  - `sponsorAd_001` ... `sponsorAd_012`
 
 ### Migration Mapping
-| localStorage Key | New File Path |
-|------------------|---------------|
-| player1_photo | media/images/players/player1_photo.png |
-| player2_photo | media/images/players/player2_photo.png |
-| leftSponsorLogo | media/images/sponsors/left_sponsor_logo.png |
-| rightSponsorLogo | media/images/sponsors/right_sponsor_logo.png |
-| customLogo1 | media/images/slideshow/custom_logo_1.png |
-| customLogo2 | media/images/slideshow/custom_logo_2.png |
-| customLogo3 | media/images/slideshow/custom_logo_3.png |
-| customImage | media/images/sponsors/custom_logo.png |
+| localStorage Key | IndexedDB Key |
+|------------------|-------------|
+| player1_photo | player1_photo |
+| player2_photo | player2_photo |
+| leftSponsorLogo | leftSponsorLogo |
+| rightSponsorLogo | rightSponsorLogo |
+| customLogo1 | customLogo1 |
+| customLogo2 | customLogo2 |
+| customLogo3 | customLogo3 |
+| customImage | customImage |
 
 ---
 
 ## Risk Assessment & Mitigation
 
 ### Risks:
-- **File system permissions:** May need write access to project folders
-- **Browser security:** Some browsers block file:// access
-- **OBS integration:** Need to ensure OBS can access local files
+- **Storage quota:** IndexedDB still has limits that vary by platform/OBS build
+- **Persistence variability:** Some environments can clear site data (rare, but possible)
 - **Migration complexity:** Risk of data loss during transition
 
 ### Mitigations:
-- **Simple file saving:** Use basic file system operations
+- **Stay binary:** Store Blobs in IndexedDB (avoid base64 overhead)
+- **Quota awareness:** Add a simple usage indicator and clear error messages on quota failures
 - **Backup strategy:** Full localStorage backup before migration
-- **Fallback system:** Keep localStorage as backup during transition
-- **OBS testing:** Verify OBS compatibility early
+- **Fallback system:** Keep localStorage as backup during transition (optional)
+- **OBS testing:** Verify persistence across reloads/restarts early
 
 ---
 

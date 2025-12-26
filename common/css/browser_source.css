@@ -72,7 +72,7 @@ body {
 
 #scoreBoardDiv {
 	position: absolute;
-	bottom: 10px;
+	bottom: 25px;
 	width: 90%;
 	left: 5%;
 	padding: 5px;
@@ -167,15 +167,17 @@ td {
 	position: absolute;
 	left: 50%;
 	transform: translateX(-50%);
-	bottom: 40px;
-	padding: 2px 10px;
-	border: 2px solid #000;
-	border-radius: 10px;
-	background: rgba(255, 255, 255, 1);
-	font-size: 12pt;
+	bottom: -25px;
+	padding: 4px 15px;
+	border: 2px 2px 2px 2px;
+	border-radius: 4px 4px 4px 4px;
+	background: rgba(255, 255, 255, 0.9);
+	font-size: 15pt;
+	font-weight: normal;
 	line-height: 1;
-	min-width: 3ch;
+	min-width: 2ch;
 	z-index: 11;
+	color: #000;
 }
 
 #player1Name,
@@ -408,10 +410,10 @@ td {
 #raceInfo,
 #wagerInfo {
 	position: fixed;
-	bottom: 0px;
+	bottom: 12px;
 	width: fit-content;
 	min-width: 80px;
-	max-width: 200px;
+	max-width: 320px;
 	border-radius: 0px 0px 10px 10px;
 	text-align: center;
 	padding: 4px 10px 1px;
@@ -423,12 +425,12 @@ td {
 }
 
 #raceInfo {
-	background-image: linear-gradient(to right, grey, white);
+	background-image: linear-gradient(to right, rgb(138, 216, 146), white);
 	left: var(--race-left);
 }
 
 #wagerInfo {
-	background-image: linear-gradient(to left, grey, white);
+	background-image: linear-gradient(to left, rgb(138, 216, 146), white);
 	right: var(--wager-right);
 }
 

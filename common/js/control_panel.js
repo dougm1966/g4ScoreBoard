@@ -83,44 +83,54 @@ var clockIsPaused = false;
 				}
 			}
 					
-			function logoPost(input,xL) {
+			async function logoPost(input,xL) {
 				if (input.files && input.files[0]) {
 					const file = input.files[0];
-					const reader = new FileReader();
-					
-					// Determine file path and storage key based on xL
-					let filePath, storageKey;
-					if (xL == 0) {
-						filePath = "./media/images/sponsors/left_sponsor_logo.png";
-						storageKey = "leftSponsorLogo";
-					}
-					else if (xL == 4) {
-						filePath = "./media/images/sponsors/right_sponsor_logo.png";
-						storageKey = "rightSponsorLogo";
-					}
-					else {
-						filePath = "./media/images/slideshow/custom_logo_" + xL + ".png";
-						storageKey = "customLogo" + xL;
-					}
-					
-					// For now, store file path in localStorage (tiny string vs huge base64)
-					// TODO: Implement actual file saving to filesystem
+					let key;
+					if (xL == 0) { key = "leftSponsorLogo"; }
+					else if (xL == 4) { key = "rightSponsorLogo"; }
+					else { key = "customLogo" + xL; }
+
+					// Prefer IndexedDB (Blob storage) to avoid localStorage limits
+					let storedInIdb = false;
 					try {
-						localStorage.setItem(storageKey, filePath);
-						console.log("Logo path saved:", filePath);
-						
-						// Update preview immediately
-						document.getElementById("l"+xL+"Img").src = filePath;
-						
-						// Add has-image class to show inline preview for left/right logos
-						if (xL == 0 || xL == 4) {
-							document.getElementById("l"+xL+"Img").classList.add("has-image");
+						if (window.PCPLImageDB && window.PCPLImageDB.setFromFile) {
+							await window.PCPLImageDB.setFromFile(key, file);
+							storedInIdb = true;
+						}
+					} catch (err) {
+						storedInIdb = false;
+					}
+
+					if (storedInIdb) {
+						try {
+							const url = await window.PCPLImageDB.getObjectUrl(key);
+							document.getElementById("l" + xL + "Img").src = url;
+						} catch (err) {
+							// If object URL fails for any reason, fall back to base64
+							storedInIdb = false;
 						}
 					}
-					catch(err) { 
-						console.error("Error saving logo path:", err);
-						alert("Error saving logo path");
+
+					// Fallback to legacy base64 localStorage path (keeps compatibility during transition)
+					if (!storedInIdb) {
+						const reader = new FileReader();
+						reader.readAsDataURL(file);
+						reader.addEventListener("load", function () {
+							try {
+								localStorage.setItem(key, reader.result);
+							} catch(err) {
+								alert("the selected image exceedes the maximium file size");
+							}
+							document.getElementById("l" + xL + "Img").src = localStorage.getItem(key);
+						}, false);
 					}
+
+					// Add has-image class to show inline preview for left/right logos
+					if (xL == 0 || xL == 4) {
+						document.getElementById("l" + xL + "Img").classList.add("has-image");
+					}
+
 					if (document.getElementById("logoSlideshowChk").checked == true) {setTimeout(slideOther, 50); };
 					if (xL == 0) {
 						setTimeout(logoOther, 50);
@@ -145,43 +155,64 @@ var clockIsPaused = false;
 				}
 			}
 
-			function playerPhotoPost(input, player) {
+			async function playerPhotoPost(input, player) {
 				if (input.files && input.files[0]) {
 					const file = input.files[0];
-					
-					// Determine file path and storage key
-					const filePath = "./media/images/players/player" + player + "_photo.png";
-					const storageKey = "player" + player + "_photo";
-					
-					// Store file path in localStorage (tiny string vs huge base64)
-					// TODO: Implement actual file saving to filesystem
+					const key = "player" + player + "_photo";
+					let storedInIdb = false;
 					try {
-						localStorage.setItem(storageKey, filePath);
-						console.log("Player photo path saved:", filePath);
-						
-						// Update main button display - show image, hide text, show delete button
-						document.getElementById("p" + player + "PhotoDisplay").src = filePath;
-						document.getElementById("p" + player + "PhotoDisplay").style.display = "block";
-						document.getElementById("p" + player + "PhotoDelete").style.display = "block";
-						document.getElementById("p" + player + "PhotoText").style.display = "none";
-						
-						// broadcast photo update to browser source
-						setTimeout(function() { bc.postMessage({clockDisplay:'postPlayerPhoto'}); }, 50);
+						if (window.PCPLImageDB && window.PCPLImageDB.setFromFile) {
+							await window.PCPLImageDB.setFromFile(key, file);
+							storedInIdb = true;
+						}
+					} catch (err) {
+						storedInIdb = false;
 					}
-					catch(err) {
-						console.error("Error saving player photo path:", err);
-						alert("Error saving player photo path");
+
+					if (storedInIdb) {
+						try {
+							const url = await window.PCPLImageDB.getObjectUrl(key);
+							document.getElementById("p" + player + "PhotoDisplay").src = url;
+						} catch (err) {
+							storedInIdb = false;
+						}
 					}
+
+					if (!storedInIdb) {
+						const reader = new FileReader();
+						reader.readAsDataURL(file);
+						reader.addEventListener("load", function () {
+							try {
+								localStorage.setItem(key, reader.result);
+							} catch(err) {
+								alert("the selected image exceedes the maximium file size");
+							}
+							document.getElementById("p" + player + "PhotoDisplay").src = localStorage.getItem(key);
+						}, false);
+					}
+
+					// Update main button display - show image, hide text, show delete button
+					document.getElementById("p" + player + "PhotoDisplay").style.display = "block";
+					document.getElementById("p" + player + "PhotoDelete").style.display = "block";
+					document.getElementById("p" + player + "PhotoText").style.display = "none";
+					// broadcast photo update to browser source
+					setTimeout(function() { bc.postMessage({clockDisplay:'postPlayerPhoto'}); }, 50);
 				}
 			}
 
-			function deletePlayerPhoto(player, event) {
+			async function deletePlayerPhoto(player, event) {
 				// Prevent the file input from triggering
 				event.stopPropagation();
 				event.preventDefault();
 
-				// Remove from localStorage
-				localStorage.removeItem("player" + player + "_photo");
+				const key = "player" + player + "_photo";
+				// Remove from IndexedDB (preferred) + localStorage (legacy)
+				try {
+					if (window.PCPLImageDB && window.PCPLImageDB.delete) {
+						await window.PCPLImageDB.delete(key);
+					}
+				} catch (err) {}
+				localStorage.removeItem(key);
 
 				// Reset main button display - hide image, hide delete button, show text
 				document.getElementById("p" + player + "PhotoDisplay").style.display = "none";
@@ -195,15 +226,23 @@ var clockIsPaused = false;
 				setTimeout(function() { bc.postMessage({clockDisplay:'postPlayerPhoto'}); }, 50);
 			}
 
-			function deleteLogo(xL, event) {
+			async function deleteLogo(xL, event) {
 				// Prevent the file input from triggering
 				event.stopPropagation();
 				event.preventDefault();
 
-				// Remove from localStorage
-				if (xL == 0) { localStorage.removeItem("leftSponsorLogo"); }
-				else if (xL == 4) { localStorage.removeItem("rightSponsorLogo"); }
-				else { localStorage.removeItem("customLogo" + xL); }
+				let key;
+				if (xL == 0) { key = "leftSponsorLogo"; }
+				else if (xL == 4) { key = "rightSponsorLogo"; }
+				else { key = "customLogo" + xL; }
+
+				// Remove from IndexedDB (preferred) + localStorage (legacy)
+				try {
+					if (window.PCPLImageDB && window.PCPLImageDB.delete) {
+						await window.PCPLImageDB.delete(key);
+					}
+				} catch (err) {}
+				localStorage.removeItem(key);
 
 				// Reset the image and hide preview
 				document.getElementById("l" + xL + "Img").src = "";
@@ -775,7 +814,7 @@ function checkForUpdate() {
             if (compareVers(latestVersion, versionNum) > 0) {
                 updateStatus.innerHTML = `<a color="grey" href="${data.html_url}" target="_blank" rel="noopener noreferrer nohighlight">Download Update</a>`;
             } else {
-                updateStatus.textContent = "g4ScoreBoard is up to date";
+                updateStatus.textContent = "PCPLScoreBoard is up to date";
             }
         })
         .catch(error => {
