@@ -204,15 +204,17 @@ for more information about Salotto please visit https://salotto.app
 		<section class="section-card">
 			<div class="section-card__title" id="settingsBox3">Logo Upload (Max: 2.4MB)</div>
 			<div class="grid-section grid-cols-2">
-				<div class="btn tooltip hover obs28" id="settingsBox4">
+				<div class="logo-upload-btn hover obs28" id="settingsBox4">
 					<input type="file" id="FileUploadL4" onchange="logoPost(this,4)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
-					Upload Left
-					<span class="tooltiptext"><img id="l4Img" src="" style="height:30px; max-width:70px"></span>
+					<span class="logo-delete-btn" id="l4Delete" onclick="deleteLogo(4, event)">&times;</span>
+					<img id="l4Img" class="logo-preview" src="" alt="">
+					<span class="logo-upload-text" id="l4Text">Upload Left</span>
 				</div>
-				<div class="btn tooltip hover obs28" id="settingsBox2">
+				<div class="logo-upload-btn hover obs28" id="settingsBox2">
 					<input type="file" id="FileUploadL0" onchange="logoPost(this,0)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
-					Upload Right
-					<span class="tooltiptext"><img id="l0Img" src="" style="height:30px; max-width:70px"></span>
+					<span class="logo-delete-btn" id="l0Delete" onclick="deleteLogo(0, event)">&times;</span>
+					<img id="l0Img" class="logo-preview" src="" alt="">
+					<span class="logo-upload-text" id="l0Text">Upload Right</span>
 				</div>
 			</div>
 		</section>

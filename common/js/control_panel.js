@@ -95,6 +95,10 @@ var clockIsPaused = false;
 					try {localStorage.setItem("customLogo"+xL, reader.result);}
 					catch(err) { alert("the selected image exceedes the maximium file size");}
 					document.getElementById("l"+xL+"Img").src = localStorage.getItem("customLogo"+xL);
+					// Add has-image class to show inline preview for left/right logos
+					if (xL == 0 || xL == 4) {
+						document.getElementById("l"+xL+"Img").classList.add("has-image");
+					}
 					}, false);
 					if (document.getElementById("logoSlideshowChk").checked == true) {setTimeout(slideOther, 50); };
 					if (xL == 0) { setTimeout(logoOther, 50); };
@@ -117,6 +121,27 @@ var clockIsPaused = false;
 						// broadcast photo update to browser source
 						setTimeout(function() { bc.postMessage({clockDisplay:'postPlayerPhoto'}); }, 50);
 					}, false);
+				}
+			}
+
+			function deleteLogo(xL, event) {
+				// Prevent the file input from triggering
+				event.stopPropagation();
+				event.preventDefault();
+
+				// Remove from localStorage
+				localStorage.removeItem("customLogo" + xL);
+
+				// Reset the image and hide preview
+				document.getElementById("l" + xL + "Img").src = "";
+				document.getElementById("l" + xL + "Img").classList.remove("has-image");
+
+				// Reset the file input
+				document.getElementById("FileUploadL" + xL).value = "";
+
+				// Broadcast the change to browser source
+				if (xL == 0 || xL == 4) {
+					bc.postMessage({clockDisplay:'postLogo'});
 				}
 			}
 

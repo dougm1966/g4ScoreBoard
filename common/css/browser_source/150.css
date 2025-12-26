@@ -172,21 +172,25 @@
             }
             #player1-photo {
                left:3px;
+               transition: left 0.3s ease;
+               transition-delay: 0.8s; /* Wait for Ex to fade before sliding back */
             }
             #player2-photo {
                right:3px;
+               transition: right 0.3s ease;
+               transition-delay: 0.8s; /* Wait for Ex to fade before sliding back */
             }
             .playerPhoto.photoVisible {
                display:block;
             }
             /* Move photos inward when clock is active to avoid extension icon overlap */
             #player1-photo.clockActive {
-               left:38px;
-               transition: left 0.3s ease;
+               left:32px;
+               transition-delay: 0s; /* No delay when sliding out */
             }
             #player2-photo.clockActive {
-               right:38px;
-               transition: right 0.3s ease;
+               right:32px;
+               transition-delay: 0s; /* No delay when sliding out */
             }
             #raceInfo {
                 background-image: linear-gradient(to right, grey, white);

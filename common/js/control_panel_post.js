@@ -177,8 +177,14 @@
 	if (localStorage.getItem("customLogo1") != null) {document.getElementById("l1Img").src = localStorage.getItem("customLogo1");} else { document.getElementById("l1Img").src = "./common/images/placeholder.png"; };
 	if (localStorage.getItem("customLogo2") != null) {document.getElementById("l2Img").src = localStorage.getItem("customLogo2");} else { document.getElementById("l2Img").src = "./common/images/placeholder.png"; };
 	if (localStorage.getItem("customLogo3") != null) {document.getElementById("l3Img").src = localStorage.getItem("customLogo3");} else { document.getElementById("l3Img").src = "./common/images/placeholder.png"; };
-	if (localStorage.getItem("customLogo0") != null) {document.getElementById("l0Img").src = localStorage.getItem("customLogo0");} else { document.getElementById("l0Img").src = "./common/images/placeholder.png"; };
-	if (localStorage.getItem("customLogo4") != null) {document.getElementById("l4Img").src = localStorage.getItem("customLogo4");} else { document.getElementById("l4Img").src = "./common/images/placeholder.png"; };
+	if (localStorage.getItem("customLogo0") != null) {
+		document.getElementById("l0Img").src = localStorage.getItem("customLogo0");
+		document.getElementById("l0Img").classList.add("has-image");
+	} else { document.getElementById("l0Img").src = "./common/images/placeholder.png"; };
+	if (localStorage.getItem("customLogo4") != null) {
+		document.getElementById("l4Img").src = localStorage.getItem("customLogo4");
+		document.getElementById("l4Img").classList.add("has-image");
+	} else { document.getElementById("l4Img").src = "./common/images/placeholder.png"; };
 
 	// Load player photos from localStorage
 	if (localStorage.getItem("player1_photo") != null) {document.getElementById("p1PhotoImg").src = localStorage.getItem("player1_photo");} else { document.getElementById("p1PhotoImg").src = "./common/images/placeholder.png"; };
