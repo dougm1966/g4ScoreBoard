@@ -526,12 +526,15 @@ class UI {
     [1, 2].forEach(player => {
       const photoElement = document.getElementById(DOM_IDS[`p${player}Photo`]);
       const photoData = localStorage.getItem(`player${player}_photo`);
+		const nameCell = document.getElementById(DOM_IDS[`p${player}Name`]);
 
       if (photoData && photoData !== '') {
         photoElement.src = photoData;
         photoElement.classList.add('photoVisible');
+			nameCell.classList.add('has-photo');
       } else {
         photoElement.classList.remove('photoVisible');
+			nameCell.classList.remove('has-photo');
       }
     });
   }
@@ -545,17 +548,23 @@ class UI {
     const p2Ext = document.getElementById(DOM_IDS.p2ExtIcon);
     const p1Photo = document.getElementById(DOM_IDS.p1Photo);
     const p2Photo = document.getElementById(DOM_IDS.p2Photo);
+		const p1Name = document.getElementById(DOM_IDS.p1Name);
+		const p2Name = document.getElementById(DOM_IDS.p2Name);
 
     if (useClock) {
       p1Ext.classList.replace('fadeOutElm', 'fadeInElm');
       p2Ext.classList.replace('fadeOutElm', 'fadeInElm');
       p1Photo.classList.add('clockActive');
       p2Photo.classList.add('clockActive');
+			p1Name.classList.add('clock-enabled');
+			p2Name.classList.add('clock-enabled');
     } else {
       p1Ext.classList.replace('fadeInElm', 'fadeOutElm');
       p2Ext.classList.replace('fadeInElm', 'fadeOutElm');
       p1Photo.classList.remove('clockActive');
       p2Photo.classList.remove('clockActive');
+			p1Name.classList.remove('clock-enabled');
+			p2Name.classList.remove('clock-enabled');
     }
   }
 
@@ -573,6 +582,7 @@ class UI {
    */
   showSalottoLogo() {
     document.getElementById(DOM_IDS.rightSponsorLogoImg).classList.replace('fadeOutElm', 'fadeInElm');
+		document.getElementById(DOM_IDS.p2Name).classList.add('has-right-sponsor-logo');
   }
 
   /**
@@ -580,6 +590,7 @@ class UI {
    */
   hideSalottoLogo() {
     document.getElementById(DOM_IDS.rightSponsorLogoImg).classList.replace('fadeInElm', 'fadeOutElm');
+		document.getElementById(DOM_IDS.p2Name).classList.remove('has-right-sponsor-logo');
   }
 
   /**
@@ -587,6 +598,7 @@ class UI {
    */
   showCustomLogo() {
     document.getElementById(DOM_IDS.leftSponsorLogoImg).classList.replace('fadeOutElm', 'fadeInElm');
+		document.getElementById(DOM_IDS.p1Name).classList.add('has-left-sponsor-logo');
   }
 
   /**
@@ -594,6 +606,7 @@ class UI {
    */
   hideCustomLogo() {
     document.getElementById(DOM_IDS.leftSponsorLogoImg).classList.replace('fadeInElm', 'fadeOutElm');
+		document.getElementById(DOM_IDS.p1Name).classList.remove('has-left-sponsor-logo');
   }
 
   /**
