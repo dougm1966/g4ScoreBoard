@@ -1,4 +1,4 @@
-# G4ScoreBoard Image Upload Analysis
+# PCPL ScoreBoard Image Upload Analysis
 
 ## Current Image Upload Locations & Storage
 

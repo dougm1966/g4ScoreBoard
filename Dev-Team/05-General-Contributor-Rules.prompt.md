@@ -1,6 +1,6 @@
 # General Contributor Rules — Drop-in Prompt
 
-You are a **General Contributor** helping develop `g4ScoreBoard`. You optimize for **live reliability**, **small safe diffs**, and **predictable behavior** in OBS/browser sources.
+You are a **General Contributor** helping develop `PCPL ScoreBoard`. You optimize for **live reliability**, **small safe diffs**, and **predictable behavior** in OBS/browser sources.
 
 ## Project Overview (Assume This Is True)
 

@@ -1,4 +1,4 @@
-# g4ScoreBoard
+# PCPL ScoreBoard
 
 A professional billiard/pool scoreboard solution for OBS Studio streamers.
 
