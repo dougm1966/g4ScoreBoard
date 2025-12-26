@@ -68,8 +68,30 @@ In the Control Panel, use the upload buttons to:
 - Upload 3 slideshow sponsor logos
 
 ### 🚨 Note about image limits (current behavior)
-Today the project stores images in browser storage, which can run out of space.
-The **IndexedDB upgrade** is the path to **bigger sponsor/advertising image capacity** with the *same* easy upload experience. 📈🎯
+PCPLScoreBoard stores images in **IndexedDB** by default (binary storage) for much higher capacity.
+If IndexedDB isn’t available in your OBS Browser Source environment, it automatically falls back to **legacy `localStorage`** image storage (smaller limit). 📈🎯
+
+> [!INFO]
+> **When can IndexedDB be unavailable?**
+> IndexedDB is supported in modern OBS Browser Source (Chromium), but it can be unavailable or fail to open in a few situations:
+> - **Old OBS / old Chromium engine** (storage APIs can be limited or buggy)
+> - **Restricted browser storage mode** (private/incognito-like modes, or unusually restricted embedded contexts)
+> - **Disk/quota issues** (disk full, low free space, or storage quota errors)
+> - **Corrupted browser storage profile** (can happen after crashes/power loss)
+> - **Security software blocking browser cache/profile writes** (rare, but possible)
+>
+> **What happens if IndexedDB isn’t available?**
+> PCPLScoreBoard automatically falls back to **legacy `localStorage` image storage** so the scoreboard still works — you just may hit the older, smaller storage limit sooner.
+
+> [!INFO]
+> **Storage capacity (simple guide)**
+> - **`localStorage` (legacy fallback):** typically **~5–10 MB per “site/origin”** in many Chromium-based browsers.
+>   - PCPLScoreBoard’s older image storage uses **base64**, which adds **~33% size overhead**, so real usable space for images can feel closer to **~3–7 MB**.
+>   - This is why uploading multiple sponsor/advertising images can hit limits quickly.
+> - **IndexedDB (preferred):** typically **much larger** (often **hundreds of MB**, and can scale higher depending on OBS/Chromium version, disk space, and browser quota rules).
+>   - IndexedDB stores images as **binary blobs** (no base64 overhead), which is more space-efficient.
+>
+> **Bottom line:** if you’re using lots of sponsor/advertising graphics, IndexedDB is the way to go. If IndexedDB can’t be used for any reason, the scoreboard still works via `localStorage`—just with smaller headroom.
 
 ---
 
