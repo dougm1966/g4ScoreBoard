@@ -605,20 +605,36 @@ class UI {
    * Load and display player photos
    */
   loadPlayerPhotos() {
-    [1, 2].forEach(player => {
-      const photoElement = document.getElementById(DOM_IDS[`p${player}Photo`]);
-      const photoData = localStorage.getItem(`player${player}_photo`);
-		const nameCell = document.getElementById(DOM_IDS[`p${player}Name`]);
+		(async () => {
+			for (const player of [1, 2]) {
+				const photoElement = document.getElementById(DOM_IDS[`p${player}Photo`]);
+				const nameCell = document.getElementById(DOM_IDS[`p${player}Name`]);
+				const key = `player${player}_photo`;
+				let url = '';
+				try {
+					if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+						if (window.PCPLImageDB.revokeObjectUrl) {
+							window.PCPLImageDB.revokeObjectUrl(key);
+						}
+						url = await window.PCPLImageDB.getObjectUrl(key);
+					}
+				} catch (err) {
+					url = '';
+				}
+				if (!url) {
+					url = localStorage.getItem(key) || '';
+				}
 
-      if (photoData && photoData !== '') {
-        photoElement.src = photoData;
-        photoElement.classList.add('photoVisible');
-			nameCell.classList.add('has-photo');
-      } else {
-        photoElement.classList.remove('photoVisible');
-			nameCell.classList.remove('has-photo');
-      }
-    });
+				if (url && url !== '') {
+					photoElement.src = url;
+					photoElement.classList.add('photoVisible');
+					nameCell.classList.add('has-photo');
+				} else {
+					photoElement.classList.remove('photoVisible');
+					nameCell.classList.remove('has-photo');
+				}
+			}
+		})();
   }
 
   /**
@@ -695,15 +711,28 @@ class UI {
    * Load logos from localStorage
    */
   loadLogos() {
-    const leftSponsorLogo = localStorage.getItem(STORAGE_KEYS.leftSponsorLogo);
-    const rightSponsorLogo = localStorage.getItem(STORAGE_KEYS.rightSponsorLogo);
-
-    if (leftSponsorLogo && leftSponsorLogo !== '') {
-      document.getElementById(DOM_IDS.leftSponsorLogoImg).src = leftSponsorLogo;
-    }
-    if (rightSponsorLogo && rightSponsorLogo !== '') {
-      document.getElementById(DOM_IDS.rightSponsorLogoImg).src = rightSponsorLogo;
-    }
+		(async () => {
+			for (const key of [STORAGE_KEYS.leftSponsorLogo, STORAGE_KEYS.rightSponsorLogo]) {
+				let url = '';
+				try {
+					if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+						if (window.PCPLImageDB.revokeObjectUrl) {
+							window.PCPLImageDB.revokeObjectUrl(key);
+						}
+						url = await window.PCPLImageDB.getObjectUrl(key);
+					}
+				} catch (err) {
+					url = '';
+				}
+				if (!url) {
+					url = localStorage.getItem(key) || '';
+				}
+				if (url && url !== '') {
+					const targetId = key === STORAGE_KEYS.leftSponsorLogo ? DOM_IDS.leftSponsorLogoImg : DOM_IDS.rightSponsorLogoImg;
+					document.getElementById(targetId).src = url;
+				}
+			}
+		})();
   }
 
   /**
@@ -713,11 +742,27 @@ class UI {
     const slideshowDiv = document.getElementById(DOM_IDS.logoSlideshow);
     slideshowDiv.classList.replace('fadeOutElm', 'fadeInElm');
 
-    [1, 2, 3].forEach(i => {
-      const logoData = localStorage.getItem(`customLogo${i}`);
-      const logoElement = document.getElementById(DOM_IDS[`customLogo${i}`]);
-      logoElement.src = logoData || './common/images/placeholder.png';
-    });
+		(async () => {
+			for (const i of [1, 2, 3]) {
+				const key = `customLogo${i}`;
+				const logoElement = document.getElementById(DOM_IDS[`customLogo${i}`]);
+				let url = '';
+				try {
+					if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+						if (window.PCPLImageDB.revokeObjectUrl) {
+							window.PCPLImageDB.revokeObjectUrl(key);
+						}
+						url = await window.PCPLImageDB.getObjectUrl(key);
+					}
+				} catch (err) {
+					url = '';
+				}
+				if (!url) {
+					url = localStorage.getItem(key) || '';
+				}
+				logoElement.src = url || './common/images/placeholder.png';
+			}
+		})();
 
     this._showSlides();
   }
@@ -1000,12 +1045,25 @@ class BrowserSource {
     this.ui.loadLogos();
     this.ui.loadPlayerPhotos();
 
-    // Load custom logos for slideshow
-    [1, 2, 3].forEach(i => {
-      const logoData = state[`customLogo${i}`];
-      const logoElement = document.getElementById(DOM_IDS[`customLogo${i}`]);
-      logoElement.src = logoData || './common/images/placeholder.png';
-    });
+    // Load custom logos for slideshow (prefer IndexedDB, fall back to localStorage)
+		(async () => {
+			for (const i of [1, 2, 3]) {
+				const key = `customLogo${i}`;
+				const logoElement = document.getElementById(DOM_IDS[`customLogo${i}`]);
+				let url = '';
+				try {
+					if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+						url = await window.PCPLImageDB.getObjectUrl(key);
+					}
+				} catch (err) {
+					url = '';
+				}
+				if (!url) {
+					url = state[key] || '';
+				}
+				logoElement.src = url || './common/images/placeholder.png';
+			}
+		})();
 
     // Show/hide sponsor logos
     if (state.showLeftSponsorLogo === 'yes') {
@@ -1023,8 +1081,7 @@ class BrowserSource {
 
     // Slideshow (kept for future advertiser module)
     if (state.slideShow === 'yes') {
-      const slideshowDiv = document.getElementById(DOM_IDS.logoSlideshow);
-      slideshowDiv.classList.replace('fadeOutElm', 'fadeInElm');
+      this.ui.startSlideshow();
     }
 
     // Style/scaling

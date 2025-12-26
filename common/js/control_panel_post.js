@@ -182,37 +182,86 @@
 				clockSetting()
 				}			
 
-	if (localStorage.getItem("customLogo1") != null) {document.getElementById("l1Img").src = localStorage.getItem("customLogo1");} else { document.getElementById("l1Img").src = "./common/images/placeholder.png"; };
-	if (localStorage.getItem("customLogo2") != null) {document.getElementById("l2Img").src = localStorage.getItem("customLogo2");} else { document.getElementById("l2Img").src = "./common/images/placeholder.png"; };
-	if (localStorage.getItem("customLogo3") != null) {document.getElementById("l3Img").src = localStorage.getItem("customLogo3");} else { document.getElementById("l3Img").src = "./common/images/placeholder.png"; };
-	if (localStorage.getItem("leftSponsorLogo") != null) {
-		document.getElementById("l0Img").src = localStorage.getItem("leftSponsorLogo");
-		document.getElementById("l0Img").classList.add("has-image");
-	} else { document.getElementById("l0Img").src = "./common/images/placeholder.png"; };
-	if (localStorage.getItem("rightSponsorLogo") != null) {
-		document.getElementById("l4Img").src = localStorage.getItem("rightSponsorLogo");
-		document.getElementById("l4Img").classList.add("has-image");
-	} else { document.getElementById("l4Img").src = "./common/images/placeholder.png"; };
+	(async function () {
+		async function migrateLegacyImageKey(key) {
+			try {
+				if (!(window.PCPLImageDB && window.PCPLImageDB.has && window.PCPLImageDB.setFromDataUrl)) return;
+				const legacy = localStorage.getItem(key);
+				if (!legacy) return;
+				const exists = await window.PCPLImageDB.has(key);
+				if (exists) return;
+				await window.PCPLImageDB.setFromDataUrl(key, legacy);
+			} catch (err) {
+				// ignore migration failures; fallback path remains localStorage
+			}
+		}
 
-	// Load player photos from localStorage
-	if (localStorage.getItem("player1_photo") != null) {
-		// Show image and hide text for main button display
-		document.getElementById("p1PhotoDisplay").src = localStorage.getItem("player1_photo");
-		document.getElementById("p1PhotoDisplay").style.display = "block";
-		document.getElementById("p1PhotoDelete").style.display = "block";
-		document.getElementById("p1PhotoText").style.display = "none";
-	} else { 
-		document.getElementById("p1PhotoDisplay").src = "./common/images/placeholder.png"; 
-	};
-	if (localStorage.getItem("player2_photo") != null) {
-		// Show image and hide text for main button display
-		document.getElementById("p2PhotoDisplay").src = localStorage.getItem("player2_photo");
-		document.getElementById("p2PhotoDisplay").style.display = "block";
-		document.getElementById("p2PhotoDelete").style.display = "block";
-		document.getElementById("p2PhotoText").style.display = "none";
-	} else { 
-		document.getElementById("p2PhotoDisplay").src = "./common/images/placeholder.png"; 
-	};
+		for (const key of [
+			"leftSponsorLogo",
+			"rightSponsorLogo",
+			"customLogo1",
+			"customLogo2",
+			"customLogo3",
+			"player1_photo",
+			"player2_photo"
+		]) {
+			await migrateLegacyImageKey(key);
+		}
+
+		async function setImgFromKey(imgId, key, placeholder) {
+			let url = "";
+			try {
+				if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+					url = await window.PCPLImageDB.getObjectUrl(key);
+				}
+			} catch (err) {
+				url = "";
+			}
+			if (!url) {
+				const legacy = localStorage.getItem(key);
+				url = legacy || "";
+			}
+			document.getElementById(imgId).src = url || placeholder;
+			return !!url;
+		}
+
+		await setImgFromKey("l1Img", "customLogo1", "./common/images/placeholder.png");
+		await setImgFromKey("l2Img", "customLogo2", "./common/images/placeholder.png");
+		await setImgFromKey("l3Img", "customLogo3", "./common/images/placeholder.png");
+		if (await setImgFromKey("l0Img", "leftSponsorLogo", "./common/images/placeholder.png")) {
+			document.getElementById("l0Img").classList.add("has-image");
+		}
+		if (await setImgFromKey("l4Img", "rightSponsorLogo", "./common/images/placeholder.png")) {
+			document.getElementById("l4Img").classList.add("has-image");
+		}
+
+		async function setPlayerPhoto(player) {
+			const key = "player" + player + "_photo";
+			let url = "";
+			try {
+				if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+					url = await window.PCPLImageDB.getObjectUrl(key);
+				}
+			} catch (err) {
+				url = "";
+			}
+			if (!url) {
+				const legacy = localStorage.getItem(key);
+				url = legacy || "";
+			}
+			if (url) {
+				document.getElementById("p" + player + "PhotoDisplay").src = url;
+				document.getElementById("p" + player + "PhotoDisplay").style.display = "block";
+				document.getElementById("p" + player + "PhotoDelete").style.display = "block";
+				document.getElementById("p" + player + "PhotoText").style.display = "none";
+			} else {
+				document.getElementById("p" + player + "PhotoDisplay").src = "./common/images/placeholder.png";
+			}
+		}
+
+		await setPlayerPhoto(1);
+		await setPlayerPhoto(2);
+	})();
 
 	if (localStorage.getItem("slideShow") == "yes") { document.getElementById("logoSlideshowChk").checked = true; logoSlideshow(); };
 	if (localStorage.getItem("obsTheme") == "28") { document.getElementById("obsTheme").value = "28"; }

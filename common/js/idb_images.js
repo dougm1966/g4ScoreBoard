@@ -63,6 +63,39 @@
 			this._revokeUrl(key);
 		}
 
+		async setFromDataUrl(key, dataUrl) {
+			if (!key) throw new Error('setFromDataUrl: key is required');
+			if (!dataUrl) throw new Error('setFromDataUrl: dataUrl is required');
+
+			const res = await fetch(dataUrl);
+			const blob = await res.blob();
+			const db = await this._open();
+
+			const record = {
+				key,
+				blob,
+				mime: blob.type || 'application/octet-stream',
+				name: '',
+				size: blob.size || 0,
+				updatedAt: Date.now()
+			};
+
+			await new Promise((resolve, reject) => {
+				const tx = db.transaction(STORE_NAME, 'readwrite');
+				tx.onabort = () => reject(tx.error);
+				tx.onerror = () => reject(tx.error);
+				tx.oncomplete = () => resolve();
+				tx.objectStore(STORE_NAME).put(record);
+			});
+
+			this._revokeUrl(key);
+		}
+
+		async has(key) {
+			const rec = await this.getRecord(key);
+			return !!(rec && rec.blob);
+		}
+
 		async delete(key) {
 			if (!key) throw new Error('delete: key is required');
 			const db = await this._open();
@@ -104,6 +137,11 @@
 			const url = URL.createObjectURL(record.blob);
 			this._urlCache.set(key, url);
 			return url;
+		}
+
+		revokeObjectUrl(key) {
+			if (!key) return;
+			this._revokeUrl(key);
 		}
 
 		_revokeUrl(key) {

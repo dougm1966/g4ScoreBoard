@@ -472,10 +472,26 @@ class UI {
    * Load logo from localStorage (browser_compact uses customImage)
    */
   loadLogo() {
-    const customImage = localStorage.getItem('customImage');
-    if (customImage && customImage !== '') {
-      document.getElementById(DOM_IDS.g4Logo).src = customImage;
-    }
+		(async () => {
+			const key = STORAGE_KEYS.customImage;
+			let url = '';
+			try {
+				if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+					if (window.PCPLImageDB.revokeObjectUrl) {
+						window.PCPLImageDB.revokeObjectUrl(key);
+					}
+					url = await window.PCPLImageDB.getObjectUrl(key);
+				}
+			} catch (err) {
+				url = '';
+			}
+			if (!url) {
+				url = localStorage.getItem(key) || '';
+			}
+			if (url && url !== '') {
+				document.getElementById(DOM_IDS.g4Logo).src = url;
+			}
+		})();
   }
 
   /**
@@ -491,11 +507,27 @@ class UI {
     g4Logo.classList.replace('fadeOutElm', 'logoSlide');
     setTimeout(() => g4Logo.classList.add('fade'), 500);
 
-    [1, 2, 3].forEach(i => {
-      const logoData = localStorage.getItem(`customLogo${i}`);
-      const logoElement = document.getElementById(DOM_IDS[`customLogo${i}`]);
-      logoElement.src = logoData || './common/images/placeholder.png';
-    });
+		(async () => {
+			for (const i of [1, 2, 3]) {
+				const key = `customLogo${i}`;
+				const logoElement = document.getElementById(DOM_IDS[`customLogo${i}`]);
+				let url = '';
+				try {
+					if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+						if (window.PCPLImageDB.revokeObjectUrl) {
+							window.PCPLImageDB.revokeObjectUrl(key);
+						}
+						url = await window.PCPLImageDB.getObjectUrl(key);
+					}
+				} catch (err) {
+					url = '';
+				}
+				if (!url) {
+					url = localStorage.getItem(key) || '';
+				}
+				logoElement.src = url || './common/images/placeholder.png';
+			}
+		})();
 
     this._showSlides();
   }
@@ -690,21 +722,28 @@ class BrowserCompact {
   _initialize() {
     const state = Storage.loadInitialState();
 
-    // Load slideshow logos
-    [1, 2, 3].forEach(i => {
-      const logoData = state[`customLogo${i}`];
-      const logoElement = document.getElementById(DOM_IDS[`customLogo${i}`]);
-      if (logoData) {
-        logoElement.src = logoData;
-      } else {
-        logoElement.src = './common/images/placeholder.png';
-      }
-    });
+		// Load slideshow logos (prefer IndexedDB, fall back to localStorage)
+		(async () => {
+			for (const i of [1, 2, 3]) {
+				const key = `customLogo${i}`;
+				const logoElement = document.getElementById(DOM_IDS[`customLogo${i}`]);
+				let url = '';
+				try {
+					if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+						url = await window.PCPLImageDB.getObjectUrl(key);
+					}
+				} catch (err) {
+					url = '';
+				}
+				if (!url) {
+					url = state[`customLogo${i}`] || '';
+				}
+				logoElement.src = url || './common/images/placeholder.png';
+			}
+		})();
 
-    // Load custom logo (browser_compact uses customImage)
-    if (state.customImage && state.customImage !== '') {
-      document.getElementById(DOM_IDS.g4Logo).src = state.customImage;
-    }
+		// Load custom logo (browser_compact uses customImage)
+		this.ui.loadLogo();
 
     // Load scores
     document.getElementById(DOM_IDS.p1Score).innerHTML = state.p1Score;
