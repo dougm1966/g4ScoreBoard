@@ -16,6 +16,8 @@
 	function getDefaultConfig() {
 		return {
 			showFrameArt: false,
+			frameBgColor: '#000000',
+			frameBgAlpha: 0,
 			top: [
 				{ key: 'ad_top_1', startCol: 1, colSpan: 1 },
 				{ key: 'ad_top_2', startCol: 2, colSpan: 1 },
@@ -35,6 +37,33 @@
 				{ key: 'ad_right_3', startRow: 3, rowSpan: 1 }
 			]
 		};
+	}
+
+	function normalizeHexColor(value, fallback) {
+		if (typeof value !== 'string') return fallback;
+		const v = value.trim();
+		if (/^#[0-9a-fA-F]{6}$/.test(v)) return v.toLowerCase();
+		if (/^#[0-9a-fA-F]{3}$/.test(v)) {
+			const r = v[1];
+			const g = v[2];
+			const b = v[3];
+			return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+		}
+		return fallback;
+	}
+
+	function clampInt(value, min, max, fallback) {
+		const n = Number(value);
+		if (!Number.isFinite(n)) return fallback;
+		return Math.max(min, Math.min(max, Math.round(n)));
+	}
+
+	function hexToRgb(hex) {
+		const h = normalizeHexColor(hex, '#000000');
+		const r = parseInt(h.slice(1, 3), 16);
+		const g = parseInt(h.slice(3, 5), 16);
+		const b = parseInt(h.slice(5, 7), 16);
+		return { r, g, b };
 	}
 
 	function loadConfig() {
@@ -163,6 +192,15 @@
 	async function renderAll() {
 		const cfg = loadConfig();
 		document.body.classList.toggle('frame-art-on', !!cfg.showFrameArt);
+
+		const root = document.getElementById('frameRoot');
+		if (root) {
+			const { r, g, b } = hexToRgb(cfg.frameBgColor);
+			const alphaPct = clampInt(cfg.frameBgAlpha, 0, 100, 0);
+			const a = alphaPct / 100;
+			root.style.background = a > 0 ? `rgba(${r}, ${g}, ${b}, ${a})` : 'transparent';
+		}
+
 		await renderTop(cfg.top);
 		await renderSide('adsLeft', cfg.left);
 		await renderSide('adsRight', cfg.right);

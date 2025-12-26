@@ -43,6 +43,17 @@
 			align-items: center;
 		}
 
+		.ads-row--blocked {
+			opacity: 0.45;
+			filter: grayscale(1);
+		}
+
+		.ads-row--blocked .btn,
+		.ads-row--blocked input,
+		.ads-row--blocked select {
+			pointer-events: none;
+		}
+
 		.ads-span {
 			width: 54px;
 		}
@@ -112,10 +123,18 @@
 			<div class="section-card__title">Advertising</div>
 
 			<div class="checkbox-row">
-				<label class="checkbox-label">
-					<input type="checkbox" class="smallSize" id="adsFrameArtChk" onchange="adsToggleFrameArt()">
-					<span>Frame Art</span>
-				</label>
+				<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+					<label class="checkbox-label" style="margin:0;">
+						<input type="checkbox" class="smallSize" id="adsFrameArtChk" onchange="adsToggleFrameArt()">
+						<span>Frame Art</span>
+					</label>
+					<label class="checkbox-label" style="margin:0; display:flex; align-items:center; gap:8px;">
+						<span>Background</span>
+						<input type="color" id="adsFrameBgColor" value="#000000" oninput="adsSetFrameBgColor(this.value)" style="width:40px; height:24px; padding:0; border:none; background:transparent;">
+						<input type="range" id="adsFrameBgAlpha" min="0" max="100" step="1" value="0" oninput="adsSetFrameBgAlpha(this.value)" style="width:140px;">
+						<span id="adsFrameBgAlphaLabel" style="min-width:44px; text-align:right;">0%</span>
+					</label>
+				</div>
 			</div>
 
 			<div class="grid-section" style="grid-template-columns: 1fr 1fr; gap: var(--grid-gap);">

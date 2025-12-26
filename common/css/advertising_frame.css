@@ -63,6 +63,7 @@ body {
 	position: relative;
 	overflow: hidden;
 	background: transparent;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
  .ad-tile--framed {
@@ -102,7 +103,6 @@ body.frame-art-on #frameRoot::before {
 	pointer-events: none;
 	background:
 		linear-gradient(#6b21a8, #6b21a8) top / 100% 125px no-repeat,
-		linear-gradient(#6b21a8, #6b21a8) bottom / 100% 125px no-repeat,
 		linear-gradient(#6b21a8, #6b21a8) left / 125px 100% no-repeat,
 		linear-gradient(#6b21a8, #6b21a8) right / 125px 100% no-repeat;
 	opacity: 0.85;

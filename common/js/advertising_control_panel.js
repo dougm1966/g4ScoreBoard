@@ -19,6 +19,8 @@ function adsSafeParseJson(value, fallback) {
 function adsGetDefaultConfig() {
 	return {
 		showFrameArt: false,
+		frameBgColor: '#000000',
+		frameBgAlpha: 0,
 		top: [
 			{ key: 'ad_top_1', startCol: 1, colSpan: 1 },
 			{ key: 'ad_top_2', startCol: 2, colSpan: 1 },
@@ -38,6 +40,44 @@ function adsGetDefaultConfig() {
 			{ key: 'ad_right_3', startRow: 3, rowSpan: 1 }
 		]
 	};
+}
+
+function adsClampInt(value, min, max, fallback) {
+	const n = Number(value);
+	if (!Number.isFinite(n)) return fallback;
+	return Math.max(min, Math.min(max, Math.round(n)));
+}
+
+function adsNormalizeHexColor(value, fallback) {
+	if (typeof value !== 'string') return fallback;
+	const v = value.trim();
+	if (/^#[0-9a-fA-F]{6}$/.test(v)) return v.toLowerCase();
+	if (/^#[0-9a-fA-F]{3}$/.test(v)) {
+		const r = v[1];
+		const g = v[2];
+		const b = v[3];
+		return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+	}
+	return fallback;
+}
+
+function adsSetFrameBgColor(color) {
+	const cfg = adsLoadConfig();
+	cfg.frameBgColor = adsNormalizeHexColor(color, '#000000');
+	adsSaveConfig(cfg);
+	adsSyncEditor(cfg);
+	adsRefresh();
+}
+
+function adsSetFrameBgAlpha(value) {
+	const cfg = adsLoadConfig();
+	const alphaVal = adsClampInt(value, 0, 100, 0);
+	cfg.frameBgAlpha = alphaVal;
+	adsSaveConfig(cfg);
+	adsSyncEditor(cfg);
+	const bgAlphaLabel = document.getElementById('adsFrameBgAlphaLabel');
+	if (bgAlphaLabel) bgAlphaLabel.textContent = `${alphaVal}%`;
+	adsRefresh();
 }
 
 function adsLoadConfig() {
@@ -95,6 +135,33 @@ function adsUpdateDims(region, index, span) {
 	if (el) el.textContent = adsGetOptimalDims(region, span);
 }
 
+function adsPlacementHasContentSync(placement) {
+	if (!placement) return false;
+	const title = typeof placement.title === 'string' ? placement.title.trim() : '';
+	if (title) return true;
+	if (placement.hasImage === true) return true;
+	try {
+		return !!localStorage.getItem(placement.key);
+	} catch {
+		return false;
+	}
+}
+
+function adsSetRowBlocked(region, idx, blocked) {
+	const row = document.querySelector(`.ads-row[data-region="${region}"][data-index="${idx}"]`);
+	if (row) row.classList.toggle('ads-row--blocked', !!blocked);
+
+	const prefix = adsIdPrefix(region);
+	const spanEl = document.getElementById(`${prefix}${idx}Span`);
+	if (spanEl) spanEl.disabled = !!blocked;
+	const frameEl = document.getElementById(`${prefix}${idx}Frame`);
+	if (frameEl) frameEl.disabled = !!blocked;
+	const showEl = document.getElementById(`${prefix}${idx}Show`);
+	if (showEl) showEl.disabled = !!blocked;
+	const titleEl = document.getElementById(`${prefix}${idx}Title`);
+	if (titleEl) titleEl.disabled = !!blocked;
+}
+
 function adsGetSpanForPlacement(region, placement) {
 	if (!placement) return 1;
 	// Always read user intent first, then fall back to stored values
@@ -107,54 +174,104 @@ function adsGetSpanForPlacement(region, placement) {
 function adsNormalizePlacementPositions(cfg) {
 	// Pack placements in order so spans don't overlap.
 	// If a placement would overflow the grid, it is moved off-grid (start = 99) so it won't display.
-	// IMPORTANT: We preserve user intent (span) and only set display positions.
 	const top = Array.isArray(cfg.top) ? cfg.top : [];
 	const left = Array.isArray(cfg.left) ? cfg.left : [];
 	const right = Array.isArray(cfg.right) ? cfg.right : [];
 
-	let col = 1;
+	// Anchored layout:
+	// - Top ads are anchored to their index (T1 starts at col 1, T2 at col 2, ...)
+	// - Side ads are anchored to their index (L1/R1 start at row 1, L2/R2 at row 2, ...)
+	// Spans expand right (top) or down (sides).
+	// If an anchor cell is already covered by an earlier span, that slot is moved off-grid (start = 99).
+
+	const topCovered = [false, false, false, false, false, false, false];
 	for (let i = 1; i <= 6; i++) {
 		const p = adsEnsurePlacement(cfg, 'top', i);
 		const span = adsGetSpanForPlacement('top', p);
-		if (col > 6) {
+		p.userColSpan = span;
+		const startCol = i;
+		const isShown = !(p.show === false || p.enabled === false || p.hidden === true);
+		const hasContent = isShown && adsPlacementHasContentSync(p);
+		const renderSpan = Math.min(span, 6 - startCol + 1);
+		p.colSpan = renderSpan;
+		p.blocked = false;
+		if (isShown && topCovered[startCol]) {
+			p.startCol = 99;
+			p.blocked = true;
+			continue;
+		}
+		if (!hasContent) {
 			p.startCol = 99;
 			continue;
 		}
-		p.startCol = col;
-		// Store user intent separately from rendered span
-		p.userColSpan = span;
-		p.colSpan = Math.min(span, 6 - col + 1);
-		col += p.colSpan;
+		if (!isShown) {
+			p.startCol = startCol;
+			continue;
+		}
+		p.startCol = startCol;
+		for (let c = startCol; c < startCol + renderSpan; c++) {
+			topCovered[c] = true;
+		}
 	}
 
-	let row = 1;
+	const leftCovered = [false, false, false, false];
 	for (let i = 1; i <= 3; i++) {
 		const p = adsEnsurePlacement(cfg, 'left', i);
 		const span = adsGetSpanForPlacement('left', p);
-		if (row > 3) {
+		p.userRowSpan = span;
+		const startRow = i;
+		const isShown = !(p.show === false || p.enabled === false || p.hidden === true);
+		const hasContent = isShown && adsPlacementHasContentSync(p);
+		const renderSpan = Math.min(span, 3 - startRow + 1);
+		p.rowSpan = renderSpan;
+		p.blocked = false;
+		if (isShown && leftCovered[startRow]) {
+			p.startRow = 99;
+			p.blocked = true;
+			continue;
+		}
+		if (!hasContent) {
 			p.startRow = 99;
 			continue;
 		}
-		p.startRow = row;
-		// Store user intent separately from rendered span
-		p.userRowSpan = span;
-		p.rowSpan = Math.min(span, 3 - row + 1);
-		row += p.rowSpan;
+		if (!isShown) {
+			p.startRow = startRow;
+			continue;
+		}
+		p.startRow = startRow;
+		for (let r = startRow; r < startRow + renderSpan; r++) {
+			leftCovered[r] = true;
+		}
 	}
 
-	row = 1;
+	const rightCovered = [false, false, false, false];
 	for (let i = 1; i <= 3; i++) {
 		const p = adsEnsurePlacement(cfg, 'right', i);
 		const span = adsGetSpanForPlacement('right', p);
-		if (row > 3) {
+		p.userRowSpan = span;
+		const startRow = i;
+		const isShown = !(p.show === false || p.enabled === false || p.hidden === true);
+		const hasContent = isShown && adsPlacementHasContentSync(p);
+		const renderSpan = Math.min(span, 3 - startRow + 1);
+		p.rowSpan = renderSpan;
+		p.blocked = false;
+		if (isShown && rightCovered[startRow]) {
+			p.startRow = 99;
+			p.blocked = true;
+			continue;
+		}
+		if (!hasContent) {
 			p.startRow = 99;
 			continue;
 		}
-		p.startRow = row;
-		// Store user intent separately from rendered span
-		p.userRowSpan = span;
-		p.rowSpan = Math.min(span, 3 - row + 1);
-		row += p.rowSpan;
+		if (!isShown) {
+			p.startRow = startRow;
+			continue;
+		}
+		p.startRow = startRow;
+		for (let r = startRow; r < startRow + renderSpan; r++) {
+			rightCovered[r] = true;
+		}
 	}
 
 	// Keep arrays stable for any advanced edits
@@ -177,16 +294,49 @@ function adsSetSpan(region, index, value) {
 	}
 	adsNormalizePlacementPositions(cfg);
 	adsSaveConfig(cfg);
+	adsApplyConfigToBasicControls(cfg);
 	adsSyncEditor(cfg);
 	adsUpdateDims(region, index, span);
 	adsRefresh();
+}
+
+async function adsHydrateHasImageFlags(cfg) {
+	const regions = [
+		{ region: 'top', count: 6 },
+		{ region: 'left', count: 3 },
+		{ region: 'right', count: 3 }
+	];
+	for (const { region, count } of regions) {
+		for (let i = 1; i <= count; i++) {
+			const p = adsEnsurePlacement(cfg, region, i);
+			const key = p.key || adsKey(region, i);
+			let has = false;
+			try {
+				if (window.PCPLImageDB && window.PCPLImageDB.has) {
+					has = await window.PCPLImageDB.has(key);
+				}
+			} catch {
+				has = false;
+			}
+			if (!has) {
+				try {
+					has = !!localStorage.getItem(key);
+				} catch {
+					has = false;
+				}
+			}
+			p.hasImage = !!has;
+		}
+	}
 }
 
 function adsSetFrame(region, index, checked) {
 	const cfg = adsLoadConfig();
 	const p = adsEnsurePlacement(cfg, region, Number(index));
 	p.frame = !!checked;
+	adsNormalizePlacementPositions(cfg);
 	adsSaveConfig(cfg);
+	adsApplyConfigToBasicControls(cfg);
 	adsSyncEditor(cfg);
 	adsRefresh();
 }
@@ -195,7 +345,9 @@ function adsSetShow(region, index, checked) {
 	const cfg = adsLoadConfig();
 	const p = adsEnsurePlacement(cfg, region, Number(index));
 	p.show = !!checked;
+	adsNormalizePlacementPositions(cfg);
 	adsSaveConfig(cfg);
+	adsApplyConfigToBasicControls(cfg);
 	adsSyncEditor(cfg);
 	adsRefresh();
 }
@@ -206,7 +358,9 @@ function adsSetTitle(region, index, title) {
 	const t = typeof title === 'string' ? title.trim() : '';
 	if (t) p.title = t;
 	else delete p.title;
+	adsNormalizePlacementPositions(cfg);
 	adsSaveConfig(cfg);
+	adsApplyConfigToBasicControls(cfg);
 	adsSyncEditor(cfg);
 	adsRefresh();
 }
@@ -215,9 +369,20 @@ function adsApplyConfigToBasicControls(cfg) {
 	const frameArtChk = document.getElementById('adsFrameArtChk');
 	if (frameArtChk) frameArtChk.checked = !!cfg.showFrameArt;
 
+	const bgColor = document.getElementById('adsFrameBgColor');
+	if (bgColor) {
+		bgColor.value = adsNormalizeHexColor(cfg.frameBgColor, '#000000');
+	}
+	const bgAlpha = document.getElementById('adsFrameBgAlpha');
+	const bgAlphaLabel = document.getElementById('adsFrameBgAlphaLabel');
+	const alphaVal = adsClampInt(cfg.frameBgAlpha, 0, 100, 0);
+	if (bgAlpha) bgAlpha.value = String(alphaVal);
+	if (bgAlphaLabel) bgAlphaLabel.textContent = `${alphaVal}%`;
+
 	function applyRow(region, idx) {
 		const p = adsEnsurePlacement(cfg, region, idx);
 		const prefix = adsIdPrefix(region);
+		adsSetRowBlocked(region, idx, !!p.blocked);
 		const spanEl = document.getElementById(`${prefix}${idx}Span`);
 		if (spanEl) {
 			// Always read user intent for UI
@@ -267,6 +432,17 @@ async function adsSetPreview(imgId, key) {
 
 async function adsDeleteAd(region, index) {
 	const key = adsKey(region, index);
+	try {
+		const cfg = adsLoadConfig();
+		const p = adsEnsurePlacement(cfg, region, Number(index));
+		p.hasImage = false;
+		adsNormalizePlacementPositions(cfg);
+		adsSaveConfig(cfg);
+		adsApplyConfigToBasicControls(cfg);
+		adsSyncEditor(cfg);
+	} catch {
+		// ignore
+	}
 	try {
 		if (window.PCPLImageDB && window.PCPLImageDB.delete) {
 			await window.PCPLImageDB.delete(key);
@@ -356,6 +532,17 @@ async function adPost(input, region, index) {
 	if (!(input && input.files && input.files[0])) return;
 	const file = input.files[0];
 	const key = adsKey(region, index);
+	try {
+		const cfg = adsLoadConfig();
+		const p = adsEnsurePlacement(cfg, region, Number(index));
+		p.hasImage = true;
+		adsNormalizePlacementPositions(cfg);
+		adsSaveConfig(cfg);
+		adsApplyConfigToBasicControls(cfg);
+		adsSyncEditor(cfg);
+	} catch {
+		// ignore
+	}
 
 	let storedInIdb = false;
 	try {
@@ -386,8 +573,10 @@ async function adPost(input, region, index) {
 
 async function adsInit() {
 	const cfg = adsLoadConfig();
+	await adsHydrateHasImageFlags(cfg);
 	adsNormalizePlacementPositions(cfg);
 	adsSaveConfig(cfg);
 	adsLoadIntoEditor();
+	adsApplyConfigToBasicControls(cfg);
 	await adsRefreshPreviews();
 }
