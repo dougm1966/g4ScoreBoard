@@ -85,25 +85,42 @@ var clockIsPaused = false;
 					
 			function logoPost(input,xL) {
 				if (input.files && input.files[0]) {
-				const imgPath = document.getElementById('FileUploadL'+xL).files[0];
-				const reader = new FileReader();
-					reader.readAsDataURL(input.files[0]);
-					reader.addEventListener("load", function () {
-					// convert image file to base64 string and save to localStorage
+					const file = input.files[0];
+					const reader = new FileReader();
+					
+					// Determine file path and storage key based on xL
+					let filePath, storageKey;
+					if (xL == 0) {
+						filePath = "./media/images/sponsors/left_sponsor_logo.png";
+						storageKey = "leftSponsorLogo";
+					}
+					else if (xL == 4) {
+						filePath = "./media/images/sponsors/right_sponsor_logo.png";
+						storageKey = "rightSponsorLogo";
+					}
+					else {
+						filePath = "./media/images/slideshow/custom_logo_" + xL + ".png";
+						storageKey = "customLogo" + xL;
+					}
+					
+					// For now, store file path in localStorage (tiny string vs huge base64)
+					// TODO: Implement actual file saving to filesystem
 					try {
-						if (xL == 0) { localStorage.setItem("leftSponsorLogo", reader.result); }
-						else if (xL == 4) { localStorage.setItem("rightSponsorLogo", reader.result); }
-						else { localStorage.setItem("customLogo"+xL, reader.result); }
+						localStorage.setItem(storageKey, filePath);
+						console.log("Logo path saved:", filePath);
+						
+						// Update preview immediately
+						document.getElementById("l"+xL+"Img").src = filePath;
+						
+						// Add has-image class to show inline preview for left/right logos
+						if (xL == 0 || xL == 4) {
+							document.getElementById("l"+xL+"Img").classList.add("has-image");
+						}
 					}
-					catch(err) { alert("the selected image exceedes the maximium file size");}
-					if (xL == 0) { document.getElementById("l"+xL+"Img").src = localStorage.getItem("leftSponsorLogo"); }
-					else if (xL == 4) { document.getElementById("l"+xL+"Img").src = localStorage.getItem("rightSponsorLogo"); }
-					else { document.getElementById("l"+xL+"Img").src = localStorage.getItem("customLogo"+xL); }
-					// Add has-image class to show inline preview for left/right logos
-					if (xL == 0 || xL == 4) {
-						document.getElementById("l"+xL+"Img").classList.add("has-image");
+					catch(err) { 
+						console.error("Error saving logo path:", err);
+						alert("Error saving logo path");
 					}
-					}, false);
 					if (document.getElementById("logoSlideshowChk").checked == true) {setTimeout(slideOther, 50); };
 					if (xL == 0) {
 						setTimeout(logoOther, 50);
@@ -130,23 +147,31 @@ var clockIsPaused = false;
 
 			function playerPhotoPost(input, player) {
 				if (input.files && input.files[0]) {
-					const reader = new FileReader();
-					reader.readAsDataURL(input.files[0]);
-					reader.addEventListener("load", function () {
-						// convert image file to base64 string and save to localStorage
-						try {
-							localStorage.setItem("player" + player + "_photo", reader.result);
-						} catch(err) {
-							alert("the selected image exceedes the maximium file size");
-						}
+					const file = input.files[0];
+					
+					// Determine file path and storage key
+					const filePath = "./media/images/players/player" + player + "_photo.png";
+					const storageKey = "player" + player + "_photo";
+					
+					// Store file path in localStorage (tiny string vs huge base64)
+					// TODO: Implement actual file saving to filesystem
+					try {
+						localStorage.setItem(storageKey, filePath);
+						console.log("Player photo path saved:", filePath);
+						
 						// Update main button display - show image, hide text, show delete button
-						document.getElementById("p" + player + "PhotoDisplay").src = localStorage.getItem("player" + player + "_photo");
+						document.getElementById("p" + player + "PhotoDisplay").src = filePath;
 						document.getElementById("p" + player + "PhotoDisplay").style.display = "block";
 						document.getElementById("p" + player + "PhotoDelete").style.display = "block";
 						document.getElementById("p" + player + "PhotoText").style.display = "none";
+						
 						// broadcast photo update to browser source
 						setTimeout(function() { bc.postMessage({clockDisplay:'postPlayerPhoto'}); }, 50);
-					}, false);
+					}
+					catch(err) {
+						console.error("Error saving player photo path:", err);
+						alert("Error saving player photo path");
+					}
 				}
 			}
 
