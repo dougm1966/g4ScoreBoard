@@ -285,21 +285,28 @@
 		}
 	
 	function styleChange(n) {
-		const html = document.documentElement;
-		// Remove all scale classes
-		html.classList.remove('scale-100', 'scale-125', 'scale-150', 'scale-200');
-
-		// Add the appropriate scale class
 		if (n == 1) {
-			// No class needed for 100% - it's the default
-		}
+			document.styleSheets[0].disabled = false;
+			document.styleSheets[1].disabled = true;
+			document.styleSheets[2].disabled = true;
+			document.styleSheets[3].disabled = true;
+			}
 		if (n == 2) {
-			html.classList.add('scale-125');
-		}
+			document.styleSheets[0].disabled = true;
+			document.styleSheets[1].disabled = false;
+			document.styleSheets[2].disabled = true;
+			document.styleSheets[3].disabled = true;
+			}
 		if (n == 3) {
-			html.classList.add('scale-150');
-		}
+			document.styleSheets[0].disabled = true;
+			document.styleSheets[1].disabled = true;
+			document.styleSheets[2].disabled = false;
+			document.styleSheets[3].disabled = true;
+			}
 		if (n == 4) {
-			html.classList.add('scale-200');
-		}
+			document.styleSheets[0].disabled = true;
+			document.styleSheets[1].disabled = true;
+			document.styleSheets[2].disabled = true;
+			document.styleSheets[3].disabled = false;
+			}
 	}

@@ -1,0 +1,378 @@
+/*
+  g4ScoreBoard Browser Source - Unified CSS
+  All scales in one modern file using CSS custom properties
+  Copyright 2022-2025 Norman Gholson IV
+*/
+
+/* ===== Scale Variables ===== */
+/* Default: 100% scale */
+:root {
+	--scale-zoom: 1.00;
+	--scale-transform: scale(1.00, 1.00);
+	--logo-left: 1025px;
+	--logo-right: 1025px;
+	--race-left: 155px;
+	--wager-right: 145px;
+	--slides-left: 1121px;
+	--player-name-font-size: 15pt;
+	--ext-padding: 6px;
+}
+
+/* 125% Scale */
+html.scale-125,
+body.scale-125 {
+	--scale-zoom: 1.25;
+	--scale-transform: scale(1.25, 1.25);
+	--logo-left: 823px;
+	--logo-right: 823px;
+	--race-left: 130px;
+	--wager-right: 120px;
+	--slides-left: 900px;
+	--ext-padding: 6px;
+}
+
+/* 150% Scale */
+html.scale-150,
+body.scale-150 {
+	--scale-zoom: 1.50;
+	--scale-transform: scale(1.50, 1.50);
+	--logo-left: 690px;
+	--logo-right: 690px;
+	--race-left: 110px;
+	--wager-right: 100px;
+	--slides-left: 754px;
+	--ext-padding: 5.55px;
+}
+
+/* 200% Scale (XL) */
+html.scale-200,
+body.scale-200 {
+	--scale-zoom: 2.00;
+	--scale-transform: scale(2.00, 2.00);
+	--logo-left: 525px;
+	--logo-right: 525px;
+	--race-left: 90px;
+	--wager-right: 80px;
+	--slides-left: 573px;
+	--slides-bottom: 13.75px;
+	--player-name-font-size: 12pt;
+	--ext-padding: 5.55px;
+}
+
+/* ===== Base Styles ===== */
+body {
+	background-color: rgba(0, 0, 0, 0);
+	margin: 0px auto;
+	overflow: hidden;
+	-moz-transform: var(--scale-transform);
+	zoom: var(--scale-zoom);
+	font-family: tahoma;
+}
+
+#scoreBoardDiv {
+	position: absolute;
+	bottom: 5px;
+	width: 90%;
+	left: 5%;
+	padding: 5px;
+}
+
+td {
+	border: 2px solid black;
+	border-radius: 10px;
+	vertical-align: middle;
+}
+
+#scoreBoard {
+	width: 95%;
+	margin: auto;
+}
+
+#player1Score,
+#player2Score {
+	text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
+	text-align: center;
+	width: 9%;
+	padding-right: 1px;
+	padding-left: 1px;
+	background: rgba(255, 255, 255, 1);
+	font-size: 15pt;
+	font-weight: bold;
+	vertical-align: middle;
+}
+
+.noShow {
+	visibility: hidden;
+}
+
+#player1Name,
+#player2Name,
+#shotClock {
+	background: rgba(255, 255, 255, 1);
+	font-size: 10pt;
+	font-weight: bold;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#player1Name,
+#player2Name {
+	width: 250px;
+	font-size: var(--player-name-font-size);
+	position: relative;
+}
+
+#player1Name {
+	background-image: linear-gradient(to left, white, steelblue);
+	text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
+}
+
+#player2Name {
+	background-image: linear-gradient(to right, white, steelblue);
+	text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
+}
+
+/* ===== Extension Icons ===== */
+#p1ExtIcon,
+#p2ExtIcon {
+	position: absolute;
+	background: green;
+	border: solid 1px #000;
+	color: #fff;
+	font-size: 7pt;
+	padding: var(--ext-padding, 6px);
+	z-index: 10;
+	/* Vertical centering - same as player photos */
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+#p1ExtIcon {
+	left: 3px;
+	border-radius: 9px 0px 0px 9px;
+}
+
+#p2ExtIcon {
+	right: 3px;
+	border-radius: 0px 9px 9px 0px;
+}
+
+/* ===== Utility Classes ===== */
+.greenBtn {
+	background: green;
+	color: white;
+}
+
+.redBtn {
+	background: red;
+	color: white;
+}
+
+.shotRed {
+	color: white;
+}
+
+/* ===== Animation States ===== */
+.fadeInElm {
+	visibility: visible;
+	opacity: 1;
+	transition: opacity 1s linear;
+}
+
+.fadeOutElm {
+	visibility: hidden;
+	opacity: 0;
+	transition: visibility 0s 1s, opacity 1s linear;
+}
+
+/* ===== Blink Animations ===== */
+@keyframes blinking {
+	0% {
+		background-color: #ffffff;
+	}
+	100% {
+		background-color: lightgreen;
+	}
+}
+
+.winBlink {
+	animation: blinking 0.1s 4;
+}
+
+@keyframes extblinking {
+	0% {
+		background-color: green;
+	}
+	100% {
+		background-color: red;
+	}
+}
+
+.extBlink {
+	animation: extblinking 0.15s 3;
+}
+
+/* ===== Logos ===== */
+.bs-logo {
+	position: absolute;
+	z-index: 9;
+	/* Vertical centering - same as player photos */
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.bs-logo-left {
+	right: 3px;
+}
+
+.bs-logo-right {
+	left: 3px;
+}
+
+/* ===== Player Photos ===== */
+.playerPhoto {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	object-fit: cover;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	display: none;
+}
+
+#player1-photo {
+	left: 3px;
+	transition: left 0.3s ease;
+	transition-delay: 0.8s; /* Wait for Ex to fade before sliding back */
+}
+
+#player2-photo {
+	right: 3px;
+	transition: right 0.3s ease;
+	transition-delay: 0.8s; /* Wait for Ex to fade before sliding back */
+}
+
+.playerPhoto.photoVisible {
+	display: block;
+}
+
+/* Move photos inward when clock is active to avoid extension icon overlap */
+#player1-photo.clockActive {
+	left: 32px;
+	transition-delay: 0s; /* No delay when sliding out */
+}
+
+#player2-photo.clockActive {
+	right: 32px;
+	transition-delay: 0s; /* No delay when sliding out */
+}
+
+/* ===== Race & Wager Info ===== */
+#raceInfo {
+	background-image: linear-gradient(to right, grey, white);
+	position: fixed;
+	bottom: 0px;
+	width: 20%;
+	left: var(--race-left);
+	border-radius: 0px 00px 10px 10px;
+	text-align: center;
+	font-size: 8pt;
+	font-weight: bolder;
+	border: 1px solid #000;
+	z-index: -1;
+}
+
+#wagerInfo {
+	background-image: linear-gradient(to left, grey, white);
+	position: fixed;
+	bottom: 0px;
+	width: 20%;
+	right: var(--wager-right);
+	border-radius: 0px 00px 10px 10px;
+	text-align: center;
+	font-size: 8pt;
+	font-weight: bolder;
+	border: 1px solid #000;
+	z-index: -1;
+}
+
+/* ===== Shot Clock Progress Bar ===== */
+.shotclockvis {
+	position: absolute;
+	width: 90%;
+	left: 5%;
+	bottom: 36px;
+	height: 3px;
+	background: transparent;
+	border-radius: 5px;
+}
+
+.startTimer {
+	width: 0px;
+	transition: width 30s;
+	transition-timing-function: linear;
+}
+
+.start60 {
+	width: 0px;
+	transition-property: width;
+	transition-duration: 60s;
+	transition-timing-function: linear;
+}
+
+/* ===== Logo Slideshow ===== */
+.mySlides {
+	position: fixed;
+	display: none;
+	bottom: var(--slides-bottom, 14px);
+	left: var(--slides-left);
+}
+
+.slideshow-container {
+	position: relative;
+	margin: auto;
+}
+
+.fade {
+	animation-name: fade;
+	animation-duration: 1.5s;
+}
+
+@keyframes fade {
+	from {
+		opacity: 0.4;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.logoSlide {
+	display: none;
+}
+
+/* ===== Component Containers (from required.css) ===== */
+.bs-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.bs-game-info {
+	display: block;
+}
+
+.bs-scoreboard {
+	display: block;
+}
+
+.bs-score-table {
+	width: 100%;
+}
+
+.playerNameText {
+	display: inline-block;
+}

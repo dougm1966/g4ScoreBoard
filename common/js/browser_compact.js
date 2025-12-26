@@ -1,0 +1,369 @@
+'use strict';
+//  G4ScoreBoard addon for OBS Copyright 2022-2025 Norman Gholson IV
+//  https://g4billiards.com http://www.g4creations.com
+//  this is a purely javascript/html/css driven scoreboard system for OBS Studio
+//  free to use and modify and use as long as this copyright statment remains intact.
+//  Salotto logo is the copyright of Salotto and is used with their permission.
+//  for more information about Salotto please visit https://salotto.app
+
+// Initialize logo slideshow
+if (localStorage.getItem("customLogo1") != null) {
+	document.getElementById("customLogo1").src = localStorage.getItem("customLogo1");
+	document.getElementById("customLogo2").src = localStorage.getItem("customLogo2");
+	document.getElementById("customLogo3").src = localStorage.getItem("customLogo3");
+}
+
+let slideIndex = 0;
+showSlides();
+
+function showSlides() {
+	let i;
+	let slides = document.getElementsByClassName("logoSlide");
+	for (i = 0; i < slides.length; i++) {
+		slides[i].style.display = "none";
+	}
+	slideIndex++;
+	if (slideIndex > slides.length) { slideIndex = 1 }
+	slides[slideIndex - 1].style.display = "block";
+	setTimeout(showSlides, 20000); // Change image every 20 seconds
+}
+
+// Load initial state from localStorage
+if (localStorage.getItem("customImage") !== null) {
+	document.getElementById("g4Logo").src = localStorage.getItem("customImage");
+}
+
+if (localStorage.getItem("p1ScoreCtrlPanel") !== null) {
+	document.getElementById("player1Score").innerHTML = localStorage.getItem("p1ScoreCtrlPanel");
+} else {
+	document.getElementById("player1Score").innerHTML = 0;
+}
+
+if (localStorage.getItem("p2ScoreCtrlPanel") !== null) {
+	document.getElementById("player2Score").innerHTML = localStorage.getItem("p2ScoreCtrlPanel");
+} else {
+	document.getElementById("player2Score").innerHTML = 0;
+}
+
+if (localStorage.getItem("wagerInfo") !== "") {
+	document.getElementById("wagerInfo").classList.remove("noShow");
+}
+
+if (localStorage.getItem("raceInfo") !== "") {
+	document.getElementById("raceInfo").classList.remove("noShow");
+}
+
+document.getElementById("player1Name").innerHTML = localStorage.getItem("p1NameCtrlPanel");
+document.getElementById("raceInfo").innerHTML = localStorage.getItem("raceInfo");
+document.getElementById("player2Name").innerHTML = localStorage.getItem("p2NameCtrlPanel");
+document.getElementById("wagerInfo").innerHTML = localStorage.getItem("wagerInfo");
+document.getElementById("raceInfo").innerHTML = localStorage.getItem("raceInfo");
+
+if (localStorage.getItem("useCustomLogo") == "yes") {
+	document.getElementById("g4Logo").classList.replace("fadeOutElm", "fadeInElm");
+}
+if (localStorage.getItem("useSalotto") == "yes") {
+	document.getElementById("salottoLogo").classList.replace("fadeOutElm", "fadeInElm");
+}
+if (localStorage.getItem("useClock") !== "yes") {
+	document.getElementById("p1ExtIcon").classList.replace("fadeInElm", "fadeOutElm");
+	document.getElementById("p2ExtIcon").classList.replace("fadeInElm", "fadeOutElm");
+}
+
+if (localStorage.getItem('p1colorSet') !== "") {
+	document.getElementById("player1Name").style.background = "linear-gradient(to left, white , " + localStorage.getItem('p1colorSet');
+	console.log("p1color: " + localStorage.getItem('p1colorSet'));
+}
+if (localStorage.getItem('p2colorSet') !== "") {
+	document.getElementById("player2Name").style.background = "linear-gradient(to right, white , " + localStorage.getItem('p2colorSet');
+	console.log("p2color: " + localStorage.getItem('p2colorSet'));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//										variable declarations
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var countDownTime;
+var shotClockxr = null;
+const bcr = new BroadcastChannel('g4-recv'); // browser_source -> control_panel channel
+const bc = new BroadcastChannel('g4-main');
+var playerNumber;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//										broadcast channel events
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bc.onmessage = (event) => {
+	if (event.data.score != null) {
+		console.log("event.data.player: " + event.data.player + "  event.data.score: " + event.data.score);
+		if (event.data.score > document.getElementById("player" + event.data.player + "Score").innerHTML) {
+			document.getElementById("player" + event.data.player + "Score").innerHTML = event.data.score;
+			document.getElementById("player" + event.data.player + "Score").classList.add("winBlink");
+			setTimeout("clearWinBlink()", 500);
+		} else {
+			document.getElementById("player" + event.data.player + "Score").innerHTML = event.data.score;
+		}
+	}
+
+	if (event.data.opacity != null) {
+		console.log("event.data(opacity): " + event.data.opacity);
+		document.getElementById("scoreBoardDiv").style.opacity = event.data.opacity;
+		document.getElementById("raceInfo").style.opacity = event.data.opacity;
+		document.getElementById("wagerInfo").style.opacity = event.data.opacity;
+	}
+
+	if (event.data.race != null) {
+		console.log("event.data.race: " + event.data.race);
+		if (event.data.race == "") {
+			document.getElementById("raceInfo").classList.add("noShow");
+			document.getElementById("raceInfo").classList.remove("fadeInElm");
+		} else {
+			document.getElementById("raceInfo").classList.remove("noShow");
+			document.getElementById("raceInfo").classList.add("fadeInElm");
+			document.getElementById("raceInfo").innerHTML = event.data.race;
+		}
+	}
+	if (event.data.wager != null) {
+		console.log("event.data.wager: " + event.data.wager);
+		if (event.data.wager == "") {
+			document.getElementById("wagerInfo").classList.add("noShow");
+			document.getElementById("wagerInfo").classList.remove("fadeInElm");
+		} else {
+			document.getElementById("wagerInfo").classList.remove("noShow");
+			document.getElementById("wagerInfo").classList.add("fadeInElm");
+			document.getElementById("wagerInfo").innerHTML = event.data.wager;
+		}
+	}
+
+	if (event.data.time != null) {
+		console.log("event.data.time: " + event.data.time);
+		shotTimer(event.data.time);
+	}
+
+	if (event.data.color != null) {
+		console.log("event.data.player: " + event.data.player + " event.data.color: " + event.data.color);
+		if (event.data.player == "1") { document.getElementById("player" + event.data.player + "Name").style.background = "linear-gradient(to left, white , " + event.data.color; };
+		if (event.data.player == "2") { document.getElementById("player" + event.data.player + "Name").style.background = "linear-gradient(to right, white , " + event.data.color; };
+	}
+
+	if (event.data.name != null) {
+		console.log("event.data.player: " + event.data.player + " event.data.name: " + event.data.name);
+		if (!event.data.name == "") {
+			document.getElementById("player" + event.data.player + "Name").innerHTML = event.data.name;
+		} else {
+			document.getElementById("player" + event.data.player + "Name").innerHTML = "Player " + event.data.player;
+		}
+	}
+
+	// start of original clockDisplay channel
+	if (event.data.clockDisplay != null) {
+		console.log("event.data.clockDisplay: " + event.data.clockDisplay);
+		if (event.data.clockDisplay == "show") { showClock(); };
+		if (event.data.clockDisplay == "hide") { hideClock(); };
+		if (event.data.clockDisplay == "stopClock") { stopClock(); };
+		if (event.data.clockDisplay == "noClock") {
+			document.getElementById("p1ExtIcon").classList.replace("fadeInElm", "fadeOutElm");
+			document.getElementById("p2ExtIcon").classList.replace("fadeInElm", "fadeOutElm");
+		}
+		if (event.data.clockDisplay == "useClock") {
+			document.getElementById("p1ExtIcon").classList.replace("fadeOutElm", "fadeInElm");
+			document.getElementById("p2ExtIcon").classList.replace("fadeOutElm", "fadeInElm");
+		}
+		if (event.data.clockDisplay == "p1extension") { add30(1); };
+		if (event.data.clockDisplay == "p2extension") { add30(2); };
+		if (event.data.clockDisplay == "p1ExtReset") { extReset('p1'); };
+		if (event.data.clockDisplay == "p2ExtReset") { extReset('p2'); };
+		if (event.data.clockDisplay == "hidesalotto") { salottoHide(); };
+		if (event.data.clockDisplay == "showsalotto") { salottoShow(); };
+		if (event.data.clockDisplay == "hidecustomLogo") { customHide(); };
+		if (event.data.clockDisplay == "showcustomLogo") { customShow(); };
+		if (event.data.clockDisplay == "postLogo") { postLogo(); };
+		if (event.data.clockDisplay == "logoSlideShow-show") {
+			customHide();
+			document.getElementById("logoSlideshowDiv").classList.replace("fadeOutElm", "fadeInElm");
+			document.getElementById("g4Logo").classList.replace("fadeOutElm", "logoSlide");
+			setTimeout(function () { document.getElementById("g4Logo").classList.add("fade"); }, 500);
+			if (localStorage.getItem("customLogo1") != null) { document.getElementById("customLogo1").src = localStorage.getItem("customLogo1"); } else { document.getElementById("customLogo1").src = "./common/images/placeholder.png"; };
+			if (localStorage.getItem("customLogo2") != null) { document.getElementById("customLogo2").src = localStorage.getItem("customLogo2"); } else { document.getElementById("customLogo2").src = "./common/images/placeholder.png"; };
+			if (localStorage.getItem("customLogo3") != null) { document.getElementById("customLogo3").src = localStorage.getItem("customLogo3"); } else { document.getElementById("customLogo3").src = "./common/images/placeholder.png"; };
+		}
+		if (event.data.clockDisplay == "logoSlideShow-hide") { document.getElementById("logoSlideshowDiv").classList.replace("fadeInElm", "fadeOutElm"); };
+		if (event.data.clockDisplay == "style100") { styleChange(1); };
+		if (event.data.clockDisplay == "style125") { styleChange(2); };
+		if (event.data.clockDisplay == "style150") { styleChange(3); };
+	}
+}
+
+function postLogo() {
+	if (localStorage.getItem("customImage") !== "") {
+		document.getElementById("g4Logo").src = localStorage.getItem("customImage");
+	}
+}
+
+function clearWinBlink() {
+	document.getElementById("player1Score").classList.remove("winBlink");
+	document.getElementById("player2Score").classList.remove("winBlink");
+}
+
+function shotTimer(shottime) {
+	var tev;
+	countDownTime = new Date().getTime() + shottime;
+	shotClockxr = setInterval(function () {
+		var now = new Date().getTime();
+		var distance = countDownTime - now;
+		var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+		document.getElementById("shotClockVis").classList.replace("fadeOutElm", "fadeInElm");
+		document.getElementById("shotClockVis").style.background = "lime";
+		document.getElementById("shotClock").style.background = "green";
+		if (distance > 21000) {
+			document.getElementById("shotClock").style.color = "white";
+		}
+		if (distance > 5000 && distance < 21000) {
+			document.getElementById("shotClock").style.color = "black";
+		}
+
+		if (shottime == 61000) {
+			document.getElementById("shotClockVis").classList.add("start60");
+		} else {
+			document.getElementById("shotClockVis").classList.add("startTimer");
+		}
+
+		if (distance > 60000) {
+			seconds = seconds + 60;
+		}
+		document.getElementById("shotClock").innerHTML = seconds + "s";
+
+		if (distance < 31000) {
+			document.getElementById("shotClockVis").classList.replace("fadeOutElm", "fadeInElm");
+			document.getElementById("shotClockVis").style.background = "lime";
+			document.getElementById("shotClockVis").classList.add("startTimer");
+		}
+		if (distance < 26000) {
+			document.getElementById("shotClockVis").style.background = "#5aa500";
+			document.getElementById("shotClockVis").style.opacity = "0.7";
+		}
+
+		if (distance < 21000) {
+			document.getElementById("shotClockVis").style.background = "#639b00";
+			document.getElementById("shotClock").style.background = "orange";
+		}
+		if (distance < 16000) {
+			document.getElementById("shotClock").style.background = "yellow";
+			document.getElementById("shotClockVis").style.background = "#926d00";
+		}
+
+		if (distance < 11000) {
+			document.getElementById("shotClock").style.background = "tomato";
+			document.getElementById("shotClockVis").style.background = "#d12f00";
+			document.getElementById("shotClockVis").style.opacity = "1";
+		}
+		if (distance < 11000 && distance > 9700) {
+			showClock();
+		}
+
+		if (distance < 6000 && distance > 999) {
+			document.getElementById("shotClock").classList.add("shotRed");
+			document.getElementById("shotClock").style.background = "red";
+			document.getElementById("shotClockVis").style.background = "red";
+			document.getElementById("shotClock").style.color = "white";
+		}
+		if (distance < 1000) {
+			clearInterval(shotClockxr);
+			document.getElementById("shotClock").style.background = "red";
+			document.getElementById("shotClockVis").style.background = "red";
+			document.getElementById("shotClock").style.color = "white";
+		}
+		if (seconds == tev) {
+			var ntev = seconds-- - 1;
+			document.getElementById("shotClock").innerHTML = ntev + "s";
+			tev = ntev;
+			console.log("dup Detected- tev:" + tev);
+			bcr.postMessage(tev);
+		} else {
+			document.getElementById("shotClock").innerHTML = seconds + "s";
+			tev = seconds;
+			console.log("tev:" + tev);
+			bcr.postMessage(tev);
+		}
+	}, 1000);
+}
+
+function showClock() {
+	document.getElementById("shotClock").classList.replace("fadeOutElm", "fadeInElm");
+}
+
+function hideClock() {
+	document.getElementById("shotClock").classList.replace("fadeInElm", "fadeOutElm");
+}
+
+function stopClock() {
+	clearInterval(shotClockxr);
+	hideClock();
+	document.getElementById("shotClock").innerHTML = "&nbsp;";
+	document.getElementById("shotClock").classList.remove("shotRed");
+	document.getElementById("shotClock").style.background = "";
+	document.getElementById("shotClockVis").classList.replace("fadeInElm", "fadeOutElm");
+	document.getElementById("shotClockVis").classList.remove("startTimer");
+	document.getElementById("shotClockVis").classList.remove("start60");
+	document.getElementById("shotClockVis").style.background = "";
+}
+
+function add30(player) {
+	countDownTime = countDownTime + 30000;
+	document.getElementById("p" + player + "ExtIcon").style.background = "darkred";
+	document.getElementById("shotClock").classList.remove("shotRed");
+	document.getElementById("shotClock").style.background = "";
+	document.getElementById("shotClockVis").classList.remove("startTimer");
+	document.getElementById("shotClockVis").classList.remove("start60");
+	document.getElementById("shotClockVis").style.background = "";
+	document.getElementById("shotClock").classList.replace("fadeInElm", "fadeOutElm");
+	document.getElementById("shotClockVis").classList.replace("fadeInElm", "fadeOutElm");
+	document.getElementById("p" + player + "ExtIcon").classList.add("extBlink");
+	playerNumber = player;
+	setTimeout("clearExtBlink(playerNumber)", 500);
+}
+
+function clearExtBlink(playerN) {
+	document.getElementById("p" + playerN + "ExtIcon").classList.remove("extBlink");
+	document.getElementById("p" + playerN + "ExtIcon").style.background = "darkred";
+}
+
+function extReset(player) {
+	document.getElementById(player + "ExtIcon").style.background = "green";
+}
+
+function salottoShow() {
+	document.getElementById("salottoLogo").classList.replace("fadeOutElm", "fadeInElm");
+}
+
+function salottoHide() {
+	document.getElementById("salottoLogo").classList.replace("fadeInElm", "fadeOutElm");
+}
+
+function customShow() {
+	if (document.getElementById("g4Logo").classList.contains("logoSlide")) {
+		document.getElementById("g4Logo").classList.replace("logoSlide", "fadeOutElm");
+	}
+	if (document.getElementById("g4Logo").classList.contains("fade")) {
+		document.getElementById("g4Logo").classList.remove("fade");
+	}
+	document.getElementById("g4Logo").style.display = "block";
+	document.getElementById("g4Logo").classList.replace("fadeOutElm", "fadeInElm");
+}
+
+function customHide() {
+	document.getElementById("g4Logo").classList.replace("fadeInElm", "fadeOutElm");
+	document.getElementById("g4Logo").style.display = "none";
+}
+
+// Initialize slideshow logos
+if (localStorage.getItem("customLogo1") != null) { document.getElementById("customLogo1").src = localStorage.getItem("customLogo1"); } else { document.getElementById("customLogo1").src = "./common/images/placeholder.png"; };
+if (localStorage.getItem("customLogo2") != null) { document.getElementById("customLogo2").src = localStorage.getItem("customLogo2"); } else { document.getElementById("customLogo2").src = "./common/images/placeholder.png"; };
+if (localStorage.getItem("customLogo3") != null) { document.getElementById("customLogo3").src = localStorage.getItem("customLogo3"); } else { document.getElementById("customLogo3").src = "./common/images/placeholder.png"; };
+
+if (localStorage.getItem("slideShow") == "yes") {
+	document.getElementById("logoSlideshowDiv").classList.replace("fadeOutElm", "fadeInElm");
+	document.getElementById("logoSlideshowDiv").classList.replace("fadeOutElm", "fadeInElm");
+	document.getElementById("g4Logo").classList.replace("fadeOutElm", "logoSlide");
+	document.getElementById("g4Logo").classList.add("fade");
+}

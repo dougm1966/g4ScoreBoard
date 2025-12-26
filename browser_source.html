@@ -1,52 +1,77 @@
 <!doctype html>
-<!-- 
+<!--
 G4ScoreBoard addon for OBS Copyright 2022-2025 Norman Gholson IV
 https://g4billiards.com http://www.g4creations.com
 this is a purely javascript/html/css driven scoreboard system for OBS Studio
-free to use and modify and use as long as this copyright statment remains intact. 
+free to use and modify and use as long as this copyright statment remains intact.
 Salotto logo is the copyright of Salotto and is used with their permission.
 for more information about Salotto please visit https://salotto.app
 -->
+<html lang="en" class="scale-125">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>g4ScoreBoard Browser Source</title>
+	<link rel="stylesheet" href="./common/css/browser_source.css" />
+</head>
+<body>
+	<div class="bs-overlay">
+		<!-- Game Info Section -->
+		<section class="bs-game-info">
+			<div class="noShow fadeInElm" id="raceInfo">&nbsp;</div>
+			<div class="noShow fadeInElm" id="wagerInfo">&nbsp;</div>
+		</section>
 
-<html>
-    <head>
-	   	<script src="./common/js/jquery.js"></script>
-		<script src="./common/js/browser_source.js"></script>
-		<link rel="stylesheet" href="./common/css/browser_source/100.css" />
-		<link rel="stylesheet" href="./common/css/browser_source/125.css" />
-		<link rel="stylesheet" href="./common/css/browser_source/150.css" />
-		<link rel="stylesheet" href="./common/css/browser_source/200.css" />
-
-    </head>
-    <body>
-        <div class="noShow fadeInElm" id="raceInfo">&nbsp;</div>
-		<div class="noShow fadeInElm" id="wagerInfo">&nbsp;</div>
-        <div id="scoreBoardDiv"  class="fadeInElm">
+		<!-- Scoreboard Section -->
+		<section id="scoreBoardDiv" class="fadeInElm bs-scoreboard">
+			<!-- Shot Clock Progress Bar -->
 			<div class="shotclockvis fadeOutElm" id="shotClockVis"></div>
-			<img class="fadeOutElm" id="salottoLogo" height="20px" src="./common/images/salotto.png">
-			<img class="fadeOutElm" id="g4Logo" height="20px" src="./common/images/logo.png">
-			<div class="fadeInElm" id="p1ExtIcon">Ex</div>
-			<div class="fadeInElm" id="p2ExtIcon">Ex</div>
-			<table id="scoreBoard">
-				<tr>
-					<td class="noShow"></td><td class="noShow"></td><td class="noShow"></td>
-					<td class="fadeOutElm" colspan="2" width="30px" id="shotClock">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-					<td class="noShow"></td><td class="noShow"></td><td class="noShow"></td>
-				</tr>
-				<tr>
-					<td id="player1Name"><img id="player1-photo" class="playerPhoto" src=""><span class="playerNameText">Player 1</span></td>
-					<td id="player1Score" colspan="3">0</td>
-					<td id="player2Score" colspan="3">0</td>
-					<td id="player2Name"><span class="playerNameText">Player 2</span><img id="player2-photo" class="playerPhoto" src=""></td>
-				</tr>
-			</table>
-			<div id="logoSlideshowDiv" class="slideshow-container fadeOutElm">
-			<div class="mySlides logoSlide fade"><img id="customLogo1" src="" style="height:20px"></div>
-			<div class="mySlides logoSlide fade"><img id="customLogo2" src="" style="height:20px"></div>
-			<div class="mySlides logoSlide fade"><img id="customLogo3" src="" style="height:20px"></div>	
-			</div>
-		</div>
-      <script src="./common/js/browser_source_post.js"></script>
-    </body>
-</html>
 
+			<!-- Score Table -->
+			<table id="scoreBoard" class="bs-score-table">
+				<thead>
+					<tr>
+						<th class="noShow"></th><th class="noShow"></th><th class="noShow"></th>
+						<th class="fadeOutElm bs-clock-display" colspan="2" id="shotClock">&nbsp;</th>
+						<th class="noShow"></th><th class="noShow"></th><th class="noShow"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td id="player1Name" class="bs-player-name">
+							<div class="fadeInElm bs-ext-icon" id="p1ExtIcon">Ex</div>
+							<img id="player1-photo" class="playerPhoto" src="" alt="">
+							<img class="fadeOutElm bs-logo bs-logo-left" id="g4Logo" height="20" src="./common/images/logo.png" alt="G4">
+							<span class="playerNameText">Player 1</span>
+						</td>
+						<td id="player1Score" class="bs-score" colspan="3">0</td>
+						<td id="player2Score" class="bs-score" colspan="3">0</td>
+						<td id="player2Name" class="bs-player-name">
+							<span class="playerNameText">Player 2</span>
+							<img class="fadeOutElm bs-logo bs-logo-right" id="salottoLogo" height="20" src="./common/images/salotto.png" alt="Salotto">
+							<img id="player2-photo" class="playerPhoto" src="" alt="">
+							<div class="fadeInElm bs-ext-icon" id="p2ExtIcon">Ex</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!-- Logo Slideshow -->
+			<div id="logoSlideshowDiv" class="slideshow-container fadeOutElm">
+				<div class="mySlides logoSlide fade">
+					<img id="customLogo1" src="" style="height:20px" alt="Logo 1">
+				</div>
+				<div class="mySlides logoSlide fade">
+					<img id="customLogo2" src="" style="height:20px" alt="Logo 2">
+				</div>
+				<div class="mySlides logoSlide fade">
+					<img id="customLogo3" src="" style="height:20px" alt="Logo 3">
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<!-- Load bundled JavaScript -->
+	<script src="./common/js/browser_source.bundled.js"></script>
+</body>
+</html>

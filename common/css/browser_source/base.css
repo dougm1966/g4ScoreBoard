@@ -1,0 +1,66 @@
+/*
+  g4ScoreBoard Browser Source - Base CSS
+  CSS Custom Properties (Variables)
+  Copyright 2022-2025 Norman Gholson IV
+*/
+
+:root {
+  /* ===== Colors ===== */
+  --bs-bg-transparent: transparent;
+  --bs-text-primary: white;
+  --bs-text-inverse: black;
+
+  /* Shot Clock Colors */
+  --clock-green: green;
+  --clock-lime: lime;
+  --clock-orange: orange;
+  --clock-yellow: yellow;
+  --clock-red: red;
+  --clock-tomato: tomato;
+  --clock-darkgreen: darkgreen;
+  --clock-darkred: darkred;
+
+  /* Player Colors */
+  --player-color-default: white;
+  --player-color-steelblue: steelblue;
+
+  /* Border Colors */
+  --border-color-black: #000;
+
+  /* ===== Timing ===== */
+  --transition-fade: 1s;
+  --transition-blink: 0.5s;
+  --slideshow-duration: 20s;
+
+  /* Shot Clock Durations (in milliseconds, for JavaScript reference) */
+  --clock-30s: 30000;
+  --clock-60s: 60000;
+  --clock-extension: 30000;
+
+  /* ===== Opacity ===== */
+  --progress-bar-opacity: 0.7;
+  --progress-bar-alert-opacity: 1;
+
+  /* ===== Z-Index Layers ===== */
+  --z-index-background: -2;
+  --z-index-behind: -1;
+  --z-index-base: 0;
+  --z-index-overlay: 1;
+  --z-index-top: 9;
+
+  /* ===== Spacing ===== */
+  --spacing-xs: 2px;
+  --spacing-sm: 4px;
+  --spacing-md: 8px;
+  --spacing-lg: 16px;
+
+  /* ===== Font Sizes ===== */
+  --font-size-clock: 12pt;
+  --font-size-base: 15pt;
+  --font-size-sm: 10pt;
+
+  /* ===== Border Radius ===== */
+  --border-radius-sm: 4px;
+  --border-radius-md: 5px;
+  --border-radius-lg: 10px;
+}
