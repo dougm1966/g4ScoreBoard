@@ -47,7 +47,7 @@ The existing JavaScript references DOM nodes directly. Treat the following as a 
 ### shot_clock_display.html
 
 **Shot Clock Display:**
-- `clocktimer` - Large shot clock display
+- No required DOM IDs (the implementation writes directly to `document.body`).
 
 ## Required Classes
 

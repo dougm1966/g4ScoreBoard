@@ -69,13 +69,12 @@ class BrowserCompact {
     document.getElementById(DOM_IDS.p1Name).innerHTML = state.p1Name;
     document.getElementById(DOM_IDS.p2Name).innerHTML = state.p2Name;
 
-    // Show/hide features
-    if (state.useCustomLogo === 'yes') {
-      document.getElementById(DOM_IDS.g4Logo).classList.replace('fadeOutElm', 'fadeInElm');
+    // Show/hide sponsor logos
+    if (state.showLeftSponsorLogo === 'yes') {
+      this.ui.showLeftSponsorLogo();
     }
-
-    if (state.useSalotto === 'yes') {
-      document.getElementById(DOM_IDS.salottoLogo).classList.replace('fadeOutElm', 'fadeInElm');
+    if (state.showRightSponsorLogo === 'yes') {
+      this.ui.showRightSponsorLogo();
     }
 
     // Clock settings

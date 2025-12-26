@@ -80,12 +80,12 @@ class BrowserSource {
       logoElement.src = logoData || './common/images/placeholder.png';
     });
 
-    // Show/hide features
-    if (state.useCustomLogo === 'yes') {
-      this.ui.showCustomLogo();
+    // Show/hide sponsor logos
+    if (state.showLeftSponsorLogo === 'yes') {
+      this.ui.showLeftSponsorLogo();
     }
-    if (state.useSalotto === 'yes') {
-      this.ui.showSalottoLogo();
+    if (state.showRightSponsorLogo === 'yes') {
+      this.ui.showRightSponsorLogo();
     }
 
     // Clock settings
@@ -97,10 +97,7 @@ class BrowserSource {
     // Slideshow
     if (state.slideShow === 'yes') {
       const slideshowDiv = document.getElementById(DOM_IDS.logoSlideshow);
-      const g4Logo = document.getElementById(DOM_IDS.g4Logo);
       slideshowDiv.classList.replace('fadeOutElm', 'fadeInElm');
-      g4Logo.classList.replace('fadeOutElm', 'logoSlide');
-      g4Logo.classList.add('fade');
     }
 
     // Style/scaling

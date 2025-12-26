@@ -43,8 +43,8 @@ export const STORAGE_KEYS = {
   raceInfo: 'raceInfo',
   wagerInfo: 'wagerInfo',
   useClock: 'useClock',
-  useCustomLogo: 'useCustomLogo',
-  useSalotto: 'useSalotto',
+  showLeftSponsorLogo: 'showLeftSponsorLogo',
+  showRightSponsorLogo: 'showRightSponsorLogo',
   slideShow: 'slideShow'
 };
 

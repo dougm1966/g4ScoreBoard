@@ -53,6 +53,8 @@ Goal: make `control_panel.html` maintainable **without changing behavior**.
 - No console errors.
 - No DOM nodes with required IDs removed.
 
+Status: COMPLETED (see `phase1-verification.md`).
+
 ## Post-phase action
 
 Run `06-test-checklist.md`.

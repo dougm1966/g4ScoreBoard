@@ -662,7 +662,7 @@ class UI {
   /**
    * Show right sponsor logo
    */
-  showSalottoLogo() {
+  showRightSponsorLogo() {
     document.getElementById(DOM_IDS.rightSponsorLogoImg).classList.replace('fadeOutElm', 'fadeInElm');
 		document.getElementById(DOM_IDS.p2Name).classList.add('has-right-sponsor-logo');
   }
@@ -670,7 +670,7 @@ class UI {
   /**
    * Hide right sponsor logo
    */
-  hideSalottoLogo() {
+  hideRightSponsorLogo() {
     document.getElementById(DOM_IDS.rightSponsorLogoImg).classList.replace('fadeInElm', 'fadeOutElm');
 		document.getElementById(DOM_IDS.p2Name).classList.remove('has-right-sponsor-logo');
   }
@@ -678,15 +678,15 @@ class UI {
   /**
    * Show left sponsor logo
    */
-  showCustomLogo() {
+  showLeftSponsorLogo() {
     document.getElementById(DOM_IDS.leftSponsorLogoImg).classList.replace('fadeOutElm', 'fadeInElm');
 		document.getElementById(DOM_IDS.p1Name).classList.add('has-left-sponsor-logo');
   }
 
   /**
-   * Hide custom logo
+   * Hide left sponsor logo
    */
-  hideCustomLogo() {
+  hideLeftSponsorLogo() {
     document.getElementById(DOM_IDS.leftSponsorLogoImg).classList.replace('fadeInElm', 'fadeOutElm');
 		document.getElementById(DOM_IDS.p1Name).classList.remove('has-left-sponsor-logo');
   }
@@ -891,24 +891,24 @@ class Messaging {
       case 'p1ExtReset':
         this.ui.resetExtension(1);
         break;
-      case 'p2ExtReset':
-        this.ui.resetExtension(2);
-        break;
-      case 'hideRightSponsorLogo':
-        this.ui.hideSalottoLogo();
-        break;
-      case 'showRightSponsorLogo':
-        this.ui.showSalottoLogo();
-        break;
-      case 'hideLeftSponsorLogo':
-        this.ui.hideCustomLogo();
-        break;
-      case 'showLeftSponsorLogo':
-        this.ui.showCustomLogo();
-        break;
-      case 'postLogo':
-        this.ui.loadLogos();
-        break;
+      		case 'p2ExtReset':
+			this.ui.resetExtension(2);
+			break;
+		case 'hideRightSponsorLogo':
+			this.ui.hideRightSponsorLogo();
+			break;
+		case 'showRightSponsorLogo':
+			this.ui.showRightSponsorLogo();
+			break;
+		case 'hideLeftSponsorLogo':
+			this.ui.hideLeftSponsorLogo();
+			break;
+		case 'showLeftSponsorLogo':
+			this.ui.showLeftSponsorLogo();
+			break;
+		case 'postLogo':
+			this.ui.loadLogos();
+			break;
       case 'postPlayerPhoto':
         this.ui.loadPlayerPhotos();
         break;
@@ -1009,10 +1009,10 @@ class BrowserSource {
 
     // Show/hide sponsor logos
     if (state.showLeftSponsorLogo === 'yes') {
-      this.ui.showCustomLogo();
+      this.ui.showLeftSponsorLogo();
     }
     if (state.showRightSponsorLogo === 'yes') {
-      this.ui.showSalottoLogo();
+      this.ui.showRightSponsorLogo();
     }
 
     // Clock settings

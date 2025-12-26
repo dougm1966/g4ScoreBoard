@@ -121,17 +121,17 @@ export class Messaging {
       case 'p2ExtReset':
         this.ui.resetExtension(2);
         break;
-      case 'hidesalotto':
-        this.ui.hideSalottoLogo();
+      case 'hideRightSponsorLogo':
+        this.ui.hideRightSponsorLogo();
         break;
-      case 'showsalotto':
-        this.ui.showSalottoLogo();
+      case 'showRightSponsorLogo':
+        this.ui.showRightSponsorLogo();
         break;
-      case 'hidecustomLogo':
-        this.ui.hideCustomLogo();
+      case 'hideLeftSponsorLogo':
+        this.ui.hideLeftSponsorLogo();
         break;
-      case 'showcustomLogo':
-        this.ui.showCustomLogo();
+      case 'showLeftSponsorLogo':
+        this.ui.showLeftSponsorLogo();
         break;
       case 'postLogo':
         this.ui.loadLogos();

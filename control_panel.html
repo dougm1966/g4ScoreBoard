@@ -53,31 +53,37 @@ for more information about Salotto please visit https://salotto.app
 
 			<div class="input-row">
 				<label>Player 1:</label>
-				<input type="text" id="p1Name" class="input-field" placeholder="Player 1">
-				<span class="tooltip hover photoUploadBtn" id="p1PhotoBtn">
+				<span class="hover photoUploadBtn" id="p1PhotoBtn">
 					<input type="file" id="FileUploadP1Photo" onchange="playerPhotoPost(this,1)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
-					Photo
-					<span class="tooltiptext"><img id="p1PhotoImg" src="" style="height:30px; max-width:70px; border-radius:50%"></span>
+					<div style="position:relative; display:inline-block;">
+						<img id="p1PhotoDisplay" src="./common/images/placeholder.png" style="height:30px; max-width:70px; border-radius:50%; display:none;">
+						<span id="p1PhotoDelete" class="photo-delete-btn" onclick="deletePlayerPhoto(1, event)" style="display:none;">&times;</span>
+					</div>
+					<span id="p1PhotoText">Photo</span>
 				</span>
+				<input type="text" id="p1Name" class="input-field" placeholder="Player 1">
 			</div>
 
 			<div class="input-row">
 				<label>Player 2:</label>
-				<input type="text" id="p2Name" class="input-field" placeholder="Player 2">
-				<span class="tooltip hover photoUploadBtn" id="p2PhotoBtn">
+				<span class="hover photoUploadBtn" id="p2PhotoBtn">
 					<input type="file" id="FileUploadP2Photo" onchange="playerPhotoPost(this,2)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
-					Photo
-					<span class="tooltiptext"><img id="p2PhotoImg" src="" style="height:30px; max-width:70px; border-radius:50%"></span>
+					<div style="position:relative; display:inline-block;">
+						<img id="p2PhotoDisplay" src="./common/images/placeholder.png" style="height:30px; max-width:70px; border-radius:50%; display:none;">
+						<span id="p2PhotoDelete" class="photo-delete-btn" onclick="deletePlayerPhoto(2, event)" style="display:none;">&times;</span>
+					</div>
+					<span id="p2PhotoText">Photo</span>
 				</span>
+				<input type="text" id="p2Name" class="input-field" placeholder="Player 2">
 			</div>
 
 			<div class="input-row">
-				<label>Game/Race:</label>
+				<label>Race/Game/Bet:</label>
 				<input type="text" id="raceInfoTxt" class="input-field" placeholder="">
 			</div>
 
 			<div class="input-row">
-				<label>Wager:</label>
+				<label>Race/Game/Bet:</label>
 				<input type="text" id="wagerInfoTxt" class="input-field" placeholder="">
 			</div>
 

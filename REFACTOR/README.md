@@ -38,12 +38,17 @@ This folder contains **implementation documentation** for refactoring `g4ScoreBo
 - **Hotkeys state file**: `hotkeys.js`
 - **Control panel base CSS**: `common/css/control_panel/required.css` (and theme styles)
 
+Additional notes:
+- Browser source modernization (including shot clock modules) is documented as completed in `browser-source-modernization.md`.
+
 ## Phased implementation strategy
 
 ### Phase 0 — Safety + mapping (must do first)
 
 - Create backups of every file you touch.
 - Produce a DOM contract map (IDs, selects ordering, stylesheets ordering).
+
+Status: COMPLETED (see `phase0-verification.md`).
 
 See: `01-backup-and-rollback.md`, `02-dom-contract.md`.
 
@@ -59,6 +64,8 @@ Goal: make `control_panel.html` readable and editable while preserving behavior.
   - spacer hacks (`<p style="font-size:...">&nbsp;</p>`) with consistent spacing classes
   - malformed markup (e.g. broken `<p ... /p>`)
 
+Status: COMPLETED (see `phase1-verification.md`).
+
 See: `03-html-modernization-phase1.md`.
 
 ### Phase 2 — Move inline styles to CSS (low to medium risk)
@@ -66,6 +73,15 @@ See: `03-html-modernization-phase1.md`.
 - Introduce stable utility classes (inputs, rows, spacing).
 - Replace repeated inline styles with classes.
 - Keep visual output equivalent.
+
+Status: IN PROGRESS
+
+Notes:
+- `control_panel.html` now loads additional CSS after the theme stylesheets:
+  - `common/css/control_panel/base.css`
+  - `common/css/control_panel/layout.css`
+  - `common/css/control_panel/components.css`
+  - `common/css/control_panel/required.css`
 
 See: `04-css-extraction.md`.
 

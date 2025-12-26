@@ -49,8 +49,8 @@ export const Storage = {
       raceInfo: this.get(STORAGE_KEYS.raceInfo, ''),
       wagerInfo: this.get(STORAGE_KEYS.wagerInfo, ''),
       useClock: this.get(STORAGE_KEYS.useClock, 'no'),
-      useCustomLogo: this.get(STORAGE_KEYS.useCustomLogo, 'no'),
-      useSalotto: this.get(STORAGE_KEYS.useSalotto, 'no'),
+      showLeftSponsorLogo: this.get(STORAGE_KEYS.showLeftSponsorLogo, 'no'),
+      showRightSponsorLogo: this.get(STORAGE_KEYS.showRightSponsorLogo, 'no'),
       slideShow: this.get(STORAGE_KEYS.slideShow, 'no')
     };
   }

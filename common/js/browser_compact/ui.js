@@ -131,23 +131,23 @@ export class UI {
   }
 
   /**
-   * Show Salotto logo
+   * Show right sponsor logo
    */
-  showSalottoLogo() {
+  showRightSponsorLogo() {
     document.getElementById(DOM_IDS.salottoLogo).classList.replace('fadeOutElm', 'fadeInElm');
   }
 
   /**
-   * Hide Salotto logo
+   * Hide right sponsor logo
    */
-  hideSalottoLogo() {
+  hideRightSponsorLogo() {
     document.getElementById(DOM_IDS.salottoLogo).classList.replace('fadeInElm', 'fadeOutElm');
   }
 
   /**
-   * Show custom logo
+   * Show left sponsor logo
    */
-  showCustomLogo() {
+  showLeftSponsorLogo() {
     const logo = document.getElementById(DOM_IDS.g4Logo);
     if (logo.classList.contains('logoSlide')) {
       logo.classList.replace('logoSlide', 'fadeOutElm');
@@ -160,9 +160,9 @@ export class UI {
   }
 
   /**
-   * Hide custom logo
+   * Hide left sponsor logo
    */
-  hideCustomLogo() {
+  hideLeftSponsorLogo() {
     const logo = document.getElementById(DOM_IDS.g4Logo);
     logo.classList.replace('fadeInElm', 'fadeOutElm');
     logo.style.display = 'none';
@@ -182,7 +182,7 @@ export class UI {
    * Start logo slideshow
    */
   startSlideshow() {
-    this.hideCustomLogo();
+    this.hideLeftSponsorLogo();
 
     const slideshowDiv = document.getElementById(DOM_IDS.logoSlideshow);
     const g4Logo = document.getElementById(DOM_IDS.g4Logo);

@@ -139,11 +139,35 @@ var clockIsPaused = false;
 						} catch(err) {
 							alert("the selected image exceedes the maximium file size");
 						}
-						document.getElementById("p" + player + "PhotoImg").src = localStorage.getItem("player" + player + "_photo");
+						// Update main button display - show image, hide text, show delete button
+						document.getElementById("p" + player + "PhotoDisplay").src = localStorage.getItem("player" + player + "_photo");
+						document.getElementById("p" + player + "PhotoDisplay").style.display = "block";
+						document.getElementById("p" + player + "PhotoDelete").style.display = "block";
+						document.getElementById("p" + player + "PhotoText").style.display = "none";
 						// broadcast photo update to browser source
 						setTimeout(function() { bc.postMessage({clockDisplay:'postPlayerPhoto'}); }, 50);
 					}, false);
 				}
+			}
+
+			function deletePlayerPhoto(player, event) {
+				// Prevent the file input from triggering
+				event.stopPropagation();
+				event.preventDefault();
+
+				// Remove from localStorage
+				localStorage.removeItem("player" + player + "_photo");
+
+				// Reset main button display - hide image, hide delete button, show text
+				document.getElementById("p" + player + "PhotoDisplay").style.display = "none";
+				document.getElementById("p" + player + "PhotoDelete").style.display = "none";
+				document.getElementById("p" + player + "PhotoText").style.display = "block";
+
+				// Reset the file input
+				document.getElementById("FileUploadP" + player + "Photo").value = "";
+
+				// Broadcast the change to browser source
+				setTimeout(function() { bc.postMessage({clockDisplay:'postPlayerPhoto'}); }, 50);
 			}
 
 			function deleteLogo(xL, event) {
@@ -341,9 +365,21 @@ var clockIsPaused = false;
 			}
 			            
             function postScore(opt1,player) {
+                // Ensure score values are properly initialized
+                if (p1ScoreValue === undefined || p1ScoreValue === null || p1ScoreValue === '' || isNaN(p1ScoreValue)) {
+                    p1ScoreValue = 0;
+                }
+                if (p2ScoreValue === undefined || p2ScoreValue === null || p2ScoreValue === '' || isNaN(p2ScoreValue)) {
+                    p2ScoreValue = 0;
+                }
+                
+                // Ensure scoreAmount is properly initialized
+                if (scoreAmount === undefined || scoreAmount === null || scoreAmount === '' || isNaN(scoreAmount)) {
+                    scoreAmount = 1;
+                }
 				if(player == "1"){
 				if (opt1 == "add") {
-					p1ScoreValue = p1ScoreValue +++ Number(scoreAmount);
+					p1ScoreValue = p1ScoreValue + Number(scoreAmount);
 					msg={player: player , score: p1ScoreValue };
 					bc.postMessage(msg);
 					localStorage.setItem("p"+player+"ScoreCtrlPanel", p1ScoreValue);
@@ -354,7 +390,7 @@ var clockIsPaused = false;
 					resetExt('p2','noflash');
 					} else {
 						if (p1ScoreValue > 0) {
-							p1ScoreValue = p1ScoreValue --- Number(scoreAmount);
+							p1ScoreValue = p1ScoreValue - Number(scoreAmount);
 							msg={player: player , score: p1ScoreValue };
 							bc.postMessage(msg);
 							localStorage.setItem("p"+player+"ScoreCtrlPanel", p1ScoreValue);
@@ -365,7 +401,7 @@ var clockIsPaused = false;
 				}
 				if(player == "2"){
 					if (opt1 == "add") {
-					p2ScoreValue = p2ScoreValue +++ Number(scoreAmount);
+					p2ScoreValue = p2ScoreValue + Number(scoreAmount);
 					msg2={player: player , score: p2ScoreValue };
 					bc.postMessage(msg2);
 					localStorage.setItem("p"+player+"ScoreCtrlPanel", p2ScoreValue);
@@ -376,7 +412,7 @@ var clockIsPaused = false;
 					resetExt('p2','noflash');
 					} else {
 						if (p2ScoreValue > 0) {
-							p2ScoreValue = p2ScoreValue --- Number(scoreAmount);
+							p2ScoreValue = p2ScoreValue - Number(scoreAmount);
 							msg2={player: player , score: p2ScoreValue };
 							bc.postMessage(msg2);
 							localStorage.setItem("p"+player+"ScoreCtrlPanel", p2ScoreValue);

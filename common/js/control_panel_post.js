@@ -195,8 +195,24 @@
 	} else { document.getElementById("l4Img").src = "./common/images/placeholder.png"; };
 
 	// Load player photos from localStorage
-	if (localStorage.getItem("player1_photo") != null) {document.getElementById("p1PhotoImg").src = localStorage.getItem("player1_photo");} else { document.getElementById("p1PhotoImg").src = "./common/images/placeholder.png"; };
-	if (localStorage.getItem("player2_photo") != null) {document.getElementById("p2PhotoImg").src = localStorage.getItem("player2_photo");} else { document.getElementById("p2PhotoImg").src = "./common/images/placeholder.png"; };
+	if (localStorage.getItem("player1_photo") != null) {
+		// Show image and hide text for main button display
+		document.getElementById("p1PhotoDisplay").src = localStorage.getItem("player1_photo");
+		document.getElementById("p1PhotoDisplay").style.display = "block";
+		document.getElementById("p1PhotoDelete").style.display = "block";
+		document.getElementById("p1PhotoText").style.display = "none";
+	} else { 
+		document.getElementById("p1PhotoDisplay").src = "./common/images/placeholder.png"; 
+	};
+	if (localStorage.getItem("player2_photo") != null) {
+		// Show image and hide text for main button display
+		document.getElementById("p2PhotoDisplay").src = localStorage.getItem("player2_photo");
+		document.getElementById("p2PhotoDisplay").style.display = "block";
+		document.getElementById("p2PhotoDelete").style.display = "block";
+		document.getElementById("p2PhotoText").style.display = "none";
+	} else { 
+		document.getElementById("p2PhotoDisplay").src = "./common/images/placeholder.png"; 
+	};
 
 	if (localStorage.getItem("slideShow") == "yes") { document.getElementById("logoSlideshowChk").checked = true; logoSlideshow(); };
 	if (localStorage.getItem("obsTheme") == "28") { document.getElementById("obsTheme").value = "28"; }

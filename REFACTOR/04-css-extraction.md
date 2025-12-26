@@ -2,6 +2,12 @@
 
 Goal: remove repeated inline styles from `control_panel.html` and move them into CSS classes.
 
+Status: IN PROGRESS
+
+Notes:
+- The control panel now uses additional CSS files in `common/css/control_panel/` (e.g. `base.css`, `layout.css`, `components.css`) which are loaded by `control_panel.html`.
+- Inline styles still exist in `control_panel.html` (examples include inline tooltip image sizing and some inline grid/layout declarations), so Phase 2 is not yet complete.
+
 ## Where to put CSS
 
 Prefer `common/css/control_panel/required.css` for shared layout utilities.

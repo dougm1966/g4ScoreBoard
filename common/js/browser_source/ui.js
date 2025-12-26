@@ -156,59 +156,49 @@ export class UI {
   }
 
   /**
-   * Show Salotto logo
+   * Show right sponsor logo
    */
-  showSalottoLogo() {
-    document.getElementById(DOM_IDS.salottoLogo).classList.replace('fadeOutElm', 'fadeInElm');
+  showRightSponsorLogo() {
+    document.getElementById(DOM_IDS.rightSponsorLogoImg).classList.replace('fadeOutElm', 'fadeInElm');
+    document.getElementById(DOM_IDS.p2Name).classList.add('has-right-sponsor-logo');
   }
 
   /**
-   * Hide Salotto logo
+   * Hide right sponsor logo
    */
-  hideSalottoLogo() {
-    document.getElementById(DOM_IDS.salottoLogo).classList.replace('fadeInElm', 'fadeOutElm');
+  hideRightSponsorLogo() {
+    document.getElementById(DOM_IDS.rightSponsorLogoImg).classList.replace('fadeInElm', 'fadeOutElm');
+    document.getElementById(DOM_IDS.p2Name).classList.remove('has-right-sponsor-logo');
   }
 
   /**
-   * Show custom logo
+   * Show left sponsor logo
    */
-  showCustomLogo() {
-    const logo = document.getElementById(DOM_IDS.g4Logo);
-    logo.style.removeProperty('display');
-    setTimeout(() => {
-      if (logo.classList.contains('logoSlide')) {
-        logo.classList.replace('logoSlide', 'fadeOutElm');
-      }
-      if (logo.classList.contains('fade')) {
-        logo.classList.replace('fade', 'fadeOutElm');
-      }
-      logo.classList.replace('fadeOutElm', 'fadeInElm');
-    }, 100);
+  showLeftSponsorLogo() {
+    document.getElementById(DOM_IDS.leftSponsorLogoImg).classList.replace('fadeOutElm', 'fadeInElm');
+    document.getElementById(DOM_IDS.p1Name).classList.add('has-left-sponsor-logo');
   }
 
   /**
-   * Hide custom logo
+   * Hide left sponsor logo
    */
-  hideCustomLogo() {
-    const logo = document.getElementById(DOM_IDS.g4Logo);
-    logo.classList.replace('fadeInElm', 'fadeOutElm');
-    setTimeout(() => {
-      logo.style.display = 'none';
-    }, 1000);
+  hideLeftSponsorLogo() {
+    document.getElementById(DOM_IDS.leftSponsorLogoImg).classList.replace('fadeInElm', 'fadeOutElm');
+    document.getElementById(DOM_IDS.p1Name).classList.remove('has-left-sponsor-logo');
   }
 
   /**
    * Load logos from localStorage
    */
   loadLogos() {
-    const customLogo0 = localStorage.getItem('customLogo0');
-    const customLogo4 = localStorage.getItem('customLogo4');
+    const leftSponsorLogo = localStorage.getItem('leftSponsorLogo');
+    const rightSponsorLogo = localStorage.getItem('rightSponsorLogo');
 
-    if (customLogo0 && customLogo0 !== '') {
-      document.getElementById(DOM_IDS.g4Logo).src = customLogo0;
+    if (leftSponsorLogo && leftSponsorLogo !== '') {
+      document.getElementById(DOM_IDS.leftSponsorLogoImg).src = leftSponsorLogo;
     }
-    if (customLogo4 && customLogo4 !== '') {
-      document.getElementById(DOM_IDS.salottoLogo).src = customLogo4;
+    if (rightSponsorLogo && rightSponsorLogo !== '') {
+      document.getElementById(DOM_IDS.rightSponsorLogoImg).src = rightSponsorLogo;
     }
   }
 
@@ -216,14 +206,8 @@ export class UI {
    * Start logo slideshow
    */
   startSlideshow() {
-    this.hideCustomLogo();
-
     const slideshowDiv = document.getElementById(DOM_IDS.logoSlideshow);
-    const g4Logo = document.getElementById(DOM_IDS.g4Logo);
-
     slideshowDiv.classList.replace('fadeOutElm', 'fadeInElm');
-    g4Logo.classList.replace('fadeOutElm', 'logoSlide');
-    setTimeout(() => g4Logo.classList.add('fade'), 500);
 
     [1, 2, 3].forEach(i => {
       const logoData = localStorage.getItem(`customLogo${i}`);

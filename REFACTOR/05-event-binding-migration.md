@@ -4,6 +4,11 @@ Goal: remove inline `onclick`/`onchange` attributes and bind events in JS in a m
 
 This is optional and **higher risk** than Phase 1/2.
 
+Status: NOT STARTED
+
+Notes:
+- `control_panel.html` currently still contains inline `onclick`/`onchange` handlers.
+
 ## Recommended migration strategy (compat-first)
 
 1. Add `data-*` attributes to actionable controls while keeping IDs.

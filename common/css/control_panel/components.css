@@ -327,6 +327,33 @@
   display: block;
 }
 
+/* Photo Delete Button */
+.photo-delete-btn {
+  display: none;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  line-height: 14px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 20;
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+.photo-delete-btn:hover {
+  background: var(--accent-danger);
+  color: white;
+  border-color: var(--accent-danger);
+}
+
 /* Photo Upload Button (inline) */
 .photoUploadBtn {
   display: inline-flex;
