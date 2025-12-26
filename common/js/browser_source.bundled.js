@@ -168,7 +168,97 @@ class ShotClock {
     // Cache DOM elements
     this.clockDisplay = document.getElementById(DOM_IDS.shotClock);
     this.progressBar = document.getElementById(DOM_IDS.shotClockVis);
+
+	// Layout elements (used to split name bars when clock is visible)
+	this.scoreBoardRoot = document.getElementById(DOM_IDS.scoreBoard);
+	this.scoreTable = document.getElementById('scoreBoard');
+	this._colApplyAttempts = 0;
+	this._colApplyRaf = null;
+	this._colApplyTimer = null;
   }
+
+	_setClockVisibleLayout(isVisible) {
+		if (!this.scoreBoardRoot) return;
+		if (isVisible) {
+			this.scoreBoardRoot.classList.add('clock-visible');
+		} else {
+			this.scoreBoardRoot.classList.remove('clock-visible');
+		}
+		if (!isVisible) {
+			this._clearColumnWidths();
+			return;
+		}
+		this._scheduleApplyColumnWidths();
+	}
+
+	_clearColumnWidths() {
+		if (!this.scoreTable) return;
+		const colgroup = this.scoreTable.querySelector('colgroup');
+		if (!colgroup) return;
+		const cols = colgroup.querySelectorAll('col');
+		if (!cols || cols.length < 3) return;
+		cols[0].style.width = '';
+		cols[1].style.width = '';
+		cols[2].style.width = '';
+	}
+
+	_scheduleApplyColumnWidths() {
+		// Cancel pending attempts
+		if (this._colApplyRaf != null) {
+			cancelAnimationFrame(this._colApplyRaf);
+			this._colApplyRaf = null;
+		}
+		if (this._colApplyTimer != null) {
+			clearTimeout(this._colApplyTimer);
+			this._colApplyTimer = null;
+		}
+
+		this._colApplyAttempts = 0;
+		const attempt = () => {
+			this._colApplyAttempts += 1;
+			const ok = this._applyColumnWidths();
+			if (!ok && this._colApplyAttempts < 6) {
+				// Retry after layout settles
+				this._colApplyRaf = requestAnimationFrame(attempt);
+			}
+		};
+
+		// First attempt next frame
+		this._colApplyRaf = requestAnimationFrame(attempt);
+		// Safety attempt after a short delay (OBS refresh can lay out late)
+		this._colApplyTimer = setTimeout(() => {
+			this._applyColumnWidths();
+		}, 250);
+	}
+
+	_applyColumnWidths() {
+		if (!this.scoreTable) return;
+		const colgroup = this.scoreTable.querySelector('colgroup');
+		if (!colgroup) return;
+		const cols = colgroup.querySelectorAll('col');
+		if (!cols || cols.length < 3) return;
+
+		// Read desired mid width from CSS variable. This is authored in px.
+		let midPx = 72;
+		if (this.scoreBoardRoot) {
+			const midVar = getComputedStyle(this.scoreBoardRoot).getPropertyValue('--bs-mid-w').trim();
+			const parsed = parseFloat(midVar);
+			if (!Number.isNaN(parsed) && parsed > 0) midPx = parsed;
+		}
+
+		const tableW = this.scoreTable.getBoundingClientRect().width;
+		// If layout isn't ready yet, don't stamp bad widths.
+		if (!tableW || tableW < 300) return false;
+		// Prevent pathological values if mid is larger than the table.
+		if (midPx > tableW - 100) midPx = Math.max(40, tableW - 100);
+		const side = Math.max(0, Math.floor((tableW - midPx) / 2));
+		const mid = Math.max(0, Math.floor(midPx));
+
+		cols[0].style.width = `${side}px`;
+		cols[1].style.width = `${mid}px`;
+		cols[2].style.width = `${side}px`;
+		return true;
+	}
 
   restoreFromStorage() {
     const isVisible = localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.isVisible) === 'yes';
@@ -206,6 +296,7 @@ class ShotClock {
 
       // Ensure clock is visible but do not call show()/stop() since they reset display
       this.clockDisplay.classList.replace('fadeOutElm', 'fadeInElm');
+		this._setClockVisibleLayout(true);
       this._persistState();
       return;
     }
@@ -323,6 +414,7 @@ class ShotClock {
    */
   show(selectedTime) {
     this.clockDisplay.classList.replace('fadeOutElm', 'fadeInElm');
+	this._setClockVisibleLayout(true);
 
     if (!this.intervalId) {
       if (selectedTime) {
@@ -346,10 +438,11 @@ class ShotClock {
    */
   hide() {
     this.clockDisplay.classList.replace('fadeInElm', 'fadeOutElm');
+	this._setClockVisibleLayout(false);
 
 	// Also hide progress bar when hiding clock
 	this.progressBar.classList.replace('fadeInElm', 'fadeOutElm');
-	this._persistState();
+    this._persistState();
   }
 
   // Private methods

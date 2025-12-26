@@ -279,7 +279,8 @@
 			// Skip off-grid ads (startCol = 99)
 			if (Number(placement.startCol) === 99) continue;
 			if (placement.show === false || placement.enabled === false || placement.hidden === true) continue;
-			const url = await getImageUrlForKey(placement.key);
+			const imageKey = typeof placement.imageKey === 'string' && placement.imageKey ? placement.imageKey : placement.key;
+			const url = await getImageUrlForKey(imageKey);
 			const title = getPlacementTitle(placement);
 			const placeholder = !!(guidesOn && !url && !title);
 			if (!url && !title && !guidesOn) continue;
@@ -311,7 +312,8 @@
 			// Skip off-grid ads (startRow = 99)
 			if (Number(placement.startRow) === 99) continue;
 			if (placement.show === false || placement.enabled === false || placement.hidden === true) continue;
-			const url = await getImageUrlForKey(placement.key);
+			const imageKey = typeof placement.imageKey === 'string' && placement.imageKey ? placement.imageKey : placement.key;
+			const url = await getImageUrlForKey(imageKey);
 			const title = getPlacementTitle(placement);
 			const placeholder = !!(guidesOn && !url && !title);
 			if (!url && !title && !guidesOn) continue;

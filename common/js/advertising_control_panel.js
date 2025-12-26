@@ -7,8 +7,14 @@ const ADS_CHANNEL_MAIN = 'g4-main';
 const ADS_CONFIG_KEY = 'adLayoutConfig_v1';
 const adsBc = new BroadcastChannel(ADS_CHANNEL_MAIN);
 
+const ADS_IMAGE_SOFT_LIMIT_BYTES = 50 * 1024 * 1024;
+const ADS_CONFIRM_DELETE_PREF_KEY = 'adsConfirmDeleteSkip_v1';
+
 let adsFrameBgLivePending = false;
 let adsFrameBgLiveLatest = { color: '#ffffff', alpha: 50 };
+
+let adsImagePickerTarget = null;
+let adsDeleteConfirmPendingKey = null;
 
 function adsSelectTab(tab) {
 	const adsPanel = document.getElementById('adsPanelAds');
@@ -30,6 +36,17 @@ function adsSelectTabAndRefresh() {
 
 function adsModalPreventDefault(e) {
 	if (!e) return;
+	// Allow scrolling inside designated scrollable areas within modals.
+	// This keeps the background locked while still letting the user scroll the gallery.
+	try {
+		const t = e.target;
+		if (t && typeof t.closest === 'function') {
+			if (t.closest('.ads-image-grid')) return;
+			if (t.closest('.ads-image-modal__panel')) return;
+		}
+	} catch {
+		// ignore
+	}
 	e.preventDefault();
 }
 
@@ -105,6 +122,344 @@ function adsCloseFrameBgModal(fromBackdrop) {
 	document.body.classList.remove('ads-modal-open');
 	window.removeEventListener('keydown', adsModalPreventScrollKeys);
 	window.removeEventListener('keydown', adsFrameBgModalKeyHandler);
+}
+
+function adsOpenImagePickerModal(region, index) {
+	const modal = document.getElementById('adsImagePickerModal');
+	if (!modal) return;
+	adsImagePickerTarget = { region, index: Number(index) };
+
+	document.body.classList.add('ads-modal-open');
+	if (!modal.dataset.scrollLockAttached) {
+		modal.addEventListener('wheel', adsModalPreventDefault, { passive: false });
+		modal.addEventListener('touchmove', adsModalPreventDefault, { passive: false });
+		modal.dataset.scrollLockAttached = '1';
+	}
+	window.addEventListener('keydown', adsModalPreventScrollKeys, { passive: false });
+	modal.classList.remove('noShow');
+	adsRefreshImagePicker();
+}
+
+function adsCloseImagePickerModal(fromBackdrop) {
+	const modal = document.getElementById('adsImagePickerModal');
+	if (!modal) return;
+	modal.classList.add('noShow');
+	document.body.classList.remove('ads-modal-open');
+	window.removeEventListener('keydown', adsModalPreventScrollKeys);
+	adsImagePickerTarget = null;
+}
+
+function adsCloseDeleteConfirmModal(fromBackdrop) {
+	const modal = document.getElementById('adsDeleteConfirmModal');
+	if (!modal) return;
+	modal.classList.add('noShow');
+	document.body.classList.remove('ads-modal-open');
+	window.removeEventListener('keydown', adsModalPreventScrollKeys);
+	adsDeleteConfirmPendingKey = null;
+}
+
+function adsShouldSkipDeleteConfirm() {
+	try {
+		return localStorage.getItem(ADS_CONFIRM_DELETE_PREF_KEY) === '1';
+	} catch {
+		return false;
+	}
+}
+
+function adsSetSkipDeleteConfirm(skip) {
+	try {
+		if (skip) localStorage.setItem(ADS_CONFIRM_DELETE_PREF_KEY, '1');
+		else localStorage.removeItem(ADS_CONFIRM_DELETE_PREF_KEY);
+	} catch {
+		// ignore
+	}
+}
+
+function adsOpenDeleteConfirmModal(imageKey) {
+	const modal = document.getElementById('adsDeleteConfirmModal');
+	if (!modal) return;
+	adsDeleteConfirmPendingKey = imageKey;
+
+	const msg = document.getElementById('adsDeleteConfirmMessage');
+	if (msg) msg.textContent = 'Delete this stored image? This will remove it from any ad slots that are using it.';
+	const chk = document.getElementById('adsDeleteConfirmDontShow');
+	if (chk) chk.checked = false;
+
+	document.body.classList.add('ads-modal-open');
+	if (!modal.dataset.scrollLockAttached) {
+		modal.addEventListener('wheel', adsModalPreventDefault, { passive: false });
+		modal.addEventListener('touchmove', adsModalPreventDefault, { passive: false });
+		modal.dataset.scrollLockAttached = '1';
+	}
+	window.addEventListener('keydown', adsModalPreventScrollKeys, { passive: false });
+	modal.classList.remove('noShow');
+}
+
+async function adsConfirmDeleteProceed() {
+	const key = adsDeleteConfirmPendingKey;
+	const chk = document.getElementById('adsDeleteConfirmDontShow');
+	if (chk && chk.checked) {
+		adsSetSkipDeleteConfirm(true);
+	}
+	adsCloseDeleteConfirmModal(false);
+	if (key) {
+		await adsDeleteStoredImage(key);
+	}
+}
+
+async function adsDeleteStoredImage(imageKey) {
+	if (!imageKey) return;
+
+	try {
+		const cfg = adsLoadConfig();
+		adsClearKeyReferences(cfg, imageKey);
+		adsNormalizePlacementPositions(cfg);
+		adsSaveConfig(cfg);
+		adsApplyConfigToBasicControls(cfg);
+		adsSyncEditor(cfg);
+	} catch {
+		// ignore
+	}
+
+	try {
+		if (window.PCPLImageDB && window.PCPLImageDB.delete) {
+			await window.PCPLImageDB.delete(imageKey);
+		}
+	} catch {
+		// ignore
+	}
+	try {
+		localStorage.removeItem(imageKey);
+	} catch {
+		// ignore
+	}
+
+	adsRefresh();
+	adsRefreshImagePicker();
+}
+
+function adsPickUploadNew() {
+	const input = document.getElementById('adsImagePickerFile');
+	if (input) input.click();
+}
+
+function adsFormatBytes(bytes) {
+	const n = Number(bytes) || 0;
+	if (n < 1024) return `${n} B`;
+	const kb = n / 1024;
+	if (kb < 1024) return `${kb.toFixed(1)} KB`;
+	const mb = kb / 1024;
+	if (mb < 1024) return `${mb.toFixed(1)} MB`;
+	const gb = mb / 1024;
+	return `${gb.toFixed(2)} GB`;
+}
+
+function adsGetAdImageKeyPrefix() {
+	return 'ad_';
+}
+
+function adsGenerateLibraryKey() {
+	const rand = Math.random().toString(16).slice(2, 10);
+	return `ad_img_${Date.now()}_${rand}`;
+}
+
+function adsGetPlacementForSlot(cfg, region, index) {
+	const p = adsEnsurePlacement(cfg, region, Number(index));
+	return p;
+}
+
+function adsGetEffectiveImageKeyForSlot(cfg, region, index) {
+	const p = adsGetPlacementForSlot(cfg, region, index);
+	const fallback = p && p.key ? p.key : adsKey(region, index);
+	return (p && typeof p.imageKey === 'string' && p.imageKey) ? p.imageKey : fallback;
+}
+
+function adsPlacementReferencesKey(p, key) {
+	if (!p || !key) return false;
+	if (p.imageKey === key) return true;
+	if (p.key === key && p.imageKey == null) return true;
+	return false;
+}
+
+function adsClearKeyReferences(cfg, key) {
+	if (!cfg || !key) return;
+	for (const region of ['top', 'left', 'right']) {
+		const list = adsGetListForRegion(cfg, region);
+		for (const p of Array.isArray(list) ? list : []) {
+			if (!p) continue;
+			if (adsPlacementReferencesKey(p, key)) {
+				delete p.imageKey;
+				p.hasImage = false;
+			}
+		}
+	}
+}
+
+async function adsRefreshImagePicker() {
+	const grid = document.getElementById('adsImageGrid');
+	if (!grid) return;
+	grid.textContent = '';
+
+	const fill = document.getElementById('adsImageMeterFill');
+	const text = document.getElementById('adsImageMeterText');
+
+	let records = [];
+	try {
+		if (window.PCPLImageDB && window.PCPLImageDB.listRecords) {
+			records = await window.PCPLImageDB.listRecords({ keyPrefix: adsGetAdImageKeyPrefix() });
+		}
+	} catch {
+		records = [];
+	}
+
+	let stats = null;
+	try {
+		if (window.PCPLImageDB && window.PCPLImageDB.getStorageStats) {
+			stats = await window.PCPLImageDB.getStorageStats({ softLimitBytes: ADS_IMAGE_SOFT_LIMIT_BYTES });
+		}
+	} catch {
+		stats = null;
+	}
+	if (fill && stats) {
+		const pct = stats.softLimitBytes > 0 ? Math.min(100, (stats.bytesUsed / stats.softLimitBytes) * 100) : 0;
+		fill.style.width = `${pct}%`;
+	}
+	if (text && stats) {
+		text.textContent = `${adsFormatBytes(stats.bytesUsed)} used / ${adsFormatBytes(stats.softLimitBytes)} (soft limit)`;
+	} else if (text) {
+		text.textContent = '';
+	}
+
+	if (!records.length) {
+		const empty = document.createElement('div');
+		empty.style.opacity = '0.85';
+		empty.style.padding = '10px';
+		empty.textContent = 'No stored images yet. Click “Upload New”.';
+		grid.appendChild(empty);
+		return;
+	}
+
+	for (const rec of records) {
+		if (!rec || !rec.key) continue;
+		const key = rec.key;
+		let url = '';
+		try {
+			if (window.PCPLImageDB && window.PCPLImageDB.getObjectUrl) {
+				url = await window.PCPLImageDB.getObjectUrl(key);
+			}
+		} catch {
+			url = '';
+		}
+
+		const card = document.createElement('div');
+		card.className = 'ads-image-card';
+		card.addEventListener('click', () => adsAssignImageToTarget(key));
+
+		const del = document.createElement('div');
+		del.className = 'ads-image-card__delete';
+		del.textContent = 'X';
+		del.addEventListener('click', (e) => {
+			e.stopPropagation();
+			adsConfirmAndDeleteImage(key);
+		});
+		card.appendChild(del);
+
+		const thumb = document.createElement('div');
+		thumb.className = 'ads-image-card__thumb';
+		if (url) {
+			const img = document.createElement('img');
+			img.src = url;
+			img.alt = rec.name || key;
+			thumb.appendChild(img);
+		}
+		card.appendChild(thumb);
+
+		const info = document.createElement('div');
+		info.className = 'ads-image-card__info';
+		const name = document.createElement('div');
+		name.className = 'ads-image-card__name';
+		name.textContent = rec.name || key;
+		const meta1 = document.createElement('div');
+		meta1.textContent = `${adsFormatBytes(rec.size || 0)} • ${Number(rec.width) || 0}×${Number(rec.height) || 0}`;
+		info.appendChild(name);
+		info.appendChild(meta1);
+		card.appendChild(info);
+
+		grid.appendChild(card);
+	}
+}
+
+async function adsAssignImageToTarget(imageKey) {
+	if (!adsImagePickerTarget) return;
+	const { region, index } = adsImagePickerTarget;
+	const cfg = adsLoadConfig();
+	const p = adsEnsurePlacement(cfg, region, Number(index));
+	if (p) {
+		p.imageKey = imageKey;
+		p.hasImage = true;
+	}
+	adsNormalizePlacementPositions(cfg);
+	adsSaveConfig(cfg);
+	adsApplyConfigToBasicControls(cfg);
+	adsSyncEditor(cfg);
+	adsCloseImagePickerModal(false);
+	adsRefresh();
+}
+
+async function adsConfirmAndDeleteImage(imageKey) {
+	if (!imageKey) return;
+	if (adsShouldSkipDeleteConfirm()) {
+		await adsDeleteStoredImage(imageKey);
+		return;
+	}
+	adsOpenDeleteConfirmModal(imageKey);
+}
+
+async function adsHandleImagePickerUpload(input) {
+	if (!(input && input.files && input.files.length)) return;
+	const files = Array.from(input.files);
+	input.value = '';
+
+	const createdKeys = [];
+	for (const file of files) {
+		if (!file) continue;
+		const key = adsGenerateLibraryKey();
+		let storedInIdb = false;
+		try {
+			if (window.PCPLImageDB && window.PCPLImageDB.setFromFile) {
+				await window.PCPLImageDB.setFromFile(key, file);
+				storedInIdb = true;
+			}
+		} catch {
+			storedInIdb = false;
+		}
+
+		if (!storedInIdb) {
+			try {
+				const dataUrl = await new Promise((resolve, reject) => {
+					const reader = new FileReader();
+					reader.onload = () => resolve(reader.result);
+					reader.onerror = () => reject(reader.error);
+					reader.readAsDataURL(file);
+				});
+				localStorage.setItem(key, dataUrl);
+				storedInIdb = true;
+			} catch {
+				storedInIdb = false;
+			}
+		}
+
+		if (!storedInIdb) {
+			alert('the selected image exceedes the maximium file size');
+			continue;
+		}
+		createdKeys.push(key);
+	}
+
+	await adsRefreshImagePicker();
+	if (createdKeys[0]) {
+		await adsAssignImageToTarget(createdKeys[0]);
+	}
 }
 
 function adsFrameBgModalKeyHandler(e) {
@@ -648,7 +1003,7 @@ async function adsHydrateHasImageFlags(cfg) {
 	for (const { region, count } of regions) {
 		for (let i = 1; i <= count; i++) {
 			const p = adsEnsurePlacement(cfg, region, i);
-			const key = p.key || adsKey(region, i);
+			const key = (p && typeof p.imageKey === 'string' && p.imageKey) ? p.imageKey : (p.key || adsKey(region, i));
 			let has = false;
 			try {
 				if (window.PCPLImageDB && window.PCPLImageDB.has) {
@@ -784,6 +1139,7 @@ async function adsDeleteAd(region, index) {
 		const cfg = adsLoadConfig();
 		const p = adsEnsurePlacement(cfg, region, Number(index));
 		p.hasImage = false;
+		delete p.imageKey;
 		adsNormalizePlacementPositions(cfg);
 		adsSaveConfig(cfg);
 		adsApplyConfigToBasicControls(cfg);
@@ -807,18 +1163,19 @@ async function adsDeleteAd(region, index) {
 }
 
 async function adsRefreshPreviews() {
-	await adsSetPreview('adTop1Img', adsKey('top', 1));
-	await adsSetPreview('adTop2Img', adsKey('top', 2));
-	await adsSetPreview('adTop3Img', adsKey('top', 3));
-	await adsSetPreview('adTop4Img', adsKey('top', 4));
-	await adsSetPreview('adTop5Img', adsKey('top', 5));
-	await adsSetPreview('adTop6Img', adsKey('top', 6));
-	await adsSetPreview('adLeft1Img', adsKey('left', 1));
-	await adsSetPreview('adLeft2Img', adsKey('left', 2));
-	await adsSetPreview('adLeft3Img', adsKey('left', 3));
-	await adsSetPreview('adRight1Img', adsKey('right', 1));
-	await adsSetPreview('adRight2Img', adsKey('right', 2));
-	await adsSetPreview('adRight3Img', adsKey('right', 3));
+	const cfg = adsLoadConfig();
+	await adsSetPreview('adTop1Img', adsGetEffectiveImageKeyForSlot(cfg, 'top', 1));
+	await adsSetPreview('adTop2Img', adsGetEffectiveImageKeyForSlot(cfg, 'top', 2));
+	await adsSetPreview('adTop3Img', adsGetEffectiveImageKeyForSlot(cfg, 'top', 3));
+	await adsSetPreview('adTop4Img', adsGetEffectiveImageKeyForSlot(cfg, 'top', 4));
+	await adsSetPreview('adTop5Img', adsGetEffectiveImageKeyForSlot(cfg, 'top', 5));
+	await adsSetPreview('adTop6Img', adsGetEffectiveImageKeyForSlot(cfg, 'top', 6));
+	await adsSetPreview('adLeft1Img', adsGetEffectiveImageKeyForSlot(cfg, 'left', 1));
+	await adsSetPreview('adLeft2Img', adsGetEffectiveImageKeyForSlot(cfg, 'left', 2));
+	await adsSetPreview('adLeft3Img', adsGetEffectiveImageKeyForSlot(cfg, 'left', 3));
+	await adsSetPreview('adRight1Img', adsGetEffectiveImageKeyForSlot(cfg, 'right', 1));
+	await adsSetPreview('adRight2Img', adsGetEffectiveImageKeyForSlot(cfg, 'right', 2));
+	await adsSetPreview('adRight3Img', adsGetEffectiveImageKeyForSlot(cfg, 'right', 3));
 }
 
 function adsToggleFrameArt() {
@@ -855,13 +1212,7 @@ function adsRefresh() {
 }
 
 function triggerAdUpload(region, index) {
-	const id = region === 'top'
-		? `FileUploadAdTop${index}`
-		: region === 'left'
-			? `FileUploadAdLeft${index}`
-			: `FileUploadAdRight${index}`;
-	const input = document.getElementById(id);
-	if (input) input.click();
+	adsOpenImagePickerModal(region, index);
 }
 
 async function adPost(input, region, index) {

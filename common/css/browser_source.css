@@ -19,8 +19,10 @@
 	--player-name-font-size: 15pt;
 	--ext-padding: 6px;
 	--bs-mid-w: 72px;
+	--bs-mid-pad-x: 0px;
 	--bs-clock-w: 3.4ch;
-	--bs-split-transition: 400ms;
+	--bs-inner-logo-shift: 0px;
+	--bs-split-transition: 0.3s;
 }
 
 /* 125% Scale */
@@ -78,7 +80,7 @@ body {
 #scoreBoardDiv {
 	position: absolute;
 	bottom: 0px;
-	width: calc(100% - 175px);
+	width: calc(100% - 130px);
 	left: 50%;
 	transform: translateX(-50%);
 	padding: 5px;
@@ -87,7 +89,8 @@ body {
 }
 
 #scoreBoardDiv.clock-visible {
-	--bs-mid-w: 104px;
+	--bs-mid-w: 84px;
+	--bs-inner-logo-shift: 28px;
 }
 
 td {
@@ -104,6 +107,17 @@ td {
 	border-collapse: separate;
 	border-spacing: 0;
 }
+
+ #scoreBoard col.bs-col-left,
+ #scoreBoard col.bs-col-right {
+	width: calc((100% - var(--bs-mid-w)) / 2);
+	transition: width var(--bs-split-transition) ease;
+ }
+
+ #scoreBoard col.bs-col-mid {
+	width: var(--bs-mid-w);
+	transition: width var(--bs-split-transition) ease;
+ }
 
 #player1Score,
 #player2Score {
@@ -131,7 +145,7 @@ td {
 .bs-score-cluster {
 	border: none !important;
 	background: transparent !important;
-	padding: 0 !important;
+	padding: 0 var(--bs-mid-pad-x) !important;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -139,6 +153,7 @@ td {
 	width: var(--bs-mid-w);
 	min-width: var(--bs-mid-w);
 	max-width: var(--bs-mid-w);
+	box-sizing: border-box;
 	transition: width var(--bs-split-transition) ease, min-width var(--bs-split-transition) ease, max-width var(--bs-split-transition) ease;
 }
 
@@ -177,9 +192,9 @@ td {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: var(--bs-clock-w);
+	width: auto;
 	min-width: var(--bs-clock-w);
-	padding: 0 0.2ch;
+	padding: 2px 4px;
 	height: 100%;
 	border: 2px solid #000;
 	border-radius: 10px;
@@ -451,11 +466,13 @@ tr.bt-row td.bt-cell:last-child .bt-rack {
 }
 
 .bs-logo-left {
-	right: 8px;
+	right: calc(8px + var(--bs-inner-logo-shift));
+	transition: right var(--bs-split-transition) ease;
 }
 
 .bs-logo-right {
-	left: 8px;
+	left: calc(8px + var(--bs-inner-logo-shift));
+	transition: left var(--bs-split-transition) ease;
 }
 
 /* ===== Player Photos ===== */

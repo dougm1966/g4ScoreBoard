@@ -273,6 +273,174 @@
 			user-select: none;
 			line-height: 1;
 		}
+
+		.ads-image-modal__panel {
+			width: min(920px, 100%);
+			max-width: 920px;
+			max-height: calc(100vh - 24px);
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			background: rgba(20, 20, 20, 0.98);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			border-radius: 14px;
+			padding: 14px;
+			box-sizing: border-box;
+		}
+
+		.ads-image-modal__meta {
+			display: flex;
+			gap: 10px;
+			align-items: center;
+			flex-wrap: wrap;
+			margin-bottom: 10px;
+		}
+
+		.ads-image-meter {
+			flex: 1 1 260px;
+			min-width: 240px;
+			height: 10px;
+			border-radius: 999px;
+			background: rgba(255, 255, 255, 0.12);
+			overflow: hidden;
+		}
+
+		.ads-image-meter__fill {
+			height: 100%;
+			width: 0%;
+			background: linear-gradient(90deg, rgba(80, 200, 120, 0.95), rgba(255, 200, 0, 0.95), rgba(255, 80, 80, 0.95));
+			border-radius: 999px;
+			transition: width 160ms linear;
+		}
+
+		.ads-image-meter__text {
+			font-size: 12px;
+			opacity: 0.9;
+			color: var(--text-primary);
+			white-space: nowrap;
+		}
+
+		.ads-image-grid {
+			flex: 1;
+			min-height: 0;
+			overflow: auto;
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-auto-rows: var(--ads-image-card-h, 136px);
+			align-content: start;
+			max-height: min(
+				calc((var(--ads-image-card-h, 136px) * 6) + (10px * 5) + 8px),
+				calc(100vh - 240px)
+			);
+			gap: 10px;
+			padding: 4px;
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 12px;
+			background: rgba(0, 0, 0, 0.16);
+		}
+
+		@media (min-width: 720px) {
+			.ads-image-grid {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+		}
+
+		@media (min-width: 980px) {
+			.ads-image-grid {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+			}
+		}
+
+		.ads-image-card {
+			position: relative;
+			display: grid;
+			grid-template-rows: 96px auto;
+			border-radius: 12px;
+			overflow: hidden;
+			border: 1px solid rgba(255, 255, 255, 0.10);
+			background: rgba(0, 0, 0, 0.28);
+			cursor: pointer;
+			height: var(--ads-image-card-h, 136px);
+		}
+
+		.ads-image-card__thumb {
+			width: 100%;
+			height: 96px;
+			background: #f6f4ef;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 6px;
+			box-sizing: border-box;
+		}
+
+		.ads-image-card__thumb img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+			display: block;
+		}
+
+		.ads-image-card__info {
+			padding: 8px;
+			display: grid;
+			gap: 2px;
+			font-size: 11px;
+			color: rgba(255, 255, 255, 0.88);
+		}
+
+		.ads-image-card__name {
+			font-weight: 700;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.ads-image-card__delete {
+			position: absolute;
+			top: 6px;
+			right: 6px;
+			width: 22px;
+			height: 22px;
+			border-radius: 999px;
+			background: rgba(0, 0, 0, 0.60);
+			border: 1px solid rgba(255, 255, 255, 0.20);
+			color: rgba(255, 255, 255, 0.95);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 800;
+			cursor: pointer;
+			user-select: none;
+			line-height: 1;
+		}
+
+		.ads-image-modal__footer {
+			display: flex;
+			justify-content: space-between;
+			gap: 10px;
+			margin-top: 10px;
+			flex-wrap: wrap;
+		}
+
+		.ads-confirm-body {
+			display: grid;
+			gap: 10px;
+			color: var(--text-primary);
+		}
+
+		.ads-confirm-message {
+			font-weight: 600;
+			line-height: 1.35;
+		}
+
+		.ads-confirm-actions {
+			display: flex;
+			justify-content: flex-end;
+			gap: 10px;
+			flex-wrap: wrap;
+			margin-top: 6px;
+		}
 	</style>
 
 	<script src="./common/js/jquery.js"></script>
@@ -702,6 +870,45 @@
 						<input type="range" id="adsColorAlpha" min="0" max="100" step="1" value="0" oninput="adsColorModalSetAlpha(this.value)">
 						<div id="adsColorAlphaLabel">0%</div>
 					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="adsImagePickerModal" class="ads-color-modal noShow" onclick="adsCloseImagePickerModal(true)">
+		<div class="ads-image-modal__panel" onclick="event.stopPropagation()">
+			<div class="ads-color-modal__header">
+				<div class="ads-color-modal__title">Select Image</div>
+				<div class="ads-color-modal__close" onclick="adsCloseImagePickerModal(false)">X</div>
+			</div>
+			<div class="ads-image-modal__meta">
+				<div class="ads-image-meter"><div id="adsImageMeterFill" class="ads-image-meter__fill"></div></div>
+				<div id="adsImageMeterText" class="ads-image-meter__text"></div>
+			</div>
+			<div id="adsImageGrid" class="ads-image-grid"></div>
+			<div class="ads-image-modal__footer">
+				<div class="btn btn--primary hover obs28" onclick="adsPickUploadNew()">Upload New</div>
+				<div class="btn hover obs28" onclick="adsCloseImagePickerModal(false)">Cancel</div>
+			</div>
+			<input type="file" id="adsImagePickerFile" style="display:none" multiple accept="image/png, image/jpeg, image/svg+xml, image/bmp" onchange="adsHandleImagePickerUpload(this)" />
+		</div>
+	</div>
+
+	<div id="adsDeleteConfirmModal" class="ads-color-modal noShow" onclick="adsCloseDeleteConfirmModal(true)">
+		<div class="ads-color-modal__panel" onclick="event.stopPropagation()">
+			<div class="ads-color-modal__header">
+				<div class="ads-color-modal__title">Confirm Delete</div>
+				<div class="ads-color-modal__close" onclick="adsCloseDeleteConfirmModal(false)">X</div>
+			</div>
+			<div class="ads-confirm-body">
+				<div class="ads-confirm-message" id="adsDeleteConfirmMessage">Delete this stored image?</div>
+				<label class="checkbox-label" style="margin:0; display:flex; align-items:center; gap:8px;">
+					<input type="checkbox" class="smallSize" id="adsDeleteConfirmDontShow">
+					<span>Don't show again</span>
+				</label>
+				<div class="ads-confirm-actions">
+					<div class="btn btn--primary hover obs28" onclick="adsConfirmDeleteProceed()">Delete</div>
+					<div class="btn hover obs28" onclick="adsCloseDeleteConfirmModal(false)">Cancel</div>
 				</div>
 			</div>
 		</div>
