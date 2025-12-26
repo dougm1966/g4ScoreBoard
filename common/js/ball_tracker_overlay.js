@@ -6,6 +6,8 @@
 
   const SOLIDS = ['1','2','3','4','5','6','7'];
   const STRIPES = ['9','10','11','12','13','14','15'];
+  const NINE_BALL = ['1','2','3','4','5','6','7','8','9'];
+  const TEN_BALL = ['1','2','3','4','5','6','7','8','9','10'];
 
   function safeParseJson(value, fallback) {
     try {
@@ -44,18 +46,54 @@
     return p1Default === 'solids' ? 'stripes' : 'solids';
   }
 
-  function setBallSizeCss(size) {
-    const s = Number(size);
-    const px = Number.isFinite(s) && s > 0 ? `${s}px` : '35px';
-    document.documentElement.style.setProperty('--bt-ball-size', px);
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function setBallSizeCssFromName(gameType) {
+    const nameEl = document.getElementById('player1Name');
+    const namePxRaw = nameEl ? Number.parseFloat(window.getComputedStyle(nameEl).fontSize) : NaN;
+    const namePx = Number.isFinite(namePxRaw) ? namePxRaw : 15;
+    const multiplier = (gameType === 'nine' || gameType === 'ten') ? 1.2 : 1.52;
+    const px = clamp(Math.round(namePx * multiplier), 12, 26);
+    document.documentElement.style.setProperty('--bt-ball-size', `${px}px`);
   }
 
   function ensureRacksExist() {
     return {
       p1: document.getElementById('p1BallRack'),
       p2: document.getElementById('p2BallRack'),
-      mid: document.getElementById('midBallRack')
+      mid: document.getElementById('midBallRack'),
+      full: document.getElementById('fullBallRack')
     };
+  }
+
+  function hideAllRacks(racks) {
+    if (racks.p1) racks.p1.classList.add('noShow');
+    if (racks.p2) racks.p2.classList.add('noShow');
+    if (racks.mid) racks.mid.classList.add('noShow');
+    if (racks.full) racks.full.classList.add('noShow');
+  }
+
+  function showMidOnly(racks) {
+    if (racks.p1) racks.p1.classList.add('noShow');
+    if (racks.p2) racks.p2.classList.add('noShow');
+    if (racks.mid) racks.mid.classList.remove('noShow');
+    if (racks.full) racks.full.classList.add('noShow');
+  }
+
+  function showFullOnly(racks) {
+    if (racks.p1) racks.p1.classList.add('noShow');
+    if (racks.p2) racks.p2.classList.add('noShow');
+    if (racks.mid) racks.mid.classList.add('noShow');
+    if (racks.full) racks.full.classList.remove('noShow');
+  }
+
+  function showAllRacks(racks) {
+    if (racks.p1) racks.p1.classList.remove('noShow');
+    if (racks.p2) racks.p2.classList.remove('noShow');
+    if (racks.mid) racks.mid.classList.remove('noShow');
+    if (racks.full) racks.full.classList.add('noShow');
   }
 
   function clearRack(el) {
@@ -87,23 +125,33 @@
     const racks = ensureRacksExist();
     if (!racks.p1 || !racks.p2 || !racks.mid) return;
 
-    // Hide everything if feature is disabled or not 8-ball
-    if (!state.enabled || state.gameType !== 'eight') {
-      racks.p1.classList.add('noShow');
-      racks.p2.classList.add('noShow');
-      racks.mid.classList.add('noShow');
+    if (!state.enabled) {
+      hideAllRacks(racks);
       return;
     }
 
-    racks.p1.classList.remove('noShow');
-    racks.p2.classList.remove('noShow');
-    racks.mid.classList.remove('noShow');
-
-    setBallSizeCss(state.ballSize);
+    setBallSizeCssFromName(state.gameType);
 
     clearRack(racks.p1);
     clearRack(racks.p2);
     clearRack(racks.mid);
+    clearRack(racks.full);
+
+    // Switch overlay mode based on game type
+    if (state.gameType === 'nine') {
+      showFullOnly(racks);
+      renderRack(racks.full, NINE_BALL, state, { placeholder: false });
+      return;
+    }
+
+    if (state.gameType === 'ten') {
+      showFullOnly(racks);
+      renderRack(racks.full, TEN_BALL, state, { placeholder: false });
+      return;
+    }
+
+    // Default to 8-ball under-name racks
+    showAllRacks(racks);
 
     const p1Set = getEffectiveSetForPlayer(state, 1);
     const p2Set = getEffectiveSetForPlayer(state, 2);

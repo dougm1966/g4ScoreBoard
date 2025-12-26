@@ -1,0 +1,109 @@
+html,
+body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: transparent;
+}
+
+ body {
+ 	position: relative;
+ }
+
+#frameRoot {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+	background: transparent;
+	transform-origin: top left;
+	display: grid;
+	grid-template-columns: 125px 1670px 125px;
+	grid-template-rows: 125px 830px 125px;
+	grid-template-areas:
+		"top top top"
+		"left center right"
+		"bottom bottom bottom";
+}
+
+#adsTop {
+	grid-area: top;
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	grid-template-rows: 1fr;
+	gap: 0;
+	background: transparent;
+	z-index: 2;
+}
+
+#adsLeft {
+	grid-area: left;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: repeat(3, 1fr);
+	gap: 0;
+	background: transparent;
+	z-index: 2;
+}
+
+#adsRight {
+	grid-area: right;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: repeat(3, 1fr);
+	gap: 0;
+	background: transparent;
+	z-index: 2;
+}
+
+.ad-tile {
+	position: relative;
+	overflow: hidden;
+	background: transparent;
+}
+
+ .ad-tile--framed {
+ 	outline: 2px solid rgba(255, 255, 255, 0.85);
+ 	outline-offset: -2px;
+ }
+
+.ad-tile img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: block;
+}
+
+ .ad-title {
+ 	position: absolute;
+ 	inset: 0;
+ 	display: flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	text-align: center;
+ 	color: rgba(255, 255, 255, 0.95);
+ 	font-family: Arial, Helvetica, sans-serif;
+ 	font-weight: 700;
+ 	font-size: 28px;
+ 	letter-spacing: 0.5px;
+ 	text-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
+ 	padding: 8px;
+ 	box-sizing: border-box;
+ }
+
+body.frame-art-on #frameRoot::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+	background:
+		linear-gradient(#6b21a8, #6b21a8) top / 100% 125px no-repeat,
+		linear-gradient(#6b21a8, #6b21a8) bottom / 100% 125px no-repeat,
+		linear-gradient(#6b21a8, #6b21a8) left / 125px 100% no-repeat,
+		linear-gradient(#6b21a8, #6b21a8) right / 125px 100% no-repeat;
+	opacity: 0.85;
+}

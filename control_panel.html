@@ -37,7 +37,7 @@ AI app development and business strategy: doug@ai1offs.com | +1 (307) 254-5056
 	<script src="hotkeys.js"></script>
 	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 </head>
-<body onload="checkForUpdate()">
+ <body onload="checkForUpdate()">
 
 	<!-- Fixed Header -->
 	<header class="panel-header">
@@ -80,14 +80,14 @@ AI app development and business strategy: doug@ai1offs.com | +1 (307) 254-5056
 				<input type="text" id="p2Name" class="input-field" placeholder="Player 2">
 			</div>
 
-			<div class="input-row">
-				<label>Race/Game/Bet:</label>
-				<input type="text" id="raceInfoTxt" class="input-field" placeholder="">
+			<div class="input-row" style="display: flex; align-items: center; gap: 2px;">
+				<label style="flex-shrink: 0; min-width: 70px; width: 70px;">Fargo/Race<br><span style="display: block; text-align: center; margin-left: -15px;">Action</span></label>
+				<input type="text" id="raceInfoTxt" class="input-field" placeholder="Fargo - 500 | Race to 8 | $50 in the middle" style="flex: 1;">
 			</div>
 
-			<div class="input-row">
-				<label>Race/Game/Bet:</label>
-				<input type="text" id="wagerInfoTxt" class="input-field" placeholder="">
+			<div class="input-row" style="display: flex; align-items: center; gap: 2px;">
+				<label style="flex-shrink: 0; min-width: 70px; width: 70px;">Fargo/Race<br><span style="display: block; text-align: center; margin-left: -15px;">Action</span></label>
+				<input type="text" id="wagerInfoTxt" class="input-field" placeholder="Fargo - 500 | Race to 8 | $50 in the middle" style="flex: 1;">
 			</div>
 
 			<div class="grid-section grid-cols-1" id="updateInfoRowFull">
@@ -168,36 +168,8 @@ AI app development and business strategy: doug@ai1offs.com | +1 (307) 254-5056
 				</div>
 				<div class="btn btn--sm hover obs28" id="btSwapSets" type="button" style="align-self:end;">Swap</div>
 			</div>
-			<div class="grid-section" style="grid-template-columns: 1fr 1fr 1fr; gap: var(--grid-gap);">
-				<div class="input-group">
-					<label>Ball Size:</label>
-					<select id="btBallSize" class="select-field obs28">
-						<option value="35">Small</option>
-						<option value="45">Medium</option>
-						<option value="55">Large</option>
-					</select>
-				</div>
-				<div class="btn hover obs28" id="btShowHide" type="button" style="align-self:end;">Hide</div>
-				<div class="btn hover obs28" id="btResetBalls" type="button" style="align-self:end;">Reset</div>
-			</div>
 			<div class="grid-section grid-cols-1">
-				<div class="grid-section" id="btBallToggleRow" style="grid-template-columns: repeat(15, 1fr); gap: 4px;">
-					<div class="btn btn--sm hover obs28" data-ball="1">1</div>
-					<div class="btn btn--sm hover obs28" data-ball="2">2</div>
-					<div class="btn btn--sm hover obs28" data-ball="3">3</div>
-					<div class="btn btn--sm hover obs28" data-ball="4">4</div>
-					<div class="btn btn--sm hover obs28" data-ball="5">5</div>
-					<div class="btn btn--sm hover obs28" data-ball="6">6</div>
-					<div class="btn btn--sm hover obs28" data-ball="7">7</div>
-					<div class="btn btn--sm hover obs28" data-ball="8">8</div>
-					<div class="btn btn--sm hover obs28" data-ball="9">9</div>
-					<div class="btn btn--sm hover obs28" data-ball="10">10</div>
-					<div class="btn btn--sm hover obs28" data-ball="11">11</div>
-					<div class="btn btn--sm hover obs28" data-ball="12">12</div>
-					<div class="btn btn--sm hover obs28" data-ball="13">13</div>
-					<div class="btn btn--sm hover obs28" data-ball="14">14</div>
-					<div class="btn btn--sm hover obs28" data-ball="15">15</div>
-				</div>
+				<div class="btn hover obs28" id="btResetBalls" type="button">Reset</div>
 			</div>
 		</section>
 

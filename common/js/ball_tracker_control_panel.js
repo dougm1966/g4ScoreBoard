@@ -184,7 +184,6 @@
       resetPocketed(st);
       saveState(st);
       setActiveGameButtons(gameType);
-      updatePocketedButtons(st);
       broadcastState(st);
     }
 
@@ -260,39 +259,6 @@
       });
     }
 
-    // Size
-    const sizeSel = document.getElementById('btBallSize');
-    if (sizeSel) {
-      const st = loadState();
-      sizeSel.value = String(st.ballSize);
-      sizeSel.addEventListener('change', () => {
-        const s = loadState();
-        s.ballSize = Number(sizeSel.value);
-        saveState(s);
-        broadcastState(s);
-      });
-    }
-
-    // Show/Hide (enabled in state)
-    const showHideBtn = document.getElementById('btShowHide');
-    function syncShowHideButton(st) {
-      if (!showHideBtn) return;
-      showHideBtn.textContent = st.enabled ? 'Hide' : 'Show';
-    }
-
-    if (showHideBtn) {
-      const st = loadState();
-      syncShowHideButton(st);
-      showHideBtn.addEventListener('click', () => {
-        const s = loadState();
-        s.enabled = !s.enabled;
-        saveState(s);
-        syncShowHideButton(s);
-        if (!s.enabled) broadcastDisabled();
-        else broadcastState(s);
-      });
-    }
-
     // Reset
     const resetBtn = document.getElementById('btResetBalls');
     if (resetBtn) {
@@ -300,24 +266,6 @@
         const s = loadState();
         resetPocketed(s);
         saveState(s);
-        updatePocketedButtons(s);
-        broadcastState(s);
-      });
-    }
-
-    // Ball toggles row
-    const row = document.getElementById('btBallToggleRow');
-    if (row) {
-      const st = loadState();
-      updatePocketedButtons(st);
-      row.addEventListener('click', (e) => {
-        const target = e.target.closest('[data-ball]');
-        if (!target) return;
-        const ball = target.getAttribute('data-ball');
-        const s = loadState();
-        s.pocketed[String(ball)] = !s.pocketed[String(ball)];
-        saveState(s);
-        updatePocketedButtons(s);
         broadcastState(s);
       });
     }

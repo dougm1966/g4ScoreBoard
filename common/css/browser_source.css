@@ -53,8 +53,8 @@ body.scale-200 {
 	--scale-transform: scale(2.00, 2.00);
 	--logo-left: 525px;
 	--logo-right: 525px;
-	--race-left: 90px;
-	--wager-right: 80px;
+	--race-left:40px;
+	--wager-right: 40px;
 	--slides-left: 573px;
 	--slides-bottom: 13.75px;
 	--player-name-font-size: 12pt;
@@ -74,7 +74,7 @@ body {
 
 #scoreBoardDiv {
 	position: absolute;
-	bottom: 25px;
+	bottom: 0px;
 	width: 90%;
 	left: 5%;
 	padding: 5px;
@@ -169,7 +169,7 @@ td {
 	position: absolute;
 	left: 50%;
 	transform: translateX(-50%);
-	bottom: -25px;
+	bottom: 68px;
 	padding: 4px 15px;
 	border: 2px 2px 2px 2px;
 	border-radius: 4px 4px 4px 4px;
@@ -199,8 +199,9 @@ td {
 	justify-content: center;
 	align-items: center;
 	gap: 2px;
-	margin-top: 2px;
-	padding: 0 4px 2px;
+	margin-top: 0px;
+	padding: 4px 4px 0px;
+	width: 100%;
 	box-sizing: border-box;
 }
 
@@ -220,6 +221,24 @@ td {
 
 .bt-ball--pocketed {
 	opacity: 0.35;
+}
+
+tr.bt-row td.bt-cell {
+	border: none;
+	background: transparent;
+	padding: 0;
+}
+
+tr.bt-row td.bt-cell--mid {
+	padding: 0;
+}
+
+tr.bt-row td.bt-cell:first-child .bt-rack {
+	justify-content: flex-start;
+}
+
+tr.bt-row td.bt-cell:last-child .bt-rack {
+	justify-content: flex-end;
 }
 
 /* ===== Name centering with dynamic padding (no layout model changes) ===== */
@@ -444,18 +463,18 @@ td {
 /* ===== Race & Wager Info ===== */
 #raceInfo,
 #wagerInfo {
-	position: fixed;
-	bottom: 12px;
+	position: absolute;
+	top: 5px;
 	width: fit-content;
 	min-width: 80px;
 	max-width: 320px;
-	border-radius: 0px 0px 10px 10px;
+	border-radius: 10px 10px 0px 0px;
 	text-align: center;
 	padding: 4px 10px 1px;
 	font-size: 8pt;
 	font-weight: bolder;
 	border: 1px solid #000;
-	border-top: none;
+	border-bottom: none;
 	z-index: 1;
 }
 
@@ -467,6 +486,18 @@ td {
 #wagerInfo {
 	background-image: linear-gradient(to left, rgb(138, 216, 146), white);
 	right: var(--wager-right);
+}
+
+tr.bt-full-row td.bt-cell {
+	border: none;
+	background: transparent;
+	padding: 0;
+}
+
+.bt-rack--full {
+	justify-content: center;
+	flex-wrap: nowrap;
+	gap: 2px;
 }
 
 /* ===== Shot Clock Progress Bar ===== */
@@ -535,6 +566,8 @@ td {
 
 .bs-game-info {
 	display: block;
+	position: relative;
+	height: 24px;
 }
 
 .bs-scoreboard {

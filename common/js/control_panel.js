@@ -800,48 +800,48 @@ var clockIsPaused = false;
 				postNames();
 			}
 
-function checkForUpdate() {
-    const updateStatus = document.getElementById('updateStatus');
-    updateStatus.textContent = "Checking";
-    
-    fetch('https://api.github.com/repos/ngholson/g4Scoreboard/releases/latest')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`GitHub API request failed: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const latestVersion = data.tag_name.replace(/^v/, '');
-            if (compareVers(latestVersion, versionNum) > 0) {
-                updateStatus.innerHTML = `<a color="grey" href="${data.html_url}" target="_blank" rel="noopener noreferrer nohighlight">Download Update</a>`;
-            } else {
-                updateStatus.textContent = "PCPLScoreBoard is up to date";
-            }
-        })
-        .catch(error => {
-            updateStatus.textContent = "Error checking for updates. Please try again later.";
-            console.error("Update check failed:", error);
-        });
-}
+			function checkForUpdate() {
+				const updateStatus = document.getElementById('updateStatus');
+				updateStatus.textContent = "Checking";
+				
+				fetch('https://api.github.com/repos/ngholson/g4Scoreboard/releases/latest')
+					.then(response => {
+						if (!response.ok) {
+							throw new Error(`GitHub API request failed: ${response.status}`);
+						}
+						return response.json();
+					})
+					.then(data => {
+						const latestVersion = data.tag_name.replace(/^v/, '');
+						if (compareVers(latestVersion, versionNum) > 0) {
+							updateStatus.innerHTML = `<a color="grey" href="${data.html_url}" target="_blank" rel="noopener noreferrer nohighlight">Download Update</a>`;
+						} else {
+							updateStatus.textContent = "PCPLScoreBoard is up to date";
+						}
+					})
+					.catch(error => {
+						updateStatus.textContent = "Error checking for updates. Please try again later.";
+						console.error("Update check failed:", error);
+					});
+			}
 
-function compareVers(v1, v2) {
-    const parts1 = v1.split('.').map(Number);
-   const parts2 = v2.split('.').map(Number);
-    
-    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-        const part1 = parts1[i] || 0;
-        const part2 = parts2[i] || 0;
-        if (part1 > part2) return 1;
-        if (part1 < part2) return -1;
-    }
-    return 0;
-}
+			function compareVers(v1, v2) {
+				const parts1 = v1.split('.').map(Number);
+				const parts2 = v2.split('.').map(Number);
+				
+				for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+					const part1 = parts1[i] || 0;
+					const part2 = parts2[i] || 0;
+					if (part1 > part2) return 1;
+					if (part1 < part2) return -1;
+				}
+				return 0;
+			}
 
-// ===== Modal Functions =====
-function openSettingsModal() {
-    document.getElementById('settingsModal').style.display = 'block';
-}
+ // ===== Modal Functions =====
+ function openSettingsModal() {
+     document.getElementById('settingsModal').style.display = 'block';
+ }
 
 function closeSettingsModal() {
     document.getElementById('settingsModal').style.display = 'none';

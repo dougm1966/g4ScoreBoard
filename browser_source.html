@@ -18,12 +18,6 @@ AI app development and business strategy: doug@ai1offs.com | +1 (307) 254-5056
 </head>
 <body>
 	<div class="bs-overlay">
-		<!-- Game Info Section -->
-		<section class="bs-game-info">
-			<div class="noShow fadeInElm" id="raceInfo">&nbsp;</div>
-			<div class="noShow fadeInElm" id="wagerInfo">&nbsp;</div>
-		</section>
-
 		<!-- Scoreboard Section -->
 		<section id="scoreBoardDiv" class="fadeInElm bs-scoreboard">
 			<!-- Shot Clock Progress Bar -->
@@ -31,6 +25,12 @@ AI app development and business strategy: doug@ai1offs.com | +1 (307) 254-5056
 
 			<!-- Shot Clock Display (separate from score table) -->
 			<div class="fadeOutElm" id="shotClock">&nbsp;</div>
+
+			<!-- Game Info Section -->
+			<section class="bs-game-info">
+				<div class="noShow fadeInElm" id="raceInfo">&nbsp;</div>
+				<div class="noShow fadeInElm" id="wagerInfo">&nbsp;</div>
+			</section>
 
 			<!-- Score Table -->
 			<table id="scoreBoard" class="bs-score-table">
@@ -46,20 +46,25 @@ AI app development and business strategy: doug@ai1offs.com | +1 (307) 254-5056
 							<img id="player1-photo" class="playerPhoto" src="" alt="">
 							<img class="fadeOutElm bs-logo bs-logo-left" id="leftSponsorLogoImg" height="20" src="" alt="">
 							<span class="playerNameText">Player 1</span>
-							<div id="p1BallRack" class="bt-rack noShow"></div>
 						</td>
 						<td class="bs-score-cluster">
 							<span id="player1Score" class="bs-score-pill">0</span>
 							<span id="player2Score" class="bs-score-pill">0</span>
-							<div id="midBallRack" class="bt-rack bt-rack--mid noShow"></div>
 						</td>
 						<td id="player2Name" class="bs-player-name">
 							<span class="playerNameText">Player 2</span>
 							<img class="fadeOutElm bs-logo bs-logo-right" id="rightSponsorLogoImg" height="20" src="" alt="">
 							<img id="player2-photo" class="playerPhoto" src="" alt="">
 							<div class="fadeInElm bs-ext-icon" id="p2ExtIcon">Ex</div>
-							<div id="p2BallRack" class="bt-rack noShow"></div>
 						</td>
+					</tr>
+					<tr class="bt-row">
+						<td class="bt-cell"><div id="p1BallRack" class="bt-rack noShow"></div></td>
+						<td class="bt-cell bt-cell--mid"><div id="midBallRack" class="bt-rack bt-rack--mid noShow"></div></td>
+						<td class="bt-cell"><div id="p2BallRack" class="bt-rack noShow"></div></td>
+					</tr>
+					<tr class="bt-full-row">
+						<td class="bt-cell bt-cell--full" colspan="3"><div id="fullBallRack" class="bt-rack bt-rack--full noShow"></div></td>
 					</tr>
 				</tbody>
 			</table>
