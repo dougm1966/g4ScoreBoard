@@ -18,6 +18,15 @@ import {
   DOM_IDS
 } from './constants.js';
 
+const SHOTCLOCK_STORAGE_KEYS = {
+  endTime: 'shotClock_endTime',
+  originalDuration: 'shotClock_originalDuration',
+  pausedRemaining: 'shotClock_pausedRemaining',
+  isRunning: 'shotClock_isRunning',
+  isPaused: 'shotClock_isPaused',
+  isVisible: 'shotClock_isVisible'
+};
+
 /**
  * Shot Clock module - handles all timer logic
  */
@@ -38,6 +47,51 @@ export class ShotClock {
     this.progressBar = document.getElementById(DOM_IDS.shotClockVis);
   }
 
+  restoreFromStorage() {
+    const isVisible = localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.isVisible) === 'yes';
+    const isRunning = localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.isRunning) === 'yes';
+    const isPaused = localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.isPaused) === 'yes';
+    const endTime = parseInt(localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.endTime) || '0', 10);
+    const originalDuration = parseInt(localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.originalDuration) || '0', 10);
+    const pausedRemaining = parseInt(localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.pausedRemaining) || '0', 10);
+
+    if (!isVisible && !isRunning && !isPaused) return;
+
+    if (isRunning && endTime > 0) {
+      const remaining = endTime - new Date().getTime();
+      if (remaining > 0) {
+        this.show();
+        this.start(remaining);
+        return;
+      }
+    }
+
+    if (isPaused && pausedRemaining > 0) {
+      this.originalDuration = originalDuration > 0 ? originalDuration : pausedRemaining;
+      this.pausedTimeRemaining = pausedRemaining;
+      this.clockPaused = true;
+      this._updateDisplay(Math.floor(pausedRemaining / 1000));
+      this._resetProgressBar();
+      this.show();
+      this.stop();
+      return;
+    }
+
+    if (isVisible) {
+      this.show();
+    }
+  }
+
+  _persistState() {
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.endTime, String(this.countDownTime || 0));
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.originalDuration, String(this.originalDuration || 0));
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.pausedRemaining, String(this.pausedTimeRemaining || 0));
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.isRunning, this.intervalId ? 'yes' : 'no');
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.isPaused, this.clockPaused ? 'yes' : 'no');
+    const visible = this.clockDisplay.classList.contains('fadeInElm');
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.isVisible, visible ? 'yes' : 'no');
+  }
+
   /**
    * Start shot clock timer
    * @param {number} duration - Duration in milliseconds
@@ -55,6 +109,10 @@ export class ShotClock {
     this._resetProgressBar();
     this._startProgressBar(duration);
     this._startInterval();
+
+    this.clockDisplay.classList.replace('fadeOutElm', 'fadeInElm');
+    this.progressBar.classList.replace('fadeOutElm', 'fadeInElm');
+    this._persistState();
   }
 
   /**
@@ -72,6 +130,8 @@ export class ShotClock {
     this.clockPaused = true;
 
     this._freezeProgressBar();
+
+    this._persistState();
   }
 
   /**
@@ -88,6 +148,10 @@ export class ShotClock {
     this.progressBar.style.width = '0px';
 
     this._startInterval();
+
+    this.clockDisplay.classList.replace('fadeOutElm', 'fadeInElm');
+    this.progressBar.classList.replace('fadeOutElm', 'fadeInElm');
+    this._persistState();
   }
 
   /**
@@ -107,6 +171,8 @@ export class ShotClock {
     this._updateDisplay(seconds, 'green', 'white');
     this._resetProgressBar();
     this.clockDisplay.classList.remove('shotRed');
+
+    this._persistState();
   }
 
   /**
@@ -137,6 +203,9 @@ export class ShotClock {
       this.progressBar.style.width = '90%';
       this.progressBar.style.background = 'lime';
     }
+
+    this.progressBar.classList.replace('fadeOutElm', 'fadeInElm');
+    this._persistState();
   }
 
   /**
@@ -144,6 +213,9 @@ export class ShotClock {
    */
   hide() {
     this.clockDisplay.classList.replace('fadeInElm', 'fadeOutElm');
+
+    this.progressBar.classList.replace('fadeInElm', 'fadeOutElm');
+    this._persistState();
   }
 
   // Private methods
@@ -183,6 +255,8 @@ export class ShotClock {
     if (distance < THRESHOLD_BEEP && distance > THRESHOLD_BEEP_END) {
       this.show();
     }
+
+    this._persistState();
   }
 
   _updateClockColors(distance) {

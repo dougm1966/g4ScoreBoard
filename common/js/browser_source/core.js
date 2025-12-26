@@ -91,6 +91,9 @@ class BrowserSource {
     // Clock settings
     this.ui.toggleExtensionIcons(state.useClock === 'yes');
 
+    // Restore shot clock state (so OBS browser source refresh doesn't hide it)
+    this.shotClock.restoreFromStorage();
+
     // Slideshow
     if (state.slideShow === 'yes') {
       const slideshowDiv = document.getElementById(DOM_IDS.logoSlideshow);
