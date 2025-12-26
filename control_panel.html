@@ -1,194 +1,334 @@
 <!doctype html>
-<!-- 
+<!--
 G4ScoreBoard addon for OBS Copyright 2022-2025 Norman Gholson IV
 https://g4billiards.com http://www.g4creations.com
 this is a purely javascript/html/css driven scoreboard system for OBS Studio
-free to use and modify and use as long as this copyright statment remains intact. 
+free to use and modify and use as long as this copyright statment remains intact.
 Salotto logo is the copyright of Salotto and is used with their permission.
 for more information about Salotto please visit https://salotto.app
 -->
 
 <html>
-    <head>
+<head>
+	<!-- CRITICAL: Theme stylesheets MUST stay in this exact order -->
+	<!-- obsThemeChange() uses document.styleSheets[0..5] indices -->
 	<link rel="stylesheet" href="./common/css/control_panel/yami.css" />
 	<link rel="stylesheet" href="./common/css/control_panel/dark.css" />
 	<link rel="stylesheet" href="./common/css/control_panel/acri.css" />
 	<link rel="stylesheet" href="./common/css/control_panel/grey.css" />
 	<link rel="stylesheet" href="./common/css/control_panel/light.css" />
-	<link rel="stylesheet" href="./common/css/control_panel/rachni.css" />	
-	<link rel="stylesheet" href="./common/css/control_panel/required.css" />		
+	<link rel="stylesheet" href="./common/css/control_panel/rachni.css" />
+	<!-- New CSS files (loaded after themes) -->
+	<link rel="stylesheet" href="./common/css/control_panel/base.css" />
+	<link rel="stylesheet" href="./common/css/control_panel/layout.css" />
+	<link rel="stylesheet" href="./common/css/control_panel/components.css" />
+	<link rel="stylesheet" href="./common/css/control_panel/required.css" />
 
 	<script>
-	 //---------------------------------------------------------------------------------------------
-	 var versionNum = "1.8.2";
- 	 //---------------------------------------------------------------------------------------------
-	 </script>
-	 <script src="./common/js/jquery.js"></script>
-	 <script src="./common/js/control_panel.js"></script>
-	 <script src="hotkeys.js"></script>
-     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"> 
-  	</head>
-	<body onload="checkForUpdate()">
-		<div id="mainDiv">
-			 <center><div id="topPlayerGameInfo" class="obs28"><p style="font-size:1px">&nbsp;</p>
-			Player/Team 1 Name:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="p1Name" placeholder="Player 1">&nbsp;<span class="tooltip hover photoUploadBtn" id="p1PhotoBtn"><input type="file" id="FileUploadP1Photo" onchange="playerPhotoPost(this,1)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />Photo<span class="tooltiptext"><img id="p1PhotoImg" src="" style="height:30px; max-width:70px; border-radius:50%"></span></span><br><p style="font-size:1px">&nbsp;</p>
-			Player/Team 2 Name:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="p2Name" placeholder="Player 2">&nbsp;<span class="tooltip hover photoUploadBtn" id="p2PhotoBtn"><input type="file" id="FileUploadP2Photo" onchange="playerPhotoPost(this,2)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />Photo<span class="tooltiptext"><img id="p2PhotoImg" src="" style="height:30px; max-width:70px; border-radius:50%"></span></span><br><p style="font-size:1px">&nbsp;</p>
-			<text style="font-size:4px">&nbsp;</text>Game and Race Info:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="raceInfoTxt" placeholder=""><br><p style="font-size:1px">&nbsp;</p>
-			<text style="font-size:8.5px">&nbsp;&nbsp;&nbsp;</text>Wager / Other Info:&nbsp;<input style="font-size:8pt; width: 120px; background:lightgrey" type="text" id="wagerInfoTxt" placeholder=""><p style="font-size:5px" /p></div>
-			<p style="font-size:12px">&nbsp;</p>
-			<div class="hover obs28" id="sendPNames" onclick="postNames()">Update Info</div>
-			<p style="font-size:1.5pt">&nbsp;</p>
-			<select style="text-align:justify" name="p1Colors" id="p1colorDiv" class="obs28" onchange="playerColorChange(1)">
-			<option value="" default>P1 Color</option>
-            <option value="grey">Grey</option>
-			<option value="steelblue">SteelBlue</option>
-            <option value="cadetblue">CadetBlue</option>
-			<option value="blue">Blue</option>
-            <option value="tomato">Tomato</option>
-			<option value="red">Red</option>
-            <option value="orangered">OrangeRed</option>
-            <option value="orange">Orange</option>
-            <option value="khaki">Khaki</option>
-            <option value="green">Green</option>
-			<option value="lightgreen">lightGreen</option>
-            <option value="lightseagreen">SeaGreen</option>
-			<option value="purple">Purple</option>
-			<option value="white">White</option>
-		</select>
-		<select style="text-align:justify" name="p2Colors" id="p2colorDiv" class="obs28" onchange="playerColorChange(2)">
-            <option value="" default>P2 Color</option>
-            <option value="grey">Grey</option>
-			<option value="steelblue">SteelBlue</option>
-            <option value="cadetblue">CadetBlue</option>
-			<option value="blue">Blue</option>
-            <option value="tomato">Tomato</option>
-			<option value="red">Red</option>
-            <option value="orangered">OrangeRed</option>
-            <option value="orange">Orange</option>
-            <option value="khaki">Khaki</option>
-            <option value="green">Green</option>
-			<option value="lightgreen">lightGreen</option>
-            <option value="lightseagreen">SeaGreen</option>
-			<option value="purple">Purple</option>
-            <option value="white">White</option>
-        </select><div class="hover obs28" onclick="swapColors()" id="swapBtn"><text style="font-size:2pt">&nbsp;</text>Swap</div>
-		<hr>
-        <div class="hover obs28" id="sendP1Score" onclick="postScore('add','1')">P1 +1 Score</div>
-        <div class="hover obs28" id="sendP2Score" onclick="postScore('add','2')">P2 +1 Score</div>
-		<p style="font-size:9.25pt">&nbsp;</p>
-		<div class="hover obs28" id="sendP1ScoreSub" onclick="postScore('sub','1')">P1 -1 Score</div>
-        <div class="hover obs28" id="sendP2ScoreSub" onclick="postScore('sub','2')">P2 -1 Score</div>
-		<p style="font-size:11.25pt">&nbsp;</p><hr>
-		<div class="hover obs28" id="shotClock30" onclick="shotClock(31000)">30s Shot Clock</div>
-		<div class="hover obs28" id="shotClock60" onclick="shotClock(61000)">60s Shot Clock</div><p style="font-size:9.25pt">&nbsp;</p>
-		<div class="hover obs28" id="shotClockShow" onclick="clockDisplay('show')">Show Clock</div>
-		<div id="clockLocalDisplay" onclick=""></div><p style="font-size:11pt">&nbsp;</p>
-		<div class="hover obs28" id="p1extensionBtn" onclick="add30('p1')">P1 Extension</div>
-		<div class="hover obs28" id="p2extensionBtn" onclick="add30('p2')">P2 Extension</div><p style="font-size:11.5pt">&nbsp;</p>
-		<div class="hover obs28" id="stopClockDiv" onclick="stopClock()">Stop Clock</div>
-		<HR><div class="hover obs28" id="resetBtn" onclick="resetScore()">Reset Scores and Extensions</div><p style="font-size:1.5pt">&nbsp;</p>
-		<div class="hover obs28" id="p1ExtReset" onclick="resetExt('p1')">P1 Ext Reset</div>
-		<div class="hover obs28" id="p2ExtReset" onclick="resetExt('p2')">P2 Ext Reset</div><p style="font-size:9pt">&nbsp;</p>
-		<div class="obs28" id="settingsBox1">
-			<span>All <input type="checkbox" class="smallSize" id="allCheck" onchange="allCheck()" checked><br><span>Use Clock:<span> <input type="checkbox" class="smallSize" id="useClockSetting" onchange="clockSetting()" ><br><span><text class="hover" onclick="salLogoNameChange()" id="salllogoName">Salotto</text>&nbsp;Logo:<span><input type="checkbox" class="smallSize" id="useSalottoSetting" onchange="salottoSetting()">
-			<br><span><text class="hover" onclick="cLogoNameChange()" id="logoName"></text>&nbsp;Logo:<span><input class="smallSize" type="checkbox" id="customLogo" onchange="customLogoSetting()">
-		</div>
-		<div class="obs28" id="settingsBox3">
-		<text>Logo Image Upload<br>Max size: 2.4MB</text>
-		</div><p style="font-size:1px">&nbsp;</p>
-		<div class="hover obs28 tooltip" id="settingsBox2">Upload<br>Right
-			<input type="file" id="FileUploadL0" onchange="logoPost(this,0)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
-			<span class="tooltiptext"><img id="l0Img" src="" style="height:30px; max-width:70px"></span>
-			</div>
-<!-- NEW UPLOAD BOX -->
-			<div class="hover obs28 tooltip" id="settingsBox4">Upload<br>Left
-			<input type="file" id="FileUploadL4" onchange="logoPost(this,4)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
-			<span class="tooltiptext"><img id="l4Img" src="" style="height:30px; max-width:70px"></span>
-<!-- END OF NEW UPLOAD BOX -->
-			<br>
-		</div>	
-		<p style="font-size:9.5pt">&nbsp;</p>
-		<div class="obs28" id="logoSlideShowDiv">
-			<span>Sponsor Logos:<input class="smallSize" type="checkbox" id="logoSlideshowChk" onchange="logoSlideshow()"></span> 
-		</div>
-		<div class="tooltip obs28 hover" id="logoSsImg1"><input type="file" id="FileUploadL1" onchange="logoPost(this,1)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
-			SL1 <span class="tooltiptext"><img id="l1Img" src="" style="height:30px; max-width:70px"></span>
-		</div>
-		<div class="tooltip obs28 hover" id="logoSsImg2"><input type="file" id="FileUploadL2" onchange="logoPost(this,2)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
-			SL2 <span class="tooltiptext"><img id="l2Img" src="" style="height:30px; max-width:70px"></span>
-		</div>
-		<div class="tooltip obs28 hover" id="logoSsImg3"><input type="file" id="FileUploadL3" onchange="logoPost(this,3)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
-			SL3<span class="tooltiptext"><img id="l3Img" src="" style="height:30px; max-width:70px"></span>
-		</div>
-		<p style="font-size:11px">&nbsp;</p>
-		<div class="slidecontainer">
-			<input type="range" min="0" max="100" value="100" class="slider" id="scoreOpacity">
-		</div></center>
-<div class="themeSizeLabels" id="obsThemeLabel"><text id="StyleChange"></text>
-	<select class="obs28" name="bsstyle" id="bsStyle" onchange="bsStyleChange()">
-    <option value="1">small</option>
-    <option value="2">medium</option>
-	<option value="3">large</option>
-	<option value="4">XL</option>
-	<option value="5" selected>Size</option>
-	</select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;point val
-</div>	<div class="themeSizeLabels" id="obsThemeDiv">ue:<input style="font-size:8pt; width: 30px; background:lightgrey" type="number" min=1 id="scoreValue" placeholder=1 onload="pointValue()" onchange="pointValue()"><br><p style="font-size:1px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		
-		<select class="obs28" name="Theme" id="obsTheme" onchange="obsThemeChange()">
-            <option value="27">dark</option>
-            <option value="28">yami</option>
-			<option value="acri">acri</option>
-			<option value="grey">grey</option>
-			<option value="light">light</option>
-			<option value="rachni">rachni</option>
-			<option value="999999" selected>theme</option>
-		 </select>
-		 </div>
-	<p style="font-size:2px">&nbsp;</p><text style="font-size:7pt; color:#818181; position:fixed; top:4px; ">g4ScoreBoard v<text id="verNum"></text></text>
-	<p style="font-size:2px">&nbsp;</p><text style="font-size:7pt; color:#818181; position:fixed; bottom:4px;" id="updateStatus"></text>
-</div>
-<script src="./common/js/control_panel_post.js"></script>
+	//---------------------------------------------------------------------------------------------
+	var versionNum = "2.0.0";
+	//---------------------------------------------------------------------------------------------
+	</script>
+	<script src="./common/js/jquery.js"></script>
+	<script src="./common/js/control_panel.js"></script>
+	<script src="hotkeys.js"></script>
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+</head>
+<body onload="checkForUpdate()">
 
-<script>
+	<!-- Fixed Header -->
+	<header class="panel-header">
+		<span class="version-text">g4ScoreBoard v<span id="verNum"></span></span>
+		<span id="updateStatus"></span>
+	</header>
+
+	<div id="mainDiv">
+
+		<!-- Section: Player Information -->
+		<section class="section-card" id="topPlayerGameInfo">
+			<div class="section-card__title">Player Information</div>
+
+			<div class="input-row">
+				<label>Player 1:</label>
+				<input type="text" id="p1Name" class="input-field" placeholder="Player 1">
+				<span class="tooltip hover photoUploadBtn" id="p1PhotoBtn">
+					<input type="file" id="FileUploadP1Photo" onchange="playerPhotoPost(this,1)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
+					Photo
+					<span class="tooltiptext"><img id="p1PhotoImg" src="" style="height:30px; max-width:70px; border-radius:50%"></span>
+				</span>
+			</div>
+
+			<div class="input-row">
+				<label>Player 2:</label>
+				<input type="text" id="p2Name" class="input-field" placeholder="Player 2">
+				<span class="tooltip hover photoUploadBtn" id="p2PhotoBtn">
+					<input type="file" id="FileUploadP2Photo" onchange="playerPhotoPost(this,2)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
+					Photo
+					<span class="tooltiptext"><img id="p2PhotoImg" src="" style="height:30px; max-width:70px; border-radius:50%"></span>
+				</span>
+			</div>
+
+			<div class="input-row">
+				<label>Game/Race:</label>
+				<input type="text" id="raceInfoTxt" class="input-field" placeholder="">
+			</div>
+
+			<div class="input-row">
+				<label>Wager:</label>
+				<input type="text" id="wagerInfoTxt" class="input-field" placeholder="">
+			</div>
+
+			<div class="grid-section grid-cols-1">
+				<div class="btn btn--primary hover obs28" id="sendPNames" onclick="postNames()">Update Info</div>
+			</div>
+		</section>
+
+		<!-- Section: Player Colors -->
+		<!-- CRITICAL: p1colorDiv and p2colorDiv MUST be the first two <select> elements -->
+		<!-- JavaScript uses getElementsByTagName("select")[0] and [1] -->
+		<section class="section-card">
+			<div class="grid-section" style="grid-template-columns: 1fr 1fr auto; gap: var(--grid-gap);">
+				<select id="p1colorDiv" class="select-field obs28" name="p1Colors" onchange="playerColorChange(1)">
+					<option value="" default>P1 Color</option>
+					<option value="grey">Grey</option>
+					<option value="steelblue">SteelBlue</option>
+					<option value="cadetblue">CadetBlue</option>
+					<option value="blue">Blue</option>
+					<option value="tomato">Tomato</option>
+					<option value="red">Red</option>
+					<option value="orangered">OrangeRed</option>
+					<option value="orange">Orange</option>
+					<option value="khaki">Khaki</option>
+					<option value="green">Green</option>
+					<option value="lightgreen">lightGreen</option>
+					<option value="lightseagreen">SeaGreen</option>
+					<option value="purple">Purple</option>
+					<option value="white">White</option>
+				</select>
+				<select id="p2colorDiv" class="select-field obs28" name="p2Colors" onchange="playerColorChange(2)">
+					<option value="" default>P2 Color</option>
+					<option value="grey">Grey</option>
+					<option value="steelblue">SteelBlue</option>
+					<option value="cadetblue">CadetBlue</option>
+					<option value="blue">Blue</option>
+					<option value="tomato">Tomato</option>
+					<option value="red">Red</option>
+					<option value="orangered">OrangeRed</option>
+					<option value="orange">Orange</option>
+					<option value="khaki">Khaki</option>
+					<option value="green">Green</option>
+					<option value="lightgreen">lightGreen</option>
+					<option value="lightseagreen">SeaGreen</option>
+					<option value="purple">Purple</option>
+					<option value="white">White</option>
+				</select>
+				<div class="btn btn--sm hover obs28" id="swapBtn" onclick="swapColors()">Swap</div>
+			</div>
+		</section>
+
+
+		<!-- Section: Scoring -->
+		<section class="section-card">
+			<div class="grid-section grid-cols-2">
+				<div class="btn hover obs28" id="sendP1Score" onclick="postScore('add','1')">P1 +1 Score</div>
+				<div class="btn hover obs28" id="sendP2Score" onclick="postScore('add','2')">P2 +1 Score</div>
+			</div>
+			<div class="grid-section grid-cols-2">
+				<div class="btn hover obs28" id="sendP1ScoreSub" onclick="postScore('sub','1')">P1 -1 Score</div>
+				<div class="btn hover obs28" id="sendP2ScoreSub" onclick="postScore('sub','2')">P2 -1 Score</div>
+			</div>
+		</section>
+
+
+		<!-- Clock Container - all clock elements hidden/shown together -->
+		<div id="clockContainer" style="width:100%;">
+			<!-- Section: Shot Clock -->
+			<section class="section-card">
+				<div class="grid-section grid-cols-3">
+					<div class="btn hover obs28" id="shotClock30" onclick="selectClockTime(31000)" style="border: 1px solid lime;">30s</div>
+					<div class="btn hover obs28" id="shotClock60" onclick="selectClockTime(61000)">60s</div>
+					<div class="btn hover obs28" id="shotClockShow" onclick="clockDisplay('show')">Show</div>
+				</div>
+				<div class="grid-section" style="grid-template-columns: 45% 45% 10%;">
+					<div class="btn btn--success hover obs28" id="startClockDiv" onclick="startClock()">Start Clock</div>
+					<div class="btn btn--danger hover obs28" id="stopClockDiv" onclick="stopClock()">Stop Clock</div>
+					<div class="btn hover obs28" id="resetClockDiv" onclick="resetClock()" title="Reset Clock">⟳</div>
+				</div>
+			</section>
+
+			<!-- Section: Extensions -->
+			<section class="section-card">
+				<div class="grid-section grid-cols-2">
+					<div class="btn hover obs28" id="p1extensionBtn" onclick="add30('p1')">P1 Extension</div>
+					<div class="btn hover obs28" id="p2extensionBtn" onclick="add30('p2')">P2 Extension</div>
+				</div>
+				<div class="grid-section grid-cols-2">
+					<div class="btn hover obs28" id="p1ExtReset" onclick="resetExt('p1')">P1 Ext Reset</div>
+					<div class="btn hover obs28" id="p2ExtReset" onclick="resetExt('p2')">P2 Ext Reset</div>
+				</div>
+			</section>
+		</div>
+
+
+		<!-- Section: Reset -->
+		<section class="section-card">
+			<div class="grid-section grid-cols-1">
+				<div class="btn btn--danger hover obs28" id="resetBtn" onclick="resetScore()">Reset Scores and Extensions</div>
+			</div>
+		</section>
+
+		<!-- Section: Display Settings -->
+		<section class="section-card" id="settingsBox1">
+			<div class="section-card__title">Display Settings</div>
+			<div class="grid-section grid-cols-2">
+				<label class="checkbox-label">
+					<input type="checkbox" class="smallSize" id="allCheck" onchange="allCheck()" checked>
+					<span>All</span>
+				</label>
+				<label class="checkbox-label">
+					<input type="checkbox" class="smallSize" id="useClockSetting" onchange="clockSetting()">
+					<span>Use Clock</span>
+				</label>
+				<label class="checkbox-label">
+					<input type="checkbox" class="smallSize" id="useSalottoSetting" onchange="salottoSetting()">
+					<span class="hover" onclick="salLogoNameChange()" id="salllogoName">Salotto</span> Logo
+				</label>
+				<label class="checkbox-label">
+					<input type="checkbox" class="smallSize" id="customLogo" onchange="customLogoSetting()">
+					<span class="hover" onclick="cLogoNameChange()" id="logoName"></span> Logo
+				</label>
+			</div>
+		</section>
+
+		<!-- Section: Logo Uploads -->
+		<section class="section-card">
+			<div class="section-card__title" id="settingsBox3">Logo Upload (Max: 2.4MB)</div>
+			<div class="grid-section grid-cols-2">
+				<div class="btn tooltip hover obs28" id="settingsBox4">
+					<input type="file" id="FileUploadL4" onchange="logoPost(this,4)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
+					Upload Left
+					<span class="tooltiptext"><img id="l4Img" src="" style="height:30px; max-width:70px"></span>
+				</div>
+				<div class="btn tooltip hover obs28" id="settingsBox2">
+					<input type="file" id="FileUploadL0" onchange="logoPost(this,0)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
+					Upload Right
+					<span class="tooltiptext"><img id="l0Img" src="" style="height:30px; max-width:70px"></span>
+				</div>
+			</div>
+		</section>
+
+		<!-- Section: Sponsor Logos -->
+		<section class="section-card" id="logoSlideShowDiv">
+			<div class="checkbox-row">
+				<label class="checkbox-label">
+					<input type="checkbox" class="smallSize" id="logoSlideshowChk" onchange="logoSlideshow()">
+					<span>Sponsor Logos</span>
+				</label>
+			</div>
+			<div class="grid-section grid-cols-3">
+				<div class="btn tooltip hover obs28" id="logoSsImg1">
+					<input type="file" id="FileUploadL1" onchange="logoPost(this,1)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
+					SL1
+					<span class="tooltiptext"><img id="l1Img" src="" style="height:30px; max-width:70px"></span>
+				</div>
+				<div class="btn tooltip hover obs28" id="logoSsImg2">
+					<input type="file" id="FileUploadL2" onchange="logoPost(this,2)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
+					SL2
+					<span class="tooltiptext"><img id="l2Img" src="" style="height:30px; max-width:70px"></span>
+				</div>
+				<div class="btn tooltip hover obs28" id="logoSsImg3">
+					<input type="file" id="FileUploadL3" onchange="logoPost(this,3)" accept="image/png, image/jpeg, image/svg+xml, image/bmp" />
+					SL3
+					<span class="tooltiptext"><img id="l3Img" src="" style="height:30px; max-width:70px"></span>
+				</div>
+			</div>
+		</section>
+
+		<!-- Section: Appearance -->
+		<section class="section-card">
+			<div class="section-card__title">Appearance</div>
+
+			<div class="slider-row">
+				<label>Opacity:</label>
+				<div class="slidecontainer">
+					<input type="range" min="0" max="100" value="100" class="slider" id="scoreOpacity">
+				</div>
+			</div>
+
+			<div class="grid-section grid-cols-3">
+				<div class="input-group">
+					<label>Size:</label>
+					<select id="bsStyle" class="select-field obs28" name="bsstyle" onchange="bsStyleChange()">
+						<option value="1">Small</option>
+						<option value="2">Medium</option>
+						<option value="3">Large</option>
+						<option value="4">XL</option>
+						<option value="5" selected>Size</option>
+					</select>
+				</div>
+				<div class="input-group">
+					<label>Points:</label>
+					<input type="number" id="scoreValue" class="input-field input-small" min="1" placeholder="1" onchange="pointValue()">
+				</div>
+				<div class="input-group">
+					<label>Theme:</label>
+					<select id="obsTheme" class="select-field obs28" name="Theme" onchange="obsThemeChange()">
+						<option value="27">Dark</option>
+						<option value="28">Yami</option>
+						<option value="acri">Acri</option>
+						<option value="grey">Grey</option>
+						<option value="light">Light</option>
+						<option value="rachni">Rachni</option>
+						<option value="999999" selected>Theme</option>
+					</select>
+				</div>
+			</div>
+		</section>
+
+	</div><!-- end mainDiv -->
+
+	<!-- CRITICAL: This script MUST be at end of body -->
+	<script src="./common/js/control_panel_post.js"></script>
+
+	<script>
 	//////////////////// HotKey scripts
 
-			//Reload the hotjeys.js file updated by the LUA script
-			function updateHotkeys() {
-				var src;
-			    src = 'hotkeys.js';
-			    $('script[src="' + src + '"]').remove();
-			    var head= document.getElementsByTagName('head')[0];
-		    	var script= document.createElement('script');
-		    	script.src= src;
-		    	head.appendChild(script);
-			}
+	//Reload the hotkeys.js file updated by the LUA script
+	function updateHotkeys() {
+		var src;
+		src = 'hotkeys.js';
+		$('script[src="' + src + '"]').remove();
+		var head= document.getElementsByTagName('head')[0];
+		var script= document.createElement('script');
+		script.src= src;
+		head.appendChild(script);
+	}
 
-			//Toggle the switches if a hotkey is pressed
-			function checkHotkeys (){
-			
-				if (hotkeyP1ScoreUp != hotkeyP1ScoreUpOld){	postScore('add','1'); hotkeyP1ScoreUpOld = hotkeyP1ScoreUp; }
-				if (hotkeyP2ScoreUp != hotkeyP2ScoreUpOld){	postScore('add','2');	hotkeyP2ScoreUpOld = hotkeyP2ScoreUp; }
-				if (hotkeyP1ScoreDown != hotkeyP1ScoreDownOld){	postScore('sub','1'); hotkeyP1ScoreDownOld = hotkeyP1ScoreDown; }
-				if (hotkeyP2ScoreDown != hotkeyP2ScoreDownOld){	postScore('sub','2'); hotkeyP2ScoreDownOld = hotkeyP2ScoreDown; }
-				if (hotkeyScoreReset != hotkeyScoreResetOld){ resetScore(); hotkeyScoreResetOld = hotkeyScoreReset;	}
-				if (hotkeyP1Extension != hotkeyP1ExtensionOld){	add30('p1'); hotkeyP1ExtensionOld = hotkeyP1Extension; }
-				if (hotkeyP2Extension != hotkeyP2ExtensionOld){	add30('p2'); hotkeyP2ExtensionOld = hotkeyP2Extension; }
-				if (hotkey30Clock != hotkey30ClockOld){	shotClock(31000); hotkey30ClockOld = hotkey30Clock; }
-				if (hotkey60Clock != hotkey60ClockOld){	shotClock(61000); hotkey60ClockOld = hotkey60Clock;	}
-				if (hotkeyStopClock != hotkeyStopClockOld){	stopClock(); hotkeyStopClockOld = hotkeyStopClock; }
-				if (hotkeySwap != hotkeySwapOld){ swapColors(); hotkeySwapOld = hotkeySwap;	}
-			}
-	
-			function refreshData() {
-				var x;
-			    x = 0.05; // Refresh time multiplier
-				checkHotkeys();
-				updateHotkeys();
-				setTimeout(refreshData, x*1000);
-			}
-			
-			//////////////////// end of HotKey scripts
-			refreshData();
-</script>
+	//Toggle the switches if a hotkey is pressed
+	function checkHotkeys (){
+		if (hotkeyP1ScoreUp != hotkeyP1ScoreUpOld){	postScore('add','1'); hotkeyP1ScoreUpOld = hotkeyP1ScoreUp; }
+		if (hotkeyP2ScoreUp != hotkeyP2ScoreUpOld){	postScore('add','2');	hotkeyP2ScoreUpOld = hotkeyP2ScoreUp; }
+		if (hotkeyP1ScoreDown != hotkeyP1ScoreDownOld){	postScore('sub','1'); hotkeyP1ScoreDownOld = hotkeyP1ScoreDown; }
+		if (hotkeyP2ScoreDown != hotkeyP2ScoreDownOld){	postScore('sub','2'); hotkeyP2ScoreDownOld = hotkeyP2ScoreDown; }
+		if (hotkeyScoreReset != hotkeyScoreResetOld){ resetScore(); hotkeyScoreResetOld = hotkeyScoreReset;	}
+		if (hotkeyP1Extension != hotkeyP1ExtensionOld){	add30('p1'); hotkeyP1ExtensionOld = hotkeyP1Extension; }
+		if (hotkeyP2Extension != hotkeyP2ExtensionOld){	add30('p2'); hotkeyP2ExtensionOld = hotkeyP2Extension; }
+		if (hotkey30Clock != hotkey30ClockOld){	shotClock(31000); hotkey30ClockOld = hotkey30Clock; }
+		if (hotkey60Clock != hotkey60ClockOld){	shotClock(61000); hotkey60ClockOld = hotkey60Clock;	}
+		if (hotkeyStopClock != hotkeyStopClockOld){	stopClock(); hotkeyStopClockOld = hotkeyStopClock; }
+		if (hotkeySwap != hotkeySwapOld){ swapColors(); hotkeySwapOld = hotkeySwap;	}
+	}
+
+	function refreshData() {
+		var x;
+		x = 0.05; // Refresh time multiplier
+		checkHotkeys();
+		updateHotkeys();
+		setTimeout(refreshData, x*1000);
+	}
+
+	//////////////////// end of HotKey scripts
+	refreshData();
+	</script>
 </body>
 </html>

@@ -3,51 +3,14 @@
 //  G4ScoreBoard addon for OBS Copyright 2022-2025 Norman Gholson IV
 //  https://g4billiards.com http://www.g4creations.com
 //  this is a purely javascript/html/css driven scoreboard system for OBS Studio
-//  free to use and modify and use as long as this copyright statment remains intact.
+//  free to use and modify and use as long as this copyright statment remains intact. 
 //  Salotto logo is the copyright of Salotto and is used with their permission.
 //  for more information about Salotto please visit https://salotto.app
 
-// Shot clock duration selection (default 30s)
-var selectedClockTime = 31000;
-var clockIsPaused = false;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // functions
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-			// Select shot clock duration (30s or 60s) without starting
-			function selectClockTime(timex) {
-				selectedClockTime = timex;
-				if (timex == 31000) {
-					document.getElementById("shotClock30").style.border = "1px solid lime";
-					document.getElementById("shotClock60").style.border = "none";
-				} else {
-					document.getElementById("shotClock60").style.border = "1px solid lime";
-					document.getElementById("shotClock30").style.border = "none";
-				}
-
-				// If clock is visible but not running, update the display
-				var clockBtn = document.getElementById("shotClockShow");
-				if (clockBtn.innerHTML === "Hide Clock" && !timerIsRunning) {
-					bc.postMessage({clockDisplay:'show', selectedTime: selectedClockTime});
-				}
-			}
-
-			// Start the shot clock with the selected duration or resume if paused
-			function startClock() {
-				if (clockIsPaused) {
-					// Resume from paused state
-					bc.postMessage({clockDisplay:'resumeClock'});
-					clockIsPaused = false;
-					timerIsRunning = true;
-					document.getElementById("startClockDiv").classList.add("clkd");
-					document.getElementById("stopClockDiv").classList.replace("obs28", "blue28");
-					document.getElementById("stopClockDiv").classList.remove("hover");
-				} else if (!timerIsRunning) {
-					// Fresh start
-					shotClock(selectedClockTime);
-				}
-			}			
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
 			
 			function bsStyleChange() {
 				if (document.getElementById("bsStyle").value == 1) {
@@ -164,36 +127,44 @@ var clockIsPaused = false;
 				if (!document.getElementById("useClockSetting").checked) {
 						localStorage.setItem("useClock", "no");
 						bc.postMessage({clockDisplay:'noClock'});
-						document.getElementById("clockContainer").classList.add("noShow");
+						document.getElementById("shotClock30").classList.add("noShow");
+						document.getElementById("shotClock60").classList.add("noShow");
+						document.getElementById("shotClockShow").classList.add("noShow");
+						document.getElementById("stopClockDiv").classList.add("noShow");
+						document.getElementById("p1extensionBtn").classList.add("noShow");
+						document.getElementById("p2extensionBtn").classList.add("noShow");
+						document.getElementById("p1ExtReset").classList.add("noShow");
+						document.getElementById("p2ExtReset").classList.add("noShow");
 						document.getElementById("resetBtn").innerHTML = "Reset Scores";
-						updateAllCheckbox();
+						if ( localStorage.getItem("useSalotto") != "yes" && localStorage.getItem("useClock") != "yes" && localStorage.getItem("useCustomLogo") != "yes" ) {
+						document.getElementById("allCheck").checked = false;
+						}
 						} else if (document.getElementById("useClockSetting").checked) {
 						localStorage.setItem("useClock", "yes");
 						bc.postMessage({clockDisplay:'useClock'});
-						document.getElementById("clockContainer").classList.remove("noShow");
+						document.getElementById("shotClock30").classList.remove("noShow");
+						document.getElementById("shotClock60").classList.remove("noShow");
+						document.getElementById("shotClockShow").classList.remove("noShow");
+						document.getElementById("stopClockDiv").classList.remove("noShow");
+						document.getElementById("p1extensionBtn").classList.remove("noShow");
+						document.getElementById("p2extensionBtn").classList.remove("noShow");
+						document.getElementById("p1ExtReset").classList.remove("noShow");
+						document.getElementById("p2ExtReset").classList.remove("noShow");
 						document.getElementById("resetBtn").innerHTML = "Reset Scores and Extensions";
-						updateAllCheckbox();
+						if ( localStorage.getItem("useSalotto") == "yes" && localStorage.getItem("useClock") == "yes" && localStorage.getItem("useCustomLogo") == "yes" ) {
+						document.getElementById("allCheck").checked = true;
 						}
-			}
-
-			// Helper function to update "All" checkbox based on individual settings
-			function updateAllCheckbox() {
-				var allChecked = (localStorage.getItem("useSalotto") == "yes" &&
-				                  localStorage.getItem("useClock") == "yes" &&
-				                  localStorage.getItem("useCustomLogo") == "yes");
-				document.getElementById("allCheck").checked = allChecked;
+						}	
 			}
 	
 			function clockDisplay(opt3) {
 				var optmsg = opt3;
-				// Send selected duration with show command so browser source can display it
+				bc.postMessage({clockDisplay:optmsg});
 				if (opt3 == "show") {
-					bc.postMessage({clockDisplay:optmsg, selectedTime: selectedClockTime});
 					document.getElementById("shotClockShow").innerHTML = "Hide Clock";
 					document.getElementById("shotClockShow").setAttribute("onclick", "clockDisplay('hide')");
 					document.getElementById("shotClockShow").style.border = "1px solid lime";
 				} else if (opt3 == "hide") {
-					bc.postMessage({clockDisplay:optmsg});
 					document.getElementById("shotClockShow").innerHTML = "Show Clock";
 					document.getElementById("shotClockShow").setAttribute("onclick", "clockDisplay('show')");
 					document.getElementById("shotClockShow").style.border = "none";
@@ -294,31 +265,35 @@ var clockIsPaused = false;
 				timerIsRunning = true;
 				var stime = timex;
 				bc.postMessage({time:stime});
-				// Disable start button while clock is running
-				document.getElementById("startClockDiv").classList.add("clkd");
+				if  (timex  == 31000) { document.getElementById("shotClock30").style.border = "1px solid lime"; } else { document.getElementById("shotClock60").style.border = "1px solid lime"; };
+				document.getElementById("shotClock30").setAttribute("onclick", "");
+				document.getElementById("shotClock60").setAttribute("onclick", "");
+				document.getElementById("shotClock30").classList.add("clkd");
+				document.getElementById("shotClock60").classList.add("clkd");
 				document.getElementById("stopClockDiv").classList.replace("obs28", "blue28");
 				document.getElementById("stopClockDiv").classList.remove("hover");
+				
 			}
 			
 			function stopClock() {
-				if (!timerIsRunning) return; // Don't pause if not running
 				bc.postMessage({clockDisplay:'stopClock'});
 				timerIsRunning = false;
-				clockIsPaused = true;
-				// Re-enable start button
-				document.getElementById("startClockDiv").classList.remove("clkd");
-				document.getElementById("stopClockDiv").classList.replace("blue28", "obs28");
-				document.getElementById("stopClockDiv").classList.add("hover");
-				setTimeout(rst_scr_btn, 100);
-			}
-
-			// Reset shot clock - reset to selected duration, ready for fresh start
-			function resetClock() {
-				bc.postMessage({clockDisplay:'resetClock', resetTime: selectedClockTime});
-				timerIsRunning = false;
-				clockIsPaused = false;
-				// Re-enable start button
-				document.getElementById("startClockDiv").classList.remove("clkd");
+				document.getElementById("shotClock30").style.border = "none";
+				document.getElementById("shotClock60").style.border = "none";
+				document.getElementById("clockLocalDisplay").style.background = "green";
+				document.getElementById("shotClock30").setAttribute("onclick", "shotClock(31000)");
+				document.getElementById("shotClock60").setAttribute("onclick", "shotClock(61000)");
+				document.getElementById("clockLocalDisplay").innerHTML = "";
+				document.getElementById("clockLocalDisplay").style.background = "none";
+				clockDisplay("hide");
+				document.getElementById("clockLocalDisplay").style.color = "black";
+				if (localStorage.getItem("obsTheme") == "light") {
+				document.getElementById("shotClock30").classList.remove("clkd");
+				document.getElementById("shotClock60").classList.remove("clkd");
+				} else {
+				document.getElementById("shotClock30").classList.remove("clkd");
+				document.getElementById("shotClock60").classList.remove("clkd");
+				}
 				document.getElementById("stopClockDiv").classList.replace("blue28", "obs28");
 				document.getElementById("stopClockDiv").classList.add("hover");
 				setTimeout(rst_scr_btn, 100);
@@ -365,37 +340,37 @@ var clockIsPaused = false;
 				if (!document.getElementById("useSalottoSetting").checked) {
 				bc.postMessage({clockDisplay:'hidesalotto'});
 				localStorage.setItem("useSalotto", "no");
-				updateAllCheckbox();
+				if ( localStorage.getItem("useSalotto") != "yes" && localStorage.getItem("useClock") != "yes" && localStorage.getItem("useCustomLogo") != "yes" ) {	document.getElementById("allCheck").checked = false;}
 				} else {
 				bc.postMessage({clockDisplay:'showsalotto'});
 				localStorage.setItem("useSalotto", "yes");
-				updateAllCheckbox();
+				if ( localStorage.getItem("useSalotto") == "yes" && localStorage.getItem("useClock") == "yes" && localStorage.getItem("useCustomLogo") == "yes" ) {	document.getElementById("allCheck").checked = true;}
 				}
 			}
-
+			
 			function customLogoSetting_slideshowoff() {
 				if (!document.getElementById("customLogo").checked) {
 				bc.postMessage({clockDisplay:'hidecustomLogo'});
 				localStorage.setItem("useCustomLogo", "no");
-				updateAllCheckbox();
+				if ( localStorage.getItem("useSalotto") != "yes" && localStorage.getItem("useClock") != "yes" && localStorage.getItem("useCustomLogo") != "yes" ) {	document.getElementById("allCheck").checked = false;}
 				} else {
 				bc.postMessage({clockDisplay:'showcustomLogo'});
 				localStorage.setItem("useCustomLogo", "yes");
-				updateAllCheckbox();
+				if ( localStorage.getItem("useSalotto") == "yes" && localStorage.getItem("useClock") == "yes" && localStorage.getItem("useCustomLogo") == "yes" ) {	document.getElementById("allCheck").checked = true;	}
 				}
 			}
-
+			
 			function customLogoSetting() {
 				if (!document.getElementById("customLogo").checked) {
 				bc.postMessage({clockDisplay:'hidecustomLogo'});
 				localStorage.setItem("useCustomLogo", "no");
-				updateAllCheckbox();
+				if ( localStorage.getItem("useSalotto") != "yes" && localStorage.getItem("useClock") != "yes" && localStorage.getItem("useCustomLogo") != "yes" ) {	document.getElementById("allCheck").checked = false;}
 				} else {
 				bc.postMessage({clockDisplay:'showcustomLogo'});
 				localStorage.setItem("useCustomLogo", "yes");
 				document.getElementById("logoSlideshowChk").checked = false;
 				logoSlideshow();
-				updateAllCheckbox();
+				if ( localStorage.getItem("useSalotto") == "yes" && localStorage.getItem("useClock") == "yes" && localStorage.getItem("useCustomLogo") == "yes" ) {	document.getElementById("allCheck").checked = true;	}
 				}
 			}
 				

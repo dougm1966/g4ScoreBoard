@@ -35,16 +35,56 @@
 		}
 	}
 	
-	 function shotTimer(shottime){
+	// Shot clock state variables
+	window.clockPaused = false;
+	window.pausedTimeRemaining = 0;
+	window.originalDuration = 31000;
+
+	function shotTimer(shottime){
+		// Stop any existing timer first
+		if (window.shotClockxr !== null && window.shotClockxr !== undefined) {
+			clearInterval(window.shotClockxr);
+		}
+
+		window.clockPaused = false;
+		window.originalDuration = shottime;
 		countDownTime = new Date().getTime() + shottime;
 		sleep(1); //fixes clock 0 glitch. 1ms wait time. allows time for countdowntime to reliably update.
+
+		var progressBar = document.getElementById("shotClockVis");
+		// Reset progress bar for fresh start
+		progressBar.classList.remove("startTimer", "start60");
+		progressBar.style.transition = "none";
+		progressBar.style.width = "90%";
+		progressBar.offsetHeight; // Force reflow
+
 		if (shottime == 61000) {
-			document.getElementById("shotClockVis").classList.add("start60");
-			document.getElementById("shotClockVis").classList.replace("fadeOutElm","fadeInElm");
-			} else {
-			document.getElementById("shotClockVis").classList.add("startTimer");
-			}
-		shotClockxr = setInterval(function() {
+			progressBar.style.transition = "width 60s linear";
+			progressBar.classList.replace("fadeOutElm","fadeInElm");
+		} else {
+			progressBar.style.transition = "width 30s linear";
+		}
+		progressBar.style.width = "0px";
+
+		startClockInterval();
+	}
+
+	function resumeClock() {
+		if (!window.clockPaused || window.pausedTimeRemaining <= 0) return;
+
+		window.clockPaused = false;
+		countDownTime = new Date().getTime() + window.pausedTimeRemaining;
+
+		var progressBar = document.getElementById("shotClockVis");
+		var remainingSecs = window.pausedTimeRemaining / 1000;
+		progressBar.style.transition = "width " + remainingSecs + "s linear";
+		progressBar.style.width = "0px";
+
+		startClockInterval();
+	}
+
+	function startClockInterval() {
+		window.shotClockxr = setInterval(function() {
 		var now = new Date().getTime();
 		var distance = countDownTime - now;
 		var seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -52,12 +92,11 @@
 		document.getElementById("shotClock").style.background = "green";
 		if (distance > 21000){ document.getElementById("shotClock").style.color = "white"; };
 		if (distance > 5000 && distance < 21000) { document.getElementById("shotClock").style.color = "black"; };
-		if (distance > 60000) { seconds = seconds + 60; }; 
+		if (distance > 60000) { seconds = seconds + 60; };
 		document.getElementById("shotClock").innerHTML = seconds + "s";
 			if (distance < 31000) {
 				document.getElementById("shotClockVis").classList.replace("fadeOutElm","fadeInElm");
 				document.getElementById("shotClockVis").style.background = "lime";
-				document.getElementById("shotClockVis").classList.add("startTimer");
 				}
 			if (distance < 26000) {
 				document.getElementById("shotClockVis").style.opacity = "0.7";
@@ -73,7 +112,7 @@
 			if (distance < 11000) {
 				document.getElementById("shotClock").style.background = "tomato";
 				document.getElementById("shotClockVis").style.background = "tomato";
-				document.getElementById("shotClockVis").style.opacity = "1";          
+				document.getElementById("shotClockVis").style.opacity = "1";
 			}
 			if (distance < 11000 && distance > 9700) { showClock(); };
 			if (distance < 6000 && distance > 999) {
@@ -83,7 +122,8 @@
 				document.getElementById("shotClock").style.color = "white";
 			}
 			if (distance < 1000) {
-				clearInterval(shotClockxr);
+				clearInterval(window.shotClockxr);
+				window.shotClockxr = null;
 				document.getElementById("shotClock").style.background = "red";
 				document.getElementById("shotClockVis").style.background = "red";
 				document.getElementById("shotClock").style.color = "white";
@@ -103,8 +143,27 @@
 		 }, 1000);
 	}
 
-	 function showClock(){
+	 function showClock(selectedTime){
 		document.getElementById("shotClock").classList.replace("fadeOutElm","fadeInElm");
+
+		// If clock isn't running, show the selected duration
+		if (window.shotClockxr === null || window.shotClockxr === undefined) {
+			// Use provided selectedTime or fall back to stored originalDuration
+			if (selectedTime) {
+				window.originalDuration = selectedTime;
+			}
+			var seconds = Math.floor(window.originalDuration / 1000) - 1;
+			document.getElementById("shotClock").innerHTML = seconds + "s";
+			document.getElementById("shotClock").style.background = "green";
+			document.getElementById("shotClock").style.color = "white";
+
+			// Also show the progress bar at full
+			var progressBar = document.getElementById("shotClockVis");
+			progressBar.classList.replace("fadeOutElm","fadeInElm");
+			progressBar.style.transition = "none";
+			progressBar.style.width = "90%";
+			progressBar.style.background = "lime";
+		}
 	}
 
 	function hideClock(){
@@ -112,15 +171,53 @@
 	}
 	
 	function stopClock() {
-		clearInterval(shotClockxr);
-		hideClock();
-		document.getElementById("shotClock").innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+		// Pause the timer - freeze display and progress bar
+		if (window.shotClockxr !== null && window.shotClockxr !== undefined) {
+			clearInterval(window.shotClockxr);
+			window.shotClockxr = null;
+		}
+
+		// Calculate and store remaining time
+		var now = new Date().getTime();
+		window.pausedTimeRemaining = countDownTime - now;
+		if (window.pausedTimeRemaining < 0) window.pausedTimeRemaining = 0;
+		window.clockPaused = true;
+
+		// Freeze the progress bar at current position
+		var progressBar = document.getElementById("shotClockVis");
+		var computedWidth = window.getComputedStyle(progressBar).width;
+		progressBar.style.transition = "none";
+		progressBar.style.width = computedWidth;
+	}
+
+	function resetClock(resetTime) {
+		// Reset timer to selected duration without hiding
+		if (window.shotClockxr !== null && window.shotClockxr !== undefined) {
+			clearInterval(window.shotClockxr);
+			window.shotClockxr = null;
+		}
+
+		window.clockPaused = false;
+		window.pausedTimeRemaining = 0;
+
+		// Use provided resetTime or fall back to stored originalDuration
+		if (resetTime) {
+			window.originalDuration = resetTime;
+		}
+
+		// Reset the display to show selected duration (subtract 1s buffer)
+		var seconds = Math.floor(window.originalDuration / 1000) - 1;
+		document.getElementById("shotClock").innerHTML = seconds + "s";
 		document.getElementById("shotClock").classList.remove("shotRed");
-		document.getElementById("shotClock").style.background = "";
-		document.getElementById("shotClockVis").classList.replace("fadeInElm", "fadeOutElm");
-		document.getElementById("shotClockVis").classList.remove("startTimer");
-		document.getElementById("shotClockVis").classList.remove("start60");
-		document.getElementById("shotClockVis").style.background = "";
+		document.getElementById("shotClock").style.background = "green";
+		document.getElementById("shotClock").style.color = "white";
+
+		// Reset progress bar to full width
+		var progressBar = document.getElementById("shotClockVis");
+		progressBar.style.transition = "none";
+		progressBar.style.width = "90%";
+		progressBar.style.background = "lime";
+		progressBar.classList.remove("startTimer", "start60");
 	}
 
 	function add30(player) { 

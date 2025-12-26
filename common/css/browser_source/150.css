@@ -80,6 +80,7 @@
                 color:#fff;
                 font-size:8.75pt;
                 padding:5.55px;
+                z-index:10;
             }
             #p2ExtIcon {
                 position:absolute;
@@ -91,7 +92,7 @@
                 color:#fff;
                 font-size:8.75pt;
                 padding:5.55px;
-                
+                z-index:10;
             }
                        
             .greenBtn {
@@ -178,6 +179,15 @@
             .playerPhoto.photoVisible {
                display:block;
             }
+            /* Move photos inward when clock is active to avoid extension icon overlap */
+            #player1-photo.clockActive {
+               left:38px;
+               transition: left 0.3s ease;
+            }
+            #player2-photo.clockActive {
+               right:38px;
+               transition: right 0.3s ease;
+            }
             #raceInfo {
                 background-image: linear-gradient(to right, grey, white);
 				position:fixed;
@@ -213,7 +223,7 @@
 				height: 3px;
 				background: transparent;
 				border-radius:5px;
- 
+
 			}
 
 			.startTimer {

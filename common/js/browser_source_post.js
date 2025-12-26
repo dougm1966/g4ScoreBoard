@@ -86,16 +86,24 @@
 				// start of original clockDisplay channel 
 				if (event.data.clockDisplay != null) {
 					console.log("event.data.clockDisplay: " + event.data.clockDisplay);
-					if (event.data.clockDisplay == "show") { showClock(); };  
-					if (event.data.clockDisplay == "hide") {hideClock(); };  
+					if (event.data.clockDisplay == "show") { showClock(event.data.selectedTime); };
+					if (event.data.clockDisplay == "hide") { hideClock(); };
 					if (event.data.clockDisplay == "stopClock") { stopClock(); };
+					if (event.data.clockDisplay == "resumeClock") { resumeClock(); };
+					if (event.data.clockDisplay == "resetClock") { resetClock(event.data.resetTime); };
 					if (event.data.clockDisplay == "noClock") {
-							document.getElementById("p1ExtIcon").classList.replace("fadeInElm","fadeOutElm");	
-							document.getElementById("p2ExtIcon").classList.replace("fadeInElm","fadeOutElm");	
-						}  
+							document.getElementById("p1ExtIcon").classList.replace("fadeInElm","fadeOutElm");
+							document.getElementById("p2ExtIcon").classList.replace("fadeInElm","fadeOutElm");
+							// Move photos back to edge when clock is disabled
+							document.getElementById("player1-photo").classList.remove("clockActive");
+							document.getElementById("player2-photo").classList.remove("clockActive");
+						}
 					if (event.data.clockDisplay == "useClock") {
-							document.getElementById("p1ExtIcon").classList.replace("fadeOutElm","fadeInElm");	
-							document.getElementById("p2ExtIcon").classList.replace("fadeOutElm","fadeInElm");	
+							document.getElementById("p1ExtIcon").classList.replace("fadeOutElm","fadeInElm");
+							document.getElementById("p2ExtIcon").classList.replace("fadeOutElm","fadeInElm");
+							// Move photos inward when clock is enabled
+							document.getElementById("player1-photo").classList.add("clockActive");
+							document.getElementById("player2-photo").classList.add("clockActive");
 						} 
 					if (event.data.clockDisplay == "p1extension") { add30(1); };
 					if (event.data.clockDisplay == "p2extension") { add30(2); };
@@ -183,8 +191,15 @@
 				document.getElementById("salottoLogo").classList.replace("fadeOutElm","fadeInElm");		
 			}
 			if (localStorage.getItem("useClock") != "yes") {
-				document.getElementById("p1ExtIcon").classList.replace("fadeInElm","fadeOutElm");	
-				document.getElementById("p2ExtIcon").classList.replace("fadeInElm","fadeOutElm");			
+				document.getElementById("p1ExtIcon").classList.replace("fadeInElm","fadeOutElm");
+				document.getElementById("p2ExtIcon").classList.replace("fadeInElm","fadeOutElm");
+				// Photos stay at edge when clock is disabled
+				document.getElementById("player1-photo").classList.remove("clockActive");
+				document.getElementById("player2-photo").classList.remove("clockActive");
+			} else {
+				// Move photos inward when clock is enabled
+				document.getElementById("player1-photo").classList.add("clockActive");
+				document.getElementById("player2-photo").classList.add("clockActive");
 			}
 	
 			if (localStorage.getItem('p1colorSet') != "") {

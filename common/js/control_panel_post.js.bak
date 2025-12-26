@@ -110,8 +110,9 @@
 			setTimeout(function() { document.getElementById('p2PhotoBtn').style.border = "none"; }, 100);
 			};
 
-	// Update "All" checkbox based on individual settings
-	updateAllCheckbox();
+	if ( localStorage.getItem("useSalotto") != "yes" && localStorage.getItem("useClock") != "yes" && localStorage.getItem("useCustomLogo") != "yes" ) {
+		document.getElementById("allCheck").checked = false;
+		}
 
 	if (localStorage.getItem('p1colorSet') !== null) {
 		var cvalue = localStorage.getItem('p1colorSet');
@@ -205,19 +206,28 @@
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
 
 	bcr.onmessage = (event) => {
-		tev = event.data;
+		document.getElementById("clockLocalDisplay").style.background = "green";
+		document.getElementById("clockLocalDisplay").innerHTML = event.data + "s";
+		tev =  event.data;
 		console.log(tev);
+		if (tev > 20) {	document.getElementById("clockLocalDisplay").style.color = "white";	};
+		if (tev > 5 && tev < 21) { document.getElementById("clockLocalDisplay").style.color = "black"; };
+		if (tev < 21) {	document.getElementById("clockLocalDisplay").style.background = "orange"; };
+		if (tev < 16) {	document.getElementById("clockLocalDisplay").style.background = "yellow"; };
+		if (tev < 11) {	document.getElementById("clockLocalDisplay").style.background = "tomato"; };
 		if (tev == 10) {
 			document.getElementById("shotClockShow").setAttribute("onclick", "clockDisplay('hide')");
 			document.getElementById("shotClockShow").innerHTML = "Hide Clock";
 			document.getElementById("shotClockShow").style.border = "1px solid lime";
-		}
+			}
 		if (tev < 6 && tev > 0) {    //tev > 0   this prevents both sounds from playing at 0.
+			document.getElementById("clockLocalDisplay").style.background = "red";
+			document.getElementById("clockLocalDisplay").style.color = "white";
 			warningBeep.loop = false;
-			warningBeep.play();
+			warningBeep.play(); 
 		}
 		if (tev == 0) {
-			foulSound.loop = false;
+			foulSound.loop= false;
 			foulSound.play();
 			setTimeout("stopClock()", 1000);
 		}
