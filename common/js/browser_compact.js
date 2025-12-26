@@ -29,8 +29,9 @@ function showSlides() {
 }
 
 // Load initial state from localStorage
-if (localStorage.getItem("customImage") !== null) {
-	document.getElementById("g4Logo").src = localStorage.getItem("customImage");
+var customImage = localStorage.getItem("customImage");
+if (customImage && customImage !== "") {
+	document.getElementById("g4Logo").src = customImage;
 }
 
 if (localStorage.getItem("p1ScoreCtrlPanel") !== null) {
@@ -183,9 +184,12 @@ bc.onmessage = (event) => {
 			document.getElementById("logoSlideshowDiv").classList.replace("fadeOutElm", "fadeInElm");
 			document.getElementById("g4Logo").classList.replace("fadeOutElm", "logoSlide");
 			setTimeout(function () { document.getElementById("g4Logo").classList.add("fade"); }, 500);
-			if (localStorage.getItem("customLogo1") != null) { document.getElementById("customLogo1").src = localStorage.getItem("customLogo1"); } else { document.getElementById("customLogo1").src = "./common/images/placeholder.png"; };
-			if (localStorage.getItem("customLogo2") != null) { document.getElementById("customLogo2").src = localStorage.getItem("customLogo2"); } else { document.getElementById("customLogo2").src = "./common/images/placeholder.png"; };
-			if (localStorage.getItem("customLogo3") != null) { document.getElementById("customLogo3").src = localStorage.getItem("customLogo3"); } else { document.getElementById("customLogo3").src = "./common/images/placeholder.png"; };
+			var customLogo1 = localStorage.getItem("customLogo1");
+			if (customLogo1 && customLogo1 !== "") { document.getElementById("customLogo1").src = customLogo1; }
+			var customLogo2 = localStorage.getItem("customLogo2");
+			if (customLogo2 && customLogo2 !== "") { document.getElementById("customLogo2").src = customLogo2; }
+			var customLogo3 = localStorage.getItem("customLogo3");
+			if (customLogo3 && customLogo3 !== "") { document.getElementById("customLogo3").src = customLogo3; }
 		}
 		if (event.data.clockDisplay == "logoSlideShow-hide") { document.getElementById("logoSlideshowDiv").classList.replace("fadeInElm", "fadeOutElm"); };
 		if (event.data.clockDisplay == "style100") { styleChange(1); };
@@ -195,8 +199,9 @@ bc.onmessage = (event) => {
 }
 
 function postLogo() {
-	if (localStorage.getItem("customImage") !== "") {
-		document.getElementById("g4Logo").src = localStorage.getItem("customImage");
+	var customImage = localStorage.getItem("customImage");
+	if (customImage && customImage !== "") {
+		document.getElementById("g4Logo").src = customImage;
 	}
 }
 
@@ -357,9 +362,12 @@ function customHide() {
 }
 
 // Initialize slideshow logos
-if (localStorage.getItem("customLogo1") != null) { document.getElementById("customLogo1").src = localStorage.getItem("customLogo1"); } else { document.getElementById("customLogo1").src = "./common/images/placeholder.png"; };
-if (localStorage.getItem("customLogo2") != null) { document.getElementById("customLogo2").src = localStorage.getItem("customLogo2"); } else { document.getElementById("customLogo2").src = "./common/images/placeholder.png"; };
-if (localStorage.getItem("customLogo3") != null) { document.getElementById("customLogo3").src = localStorage.getItem("customLogo3"); } else { document.getElementById("customLogo3").src = "./common/images/placeholder.png"; };
+var customLogo1 = localStorage.getItem("customLogo1");
+if (customLogo1 && customLogo1 !== "") { document.getElementById("customLogo1").src = customLogo1; }
+var customLogo2 = localStorage.getItem("customLogo2");
+if (customLogo2 && customLogo2 !== "") { document.getElementById("customLogo2").src = customLogo2; }
+var customLogo3 = localStorage.getItem("customLogo3");
+if (customLogo3 && customLogo3 !== "") { document.getElementById("customLogo3").src = customLogo3; }
 
 if (localStorage.getItem("slideShow") == "yes") {
 	document.getElementById("logoSlideshowDiv").classList.replace("fadeOutElm", "fadeInElm");

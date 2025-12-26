@@ -81,6 +81,7 @@ td {
 	border: 2px solid black;
 	border-radius: 10px;
 	vertical-align: middle;
+	padding: 0; /* Remove default padding so extension icons can fill completely */
 }
 
 #scoreBoard {
@@ -139,22 +140,33 @@ td {
 	background: green;
 	border: solid 1px #000;
 	color: #fff;
-	font-size: 7pt;
-	padding: var(--ext-padding, 6px);
+	font-size: 9pt;
+	font-weight: 200; /* Much lighter weight for thinner "Ex" text */
+	padding: 0;
 	z-index: 10;
-	/* Vertical centering - same as player photos */
-	top: 50%;
-	transform: translateY(-50%);
+	/* Fill the cell height - fit within the border */
+	top: 0;
+	bottom: 0;
+	height: 100%; /* Exact fit within cell borders */
+	/* Center text vertically within the icon */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* Fixed width for consistent sizing */
+	width: 28px;
+	box-sizing: border-box;
 }
 
 #p1ExtIcon {
-	left: 3px;
-	border-radius: 9px 0px 0px 9px;
+	left: -2px; /* Offset for cell's 2px border */
+	border-radius: 8px 0px 0px 8px;
+	border-right: none;
 }
 
 #p2ExtIcon {
-	right: 3px;
-	border-radius: 0px 9px 9px 0px;
+	right: -2px; /* Offset for cell's 2px border */
+	border-radius: 0px 8px 8px 0px;
+	border-left: none;
 }
 
 /* ===== Utility Classes ===== */
@@ -259,12 +271,12 @@ td {
 
 /* Move photos inward when clock is active to avoid extension icon overlap */
 #player1-photo.clockActive {
-	left: 32px;
+	left: 31px;
 	transition-delay: 0s; /* No delay when sliding out */
 }
 
 #player2-photo.clockActive {
-	right: 32px;
+	right: 31px;
 	transition-delay: 0s; /* No delay when sliding out */
 }
 

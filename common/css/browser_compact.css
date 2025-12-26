@@ -42,29 +42,47 @@ td {
 #p1ExtIcon {
 	position: absolute;
 	left: 573px;
-	top: 50%;
-	transform: translateY(-50%);
+	top: 0;
+	bottom: 0;
+	height: 100%;
 	background: green;
 	border: solid 1px #000;
 	border-radius: 4px 0px 0px 5px;
+	border-right: none;
 	color: #fff;
-	font-size: 7pt;
-	padding: 4.5px;
+	font-size: 9pt;
+	font-weight: 500;
+	padding: 0;
 	z-index: 10;
+	/* Center text vertically within the icon */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* Fixed width for consistent sizing */
+	width: 28px;
 }
 
 #p2ExtIcon {
 	position: absolute;
 	right: 573px;
-	top: 50%;
-	transform: translateY(-50%);
+	top: 0;
+	bottom: 0;
+	height: 100%;
 	background: green;
 	border: solid 1px #000;
 	border-radius: 0px 4px 4px 0px;
+	border-left: none;
 	color: #fff;
-	font-size: 7pt;
-	padding: 4.5px;
+	font-size: 9pt;
+	font-weight: 500;
+	padding: 0;
 	z-index: 10;
+	/* Center text vertically within the icon */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* Fixed width for consistent sizing */
+	width: 28px;
 }
 
 .greenBtn {

@@ -13,11 +13,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////            
 
 	function postLogo() {
-		if (localStorage.getItem("customLogo0") !== "") {
-			document.getElementById("g4Logo").src = localStorage.getItem("customLogo0");
+		var customLogo0 = localStorage.getItem("customLogo0");
+		if (customLogo0 && customLogo0 !== "") {
+			document.getElementById("g4Logo").src = customLogo0;
 		}
-		if (localStorage.getItem("customLogo4") !== "") {
-			document.getElementById("salottoLogo").src = localStorage.getItem("customLogo4");
+		var customLogo4 = localStorage.getItem("customLogo4");
+		if (customLogo4 && customLogo4 !== "") {
+			document.getElementById("salottoLogo").src = customLogo4;
 		}
 	}
 	
