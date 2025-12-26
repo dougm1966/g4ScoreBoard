@@ -104,8 +104,8 @@ class BrowserSource {
     if (state.browserStyle) {
       this.ui.changeStyle(parseInt(state.browserStyle));
     } else {
-      // Default to 125%
-      this.ui.changeStyle(2);
+      // Default to 100%
+      this.ui.changeStyle(1);
     }
   }
 }

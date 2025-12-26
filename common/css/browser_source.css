@@ -64,6 +64,7 @@ body {
 	background-color: rgba(0, 0, 0, 0);
 	margin: 0px auto;
 	overflow: hidden;
+	transform: none;
 	-moz-transform: var(--scale-transform);
 	zoom: var(--scale-zoom);
 	font-family: tahoma;
@@ -140,8 +141,10 @@ td {
 	background: green;
 	border: solid 1px #000;
 	color: #fff;
-	font-size: 8.75pt;
-	font-weight: 300;
+	font-size: 11px;
+	line-height: 1;
+	font-weight: 400;
+	text-shadow: none;
 	padding: 0;
 	z-index: 10;
 	/* Fill the cell height - fit within the border */
@@ -158,13 +161,13 @@ td {
 }
 
 #p1ExtIcon {
-	left: -2px; /* Offset for cell's 2px border */
+	left: -1px; /* Offset for cell border */
 	border-radius: 8px 0px 0px 8px;
 	border-right: none;
 }
 
 #p2ExtIcon {
-	right: -2px; /* Offset for cell's 2px border */
+	right: -1px; /* Offset for cell border */
 	border-radius: 0px 8px 8px 0px;
 	border-left: none;
 }
