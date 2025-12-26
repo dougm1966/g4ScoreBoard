@@ -70,10 +70,20 @@ export class ShotClock {
       this.originalDuration = originalDuration > 0 ? originalDuration : pausedRemaining;
       this.pausedTimeRemaining = pausedRemaining;
       this.clockPaused = true;
-      this._updateDisplay(Math.floor(pausedRemaining / 1000));
-      this._resetProgressBar();
-      this.show();
-      this.stop();
+      const secondsRemaining = Math.floor((pausedRemaining + 999) / 1000);
+      this._updateDisplay(secondsRemaining);
+
+      // Restore progress bar position (90% -> 0%) without restarting timer
+      const fractionRemaining = this.originalDuration > 0
+        ? Math.max(0, Math.min(1, pausedRemaining / this.originalDuration))
+        : 0;
+      this.progressBar.classList.replace('fadeOutElm', 'fadeInElm');
+      this.progressBar.style.transition = 'none';
+      this.progressBar.style.width = `${90 * fractionRemaining}%`;
+
+      // Ensure clock is visible but do not call show()/stop() since they reset display
+      this.clockDisplay.classList.replace('fadeOutElm', 'fadeInElm');
+      this._persistState();
       return;
     }
 

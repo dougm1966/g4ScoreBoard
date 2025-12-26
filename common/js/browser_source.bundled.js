@@ -141,6 +141,15 @@ const Storage = {
 
 // ===== SHOT CLOCK MODULE =====
 
+const SHOTCLOCK_STORAGE_KEYS = {
+  endTime: 'shotClock_endTime',
+  originalDuration: 'shotClock_originalDuration',
+  pausedRemaining: 'shotClock_pausedRemaining',
+  isRunning: 'shotClock_isRunning',
+  isPaused: 'shotClock_isPaused',
+  isVisible: 'shotClock_isVisible'
+};
+
 /**
  * Shot Clock module - handles all timer logic
  */
@@ -161,6 +170,61 @@ class ShotClock {
     this.progressBar = document.getElementById(DOM_IDS.shotClockVis);
   }
 
+  restoreFromStorage() {
+    const isVisible = localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.isVisible) === 'yes';
+    const isRunning = localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.isRunning) === 'yes';
+    const isPaused = localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.isPaused) === 'yes';
+    const endTime = parseInt(localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.endTime) || '0', 10);
+    const originalDuration = parseInt(localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.originalDuration) || '0', 10);
+    const pausedRemaining = parseInt(localStorage.getItem(SHOTCLOCK_STORAGE_KEYS.pausedRemaining) || '0', 10);
+
+    if (!isVisible && !isRunning && !isPaused) return;
+
+    if (isRunning && endTime > 0) {
+      const remaining = endTime - new Date().getTime();
+      if (remaining > 0) {
+        this.show();
+        this.start(remaining);
+        return;
+      }
+    }
+
+    if (isPaused && pausedRemaining > 0) {
+      this.originalDuration = originalDuration > 0 ? originalDuration : pausedRemaining;
+      this.pausedTimeRemaining = pausedRemaining;
+      this.clockPaused = true;
+      const secondsRemaining = Math.floor((pausedRemaining + 999) / 1000);
+      this._updateDisplay(secondsRemaining);
+
+      // Restore progress bar position (90% -> 0%) without restarting timer
+      const fractionRemaining = this.originalDuration > 0
+        ? Math.max(0, Math.min(1, pausedRemaining / this.originalDuration))
+        : 0;
+      this.progressBar.classList.replace('fadeOutElm', 'fadeInElm');
+      this.progressBar.style.transition = 'none';
+      this.progressBar.style.width = `${90 * fractionRemaining}%`;
+
+      // Ensure clock is visible but do not call show()/stop() since they reset display
+      this.clockDisplay.classList.replace('fadeOutElm', 'fadeInElm');
+      this._persistState();
+      return;
+    }
+
+    if (isVisible) {
+      this.show();
+    }
+  }
+
+  _persistState() {
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.endTime, String(this.countDownTime || 0));
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.originalDuration, String(this.originalDuration || 0));
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.pausedRemaining, String(this.pausedTimeRemaining || 0));
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.isRunning, this.intervalId ? 'yes' : 'no');
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.isPaused, this.clockPaused ? 'yes' : 'no');
+    const visible = this.clockDisplay.classList.contains('fadeInElm');
+    localStorage.setItem(SHOTCLOCK_STORAGE_KEYS.isVisible, visible ? 'yes' : 'no');
+  }
+
   /**
    * Start shot clock timer
    * @param {number} duration - Duration in milliseconds
@@ -178,6 +242,10 @@ class ShotClock {
     this._resetProgressBar();
     this._startProgressBar(duration);
     this._startInterval();
+
+    this.clockDisplay.classList.replace('fadeOutElm', 'fadeInElm');
+    this.progressBar.classList.replace('fadeOutElm', 'fadeInElm');
+    this._persistState();
   }
 
   /**
@@ -195,6 +263,8 @@ class ShotClock {
     this.clockPaused = true;
 
     this._freezeProgressBar();
+
+    this._persistState();
   }
 
   /**
@@ -211,6 +281,10 @@ class ShotClock {
     this.progressBar.style.width = '0px';
 
     this._startInterval();
+
+    this.clockDisplay.classList.replace('fadeOutElm', 'fadeInElm');
+    this.progressBar.classList.replace('fadeOutElm', 'fadeInElm');
+    this._persistState();
   }
 
   /**
@@ -230,6 +304,8 @@ class ShotClock {
     this._updateDisplay(seconds, 'green', 'white');
     this._resetProgressBar();
     this.clockDisplay.classList.remove('shotRed');
+
+    this._persistState();
   }
 
   /**
@@ -260,6 +336,9 @@ class ShotClock {
       this.progressBar.style.width = '90%';
       this.progressBar.style.background = 'lime';
     }
+
+    this.progressBar.classList.replace('fadeOutElm', 'fadeInElm');
+    this._persistState();
   }
 
   /**
@@ -270,6 +349,7 @@ class ShotClock {
 
 	// Also hide progress bar when hiding clock
 	this.progressBar.classList.replace('fadeInElm', 'fadeOutElm');
+	this._persistState();
   }
 
   // Private methods
@@ -309,6 +389,8 @@ class ShotClock {
     if (distance < THRESHOLD_BEEP && distance > THRESHOLD_BEEP_END) {
       this.show();
     }
+
+    this._persistState();
   }
 
   _updateClockColors(distance) {
@@ -935,6 +1017,9 @@ class BrowserSource {
 
     // Clock settings
     this.ui.toggleExtensionIcons(state.useClock === 'yes');
+
+    // Restore shot clock state (so OBS browser source refresh doesn't hide it)
+    this.shotClock.restoreFromStorage();
 
     // Slideshow (kept for future advertiser module)
     if (state.slideShow === 'yes') {

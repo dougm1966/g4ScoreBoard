@@ -72,10 +72,12 @@ body {
 
 #scoreBoardDiv {
 	position: absolute;
-	bottom: 5px;
+	bottom: 10px;
 	width: 90%;
 	left: 5%;
 	padding: 5px;
+	z-index: 2;
+	height: auto;
 }
 
 td {
@@ -403,32 +405,31 @@ td {
 }
 
 /* ===== Race & Wager Info ===== */
-#raceInfo {
-	background-image: linear-gradient(to right, grey, white);
+#raceInfo,
+#wagerInfo {
 	position: fixed;
 	bottom: 0px;
-	width: 20%;
-	left: var(--race-left);
-	border-radius: 0px 00px 10px 10px;
+	width: fit-content;
+	min-width: 80px;
+	max-width: 200px;
+	border-radius: 0px 0px 10px 10px;
 	text-align: center;
+	padding: 4px 10px 1px;
 	font-size: 8pt;
 	font-weight: bolder;
 	border: 1px solid #000;
-	z-index: -1;
+	border-top: none;
+	z-index: 1;
+}
+
+#raceInfo {
+	background-image: linear-gradient(to right, grey, white);
+	left: var(--race-left);
 }
 
 #wagerInfo {
 	background-image: linear-gradient(to left, grey, white);
-	position: fixed;
-	bottom: 0px;
-	width: 20%;
 	right: var(--wager-right);
-	border-radius: 0px 00px 10px 10px;
-	text-align: center;
-	font-size: 8pt;
-	font-weight: bolder;
-	border: 1px solid #000;
-	z-index: -1;
 }
 
 /* ===== Shot Clock Progress Bar ===== */

@@ -12,6 +12,7 @@
 	bottom: 10px;
 	width: 90%;
 	left: 5%;
+	z-index: 2;
 }
 
 table {
@@ -141,29 +142,33 @@ td {
 #raceInfo {
 	background-image: linear-gradient(to right, grey, white);
 	position: fixed;
-	bottom: 13px;
+	bottom: 11px;
 	width: 245px;
 	left: 670px;
 	border-radius: 0px 00px 10px 10px;
 	text-align: center;
+	padding-top: 2px;
+	padding-bottom: 1px;
 	font-size: 12pt;
 	font-weight: bolder;
 	border: 1px solid #000;
-	z-index: -1;
+	z-index: 0;
 }
 
 #wagerInfo {
 	background-image: linear-gradient(to left, grey, white);
 	position: fixed;
-	bottom: 13px;
+	bottom: 11px;
 	width: 245px;
 	right: 670px;
 	border-radius: 0px 00px 10px 10px;
 	text-align: center;
+	padding-top: 2px;
+	padding-bottom: 1px;
 	font-size: 12pt;
 	font-weight: bolder;
 	border: 1px solid #000;
-	z-index: -1;
+	z-index: 0;
 }
 
 #salottoLogo {
