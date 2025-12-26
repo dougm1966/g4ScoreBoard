@@ -75,14 +75,12 @@ var clockIsPaused = false;
 
 			function logoSlideshow() {
 				if (document.getElementById("logoSlideshowChk").checked == true) {
-					document.getElementById("customLogo").checked = false;
-					customLogoSetting_slideshowoff();
 					localStorage.setItem("slideShow","yes");
 					bc.postMessage({clockDisplay:'logoSlideShow-show'});
-					} else {
+				} else {
 					bc.postMessage({clockDisplay:'logoSlideShow-hide'});
 					localStorage.setItem("slideShow","no");
-					}
+				}
 			}
 					
 			function logoPost(input,xL) {
@@ -92,17 +90,41 @@ var clockIsPaused = false;
 					reader.readAsDataURL(input.files[0]);
 					reader.addEventListener("load", function () {
 					// convert image file to base64 string and save to localStorage
-					try {localStorage.setItem("customLogo"+xL, reader.result);}
+					try {
+						if (xL == 0) { localStorage.setItem("leftSponsorLogo", reader.result); }
+						else if (xL == 4) { localStorage.setItem("rightSponsorLogo", reader.result); }
+						else { localStorage.setItem("customLogo"+xL, reader.result); }
+					}
 					catch(err) { alert("the selected image exceedes the maximium file size");}
-					document.getElementById("l"+xL+"Img").src = localStorage.getItem("customLogo"+xL);
+					if (xL == 0) { document.getElementById("l"+xL+"Img").src = localStorage.getItem("leftSponsorLogo"); }
+					else if (xL == 4) { document.getElementById("l"+xL+"Img").src = localStorage.getItem("rightSponsorLogo"); }
+					else { document.getElementById("l"+xL+"Img").src = localStorage.getItem("customLogo"+xL); }
 					// Add has-image class to show inline preview for left/right logos
 					if (xL == 0 || xL == 4) {
 						document.getElementById("l"+xL+"Img").classList.add("has-image");
 					}
 					}, false);
 					if (document.getElementById("logoSlideshowChk").checked == true) {setTimeout(slideOther, 50); };
-					if (xL == 0) { setTimeout(logoOther, 50); };
-					if (xL == 4) { setTimeout(logoOther, 50); };
+					if (xL == 0) {
+						setTimeout(logoOther, 50);
+						if (document.getElementById("showLeftSponsorLogoSetting").checked) {
+							setTimeout(function(){ bc.postMessage({clockDisplay:'showLeftSponsorLogo'}); }, 50);
+							localStorage.setItem("showLeftSponsorLogo", "yes");
+						} else {
+							setTimeout(function(){ bc.postMessage({clockDisplay:'hideLeftSponsorLogo'}); }, 50);
+							localStorage.setItem("showLeftSponsorLogo", "no");
+						}
+					}
+					if (xL == 4) {
+						setTimeout(logoOther, 50);
+						if (document.getElementById("showRightSponsorLogoSetting").checked) {
+							setTimeout(function(){ bc.postMessage({clockDisplay:'showRightSponsorLogo'}); }, 50);
+							localStorage.setItem("showRightSponsorLogo", "yes");
+						} else {
+							setTimeout(function(){ bc.postMessage({clockDisplay:'hideRightSponsorLogo'}); }, 50);
+							localStorage.setItem("showRightSponsorLogo", "no");
+						}
+					}
 				}
 			}
 
@@ -130,7 +152,9 @@ var clockIsPaused = false;
 				event.preventDefault();
 
 				// Remove from localStorage
-				localStorage.removeItem("customLogo" + xL);
+				if (xL == 0) { localStorage.removeItem("leftSponsorLogo"); }
+				else if (xL == 4) { localStorage.removeItem("rightSponsorLogo"); }
+				else { localStorage.removeItem("customLogo" + xL); }
 
 				// Reset the image and hide preview
 				document.getElementById("l" + xL + "Img").src = "";
@@ -142,6 +166,16 @@ var clockIsPaused = false;
 				// Broadcast the change to browser source
 				if (xL == 0 || xL == 4) {
 					bc.postMessage({clockDisplay:'postLogo'});
+					if (xL == 0) {
+						bc.postMessage({clockDisplay:'hideLeftSponsorLogo'});
+						localStorage.setItem("showLeftSponsorLogo", "no");
+						document.getElementById("showLeftSponsorLogoSetting").checked = false;
+					}
+					if (xL == 4) {
+						bc.postMessage({clockDisplay:'hideRightSponsorLogo'});
+						localStorage.setItem("showRightSponsorLogo", "no");
+						document.getElementById("showRightSponsorLogoSetting").checked = false;
+					}
 				}
 			}
 
@@ -189,12 +223,16 @@ var clockIsPaused = false;
 				if (!document.getElementById("useClockSetting").checked) {
 						localStorage.setItem("useClock", "no");
 						bc.postMessage({clockDisplay:'noClock'});
+						// Also hide the shot clock + progress bar and sync the Show/Hide button state
+						clockDisplay('hide');
 						document.getElementById("clockContainer").classList.add("noShow");
 						document.getElementById("resetBtn").innerHTML = "Reset Scores";
 						updateAllCheckbox();
 						} else if (document.getElementById("useClockSetting").checked) {
 						localStorage.setItem("useClock", "yes");
-						bc.postMessage({clockDisplay:'useClock'});
+						bc.postMessage({clockDisplay:'useClock', selectedTime: selectedClockTime});
+						// Show clock + progress bar by default and sync the Show/Hide button state
+						clockDisplay('show');
 						document.getElementById("clockContainer").classList.remove("noShow");
 						document.getElementById("resetBtn").innerHTML = "Reset Scores and Extensions";
 						updateAllCheckbox();
@@ -203,9 +241,9 @@ var clockIsPaused = false;
 
 			// Helper function to update "All" checkbox based on individual settings
 			function updateAllCheckbox() {
-				var allChecked = (localStorage.getItem("useSalotto") == "yes" &&
+				var allChecked = (localStorage.getItem("showRightSponsorLogo") == "yes" &&
 				                  localStorage.getItem("useClock") == "yes" &&
-				                  localStorage.getItem("useCustomLogo") == "yes");
+				                  localStorage.getItem("showLeftSponsorLogo") == "yes");
 				document.getElementById("allCheck").checked = allChecked;
 			}
 	
@@ -386,60 +424,52 @@ var clockIsPaused = false;
 				setTimeout(rst_scr_btn, 100); };
 			}
 
-			function salottoSetting() {
-				if (!document.getElementById("useSalottoSetting").checked) {
-				bc.postMessage({clockDisplay:'hidesalotto'});
-				localStorage.setItem("useSalotto", "no");
-				updateAllCheckbox();
+			function leftSponsorLogoSetting() {
+				if (!document.getElementById("showLeftSponsorLogoSetting").checked) {
+					bc.postMessage({clockDisplay:'hideLeftSponsorLogo'});
+					localStorage.setItem("showLeftSponsorLogo", "no");
+					updateAllCheckbox();
 				} else {
-				bc.postMessage({clockDisplay:'showsalotto'});
-				localStorage.setItem("useSalotto", "yes");
-				updateAllCheckbox();
+					bc.postMessage({clockDisplay:'showLeftSponsorLogo'});
+					localStorage.setItem("showLeftSponsorLogo", "yes");
+					// Ensure slideshow is off for sponsor logos
+					document.getElementById("logoSlideshowChk").checked = false;
+					logoSlideshow();
+					updateAllCheckbox();
 				}
 			}
 
-			function customLogoSetting_slideshowoff() {
-				if (!document.getElementById("customLogo").checked) {
-				bc.postMessage({clockDisplay:'hidecustomLogo'});
-				localStorage.setItem("useCustomLogo", "no");
-				updateAllCheckbox();
+			function rightSponsorLogoSetting() {
+				if (!document.getElementById("showRightSponsorLogoSetting").checked) {
+					bc.postMessage({clockDisplay:'hideRightSponsorLogo'});
+					localStorage.setItem("showRightSponsorLogo", "no");
+					updateAllCheckbox();
 				} else {
-				bc.postMessage({clockDisplay:'showcustomLogo'});
-				localStorage.setItem("useCustomLogo", "yes");
-				updateAllCheckbox();
+					bc.postMessage({clockDisplay:'showRightSponsorLogo'});
+					localStorage.setItem("showRightSponsorLogo", "yes");
+					// Ensure slideshow is off for sponsor logos
+					document.getElementById("logoSlideshowChk").checked = false;
+					logoSlideshow();
+					updateAllCheckbox();
 				}
 			}
 
-			function customLogoSetting() {
-				if (!document.getElementById("customLogo").checked) {
-				bc.postMessage({clockDisplay:'hidecustomLogo'});
-				localStorage.setItem("useCustomLogo", "no");
-				updateAllCheckbox();
-				} else {
-				bc.postMessage({clockDisplay:'showcustomLogo'});
-				localStorage.setItem("useCustomLogo", "yes");
-				document.getElementById("logoSlideshowChk").checked = false;
-				logoSlideshow();
-				updateAllCheckbox();
-				}
-			}
-				
 			function allCheck() {
 				if (!document.getElementById("allCheck").checked) {
 				document.getElementById("useClockSetting").checked =  true; 
-				document.getElementById("useSalottoSetting").checked =  true; 
-				document.getElementById("customLogo").checked =  true; 
+				document.getElementById("showLeftSponsorLogoSetting").checked =  true; 
+				document.getElementById("showRightSponsorLogoSetting").checked =  true; 
 				document.getElementById("useClockSetting").click(); 
-				document.getElementById("useSalottoSetting").click(); 
-				document.getElementById("customLogo").click(); 
+				document.getElementById("showLeftSponsorLogoSetting").click(); 
+				document.getElementById("showRightSponsorLogoSetting").click(); 
 				} 
 				else { 
 				document.getElementById("useClockSetting").checked =  false; 
-				document.getElementById("useSalottoSetting").checked =  false; 
-				document.getElementById("customLogo").checked =  false; 
+				document.getElementById("showLeftSponsorLogoSetting").checked =  false; 
+				document.getElementById("showRightSponsorLogoSetting").checked =  false; 
 				document.getElementById("useClockSetting").click(); 
-				document.getElementById("useSalottoSetting").click(); 
-				document.getElementById("customLogo").click(); 
+				document.getElementById("showLeftSponsorLogoSetting").click(); 
+				document.getElementById("showRightSponsorLogoSetting").click(); 
 				}				
 					
 			}			
@@ -578,28 +608,27 @@ var clockIsPaused = false;
 					}
 			}
 			
-			function cLogoNameChange() {
-				cLogoName = prompt("Rename Custom Logo Checkbox Label");
-				if (cLogoName != null && cLogoName != "") {
-				localStorage.setItem("clogoNameStored", cLogoName.substring(0, 13));
-				document.getElementById("logoName").innerHTML = cLogoName.substring(0, 13);
+			function leftSponsorLabelChange() {
+				var leftSponsorLabel = prompt("Rename Left Sponsor Logo Checkbox Label");
+				if (leftSponsorLabel != null && leftSponsorLabel != "") {
+					localStorage.setItem("leftSponsorLabel", leftSponsorLabel.substring(0, 13));
+					document.getElementById("leftSponsorLabel").innerHTML = leftSponsorLabel.substring(0, 13);
 				}
 			}
+
+			function rightSponsorLabelChange() {
+				var rightSponsorLabel = prompt("Rename Right Sponsor Logo Checkbox Label");
+				if (rightSponsorLabel != null && rightSponsorLabel != "") {
+					localStorage.setItem("rightSponsorLabel", rightSponsorLabel.substring(0, 13));
+					document.getElementById("rightSponsorLabel").innerHTML = rightSponsorLabel.substring(0, 13);
+				}
+			}
+
 			function pointValue() {
 				scoreAmount = document.getElementById("scoreValue").value;
 				console.log(scoreAmount);
 				postNames();
 			}
-
-			function salLogoNameChange() {
-				salLogoName = prompt("Rename Salotto Logo Checkbox Label");
-				if (salLogoName != null && salLogoName != "") {
-				localStorage.setItem("sallogoNameStored", salLogoName.substring(0, 13));
-				document.getElementById("salllogoName").innerHTML = salLogoName.substring(0, 13);
-				}
-			}
-
-
 
 function checkForUpdate() {
     const updateStatus = document.getElementById('updateStatus');

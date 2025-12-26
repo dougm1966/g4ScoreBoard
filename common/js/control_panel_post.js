@@ -57,11 +57,22 @@
 	var c1value;
 	var c2value;
 	var pColormsg;
-	var salLogoName;
-					
+	var leftSponsorLogo;
+	var rightSponsorLogo;
+	var leftSponsorLabel;
+	var rightSponsorLabel;
+				
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// onload stuff
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Purge legacy sponsor logo keys (removed permanently)
+	localStorage.removeItem("useSalotto");
+	localStorage.removeItem("useCustomLogo");
+	localStorage.removeItem("customLogo0");
+	localStorage.removeItem("customLogo4");
+	localStorage.removeItem("clogoNameStored");
+	localStorage.removeItem("sallogoNameStored");
 
 	slider.oninput = function() {
 			sliderValue = this.value/100;
@@ -70,7 +81,7 @@
 
 	document.getElementById('settingsBox2').onclick = function() { 
 			document.getElementById('settingsBox2').style.border = "1px solid blue";
-			document.getElementById('FileUploadL0').click();
+			document.getElementById('FileUploadL4').click();
 			setTimeout(rst_scr_btn,100);
 			};
 			
@@ -94,7 +105,7 @@
 
 		document.getElementById('settingsBox4').onclick = function() {
 			document.getElementById('settingsBox4').style.border = "1px solid blue";
-			document.getElementById('FileUploadL4').click();
+			document.getElementById('FileUploadL0').click();
 			setTimeout(rst_scr_btn,100);
 			};
 
@@ -148,20 +159,18 @@
 		bc.postMessage(msg);
 		}
 
-	if (localStorage.getItem("useSalotto") == "yes") {
-			console.log("salotto = TRUE");
-			document.getElementById("useSalottoSetting").checked = true;
-			salottoSetting();
+	if (localStorage.getItem("showLeftSponsorLogo") == "yes") {
+			document.getElementById("showLeftSponsorLogoSetting").checked = true;
+			leftSponsorLogoSetting();
 				} 	else {
-				salottoSetting()
-				}
+			leftSponsorLogoSetting();
+			}
 
-	if (localStorage.getItem("useCustomLogo") == "yes") {
-			console.log("customLogo = TRUE");
-			document.getElementById("customLogo").checked = true;
-			customLogoSetting();
+	if (localStorage.getItem("showRightSponsorLogo") == "yes") {
+			document.getElementById("showRightSponsorLogoSetting").checked = true;
+			rightSponsorLogoSetting();
 			} else {
-				customLogoSetting()
+				rightSponsorLogoSetting();
 				}			
 
 	if (localStorage.getItem("useClock") == "yes") {
@@ -169,20 +178,19 @@
 			document.getElementById("useClockSetting").checked = true;
 			clockSetting();
 				} else {
-					document.getElementById("useSalottoSetting").checked = false;
-					document.getElementById("useSalottoSetting").removeAttribute("checked");
-					clockSetting()
-					}			
+				// Do not alter sponsor logo toggles when clock is disabled
+				clockSetting()
+				}			
 
 	if (localStorage.getItem("customLogo1") != null) {document.getElementById("l1Img").src = localStorage.getItem("customLogo1");} else { document.getElementById("l1Img").src = "./common/images/placeholder.png"; };
 	if (localStorage.getItem("customLogo2") != null) {document.getElementById("l2Img").src = localStorage.getItem("customLogo2");} else { document.getElementById("l2Img").src = "./common/images/placeholder.png"; };
 	if (localStorage.getItem("customLogo3") != null) {document.getElementById("l3Img").src = localStorage.getItem("customLogo3");} else { document.getElementById("l3Img").src = "./common/images/placeholder.png"; };
-	if (localStorage.getItem("customLogo0") != null) {
-		document.getElementById("l0Img").src = localStorage.getItem("customLogo0");
+	if (localStorage.getItem("leftSponsorLogo") != null) {
+		document.getElementById("l0Img").src = localStorage.getItem("leftSponsorLogo");
 		document.getElementById("l0Img").classList.add("has-image");
 	} else { document.getElementById("l0Img").src = "./common/images/placeholder.png"; };
-	if (localStorage.getItem("customLogo4") != null) {
-		document.getElementById("l4Img").src = localStorage.getItem("customLogo4");
+	if (localStorage.getItem("rightSponsorLogo") != null) {
+		document.getElementById("l4Img").src = localStorage.getItem("rightSponsorLogo");
 		document.getElementById("l4Img").classList.add("has-image");
 	} else { document.getElementById("l4Img").src = "./common/images/placeholder.png"; };
 
@@ -195,10 +203,8 @@
 	if (localStorage.getItem("b_style") == "1") { document.getElementById("bsStyle").value = "1"; }
 	if (localStorage.getItem("b_style") == "2") { document.getElementById("bsStyle").value = "2"; }
 	if (localStorage.getItem("b_style") == "3") { document.getElementById("bsStyle").value = "3"; }
-	if (localStorage.getItem("clogoNameStored") != null) { cLogoName = localStorage.getItem("clogoNameStored"); }	
-		if (localStorage.getItem("sallogoNameStored") != null) { salLogoName = localStorage.getItem("sallogoNameStored"); }	
-		document.getElementById("salllogoName").innerHTML = salLogoName.substring(0, 13);
-	document.getElementById("logoName").innerHTML = cLogoName.substring(0, 13);
+	if (localStorage.getItem("leftSponsorLabel") != null) { document.getElementById("leftSponsorLabel").innerHTML = localStorage.getItem("leftSponsorLabel").substring(0, 13); }
+	if (localStorage.getItem("rightSponsorLabel") != null) { document.getElementById("rightSponsorLabel").innerHTML = localStorage.getItem("rightSponsorLabel").substring(0, 13); }
 	document.getElementById("p1Name").value = localStorage.getItem("p1NameCtrlPanel");
 	document.getElementById("p2Name").value = localStorage.getItem("p2NameCtrlPanel");
 	document.getElementById("raceInfoTxt").value = localStorage.getItem("raceInfo");

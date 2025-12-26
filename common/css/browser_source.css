@@ -234,6 +234,10 @@ td {
 	/* Vertical centering - same as player photos */
 	top: 50%;
 	transform: translateY(-50%);
+	max-width: 90px;
+	max-height: 20px;
+	width: auto;
+	height: 20px;
 }
 
 .bs-logo-left {

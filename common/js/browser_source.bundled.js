@@ -38,11 +38,11 @@ const CHANNEL_RECV = 'g4-recv';
 
 // localStorage Keys
 const STORAGE_KEYS = {
-  customLogo0: 'customLogo0',
+  leftSponsorLogo: 'leftSponsorLogo',
   customLogo1: 'customLogo1',
   customLogo2: 'customLogo2',
   customLogo3: 'customLogo3',
-  customLogo4: 'customLogo4',
+  rightSponsorLogo: 'rightSponsorLogo',
   p1Score: 'p1ScoreCtrlPanel',
   p2Score: 'p2ScoreCtrlPanel',
   p1Name: 'p1NameCtrlPanel',
@@ -52,8 +52,8 @@ const STORAGE_KEYS = {
   raceInfo: 'raceInfo',
   wagerInfo: 'wagerInfo',
   useClock: 'useClock',
-  useCustomLogo: 'useCustomLogo',
-  useSalotto: 'useSalotto',
+  showLeftSponsorLogo: 'showLeftSponsorLogo',
+  showRightSponsorLogo: 'showRightSponsorLogo',
   slideShow: 'slideShow',
   browserStyle: 'b_style',
   player1Photo: 'player1_photo',
@@ -75,8 +75,8 @@ const DOM_IDS = {
   p2ExtIcon: 'p2ExtIcon',
   p1Photo: 'player1-photo',
   p2Photo: 'player2-photo',
-  salottoLogo: 'salottoLogo',
-  g4Logo: 'g4Logo',
+  leftSponsorLogoImg: 'leftSponsorLogoImg',
+  rightSponsorLogoImg: 'rightSponsorLogoImg',
   customLogo1: 'customLogo1',
   customLogo2: 'customLogo2',
   customLogo3: 'customLogo3',
@@ -115,11 +115,11 @@ const Storage = {
    */
   loadInitialState() {
     return {
-      customLogo0: this.get(STORAGE_KEYS.customLogo0, ''),
+      leftSponsorLogo: this.get(STORAGE_KEYS.leftSponsorLogo, ''),
       customLogo1: this.get(STORAGE_KEYS.customLogo1, ''),
       customLogo2: this.get(STORAGE_KEYS.customLogo2, ''),
       customLogo3: this.get(STORAGE_KEYS.customLogo3, ''),
-      customLogo4: this.get(STORAGE_KEYS.customLogo4, ''),
+      rightSponsorLogo: this.get(STORAGE_KEYS.rightSponsorLogo, ''),
       p1Score: this.get(STORAGE_KEYS.p1Score, '0'),
       p2Score: this.get(STORAGE_KEYS.p2Score, '0'),
       p1Name: this.get(STORAGE_KEYS.p1Name, 'Player 1'),
@@ -129,8 +129,8 @@ const Storage = {
       raceInfo: this.get(STORAGE_KEYS.raceInfo, ''),
       wagerInfo: this.get(STORAGE_KEYS.wagerInfo, ''),
       useClock: this.get(STORAGE_KEYS.useClock, 'no'),
-      useCustomLogo: this.get(STORAGE_KEYS.useCustomLogo, 'no'),
-      useSalotto: this.get(STORAGE_KEYS.useSalotto, 'no'),
+      showLeftSponsorLogo: this.get(STORAGE_KEYS.showLeftSponsorLogo, 'no'),
+      showRightSponsorLogo: this.get(STORAGE_KEYS.showRightSponsorLogo, 'no'),
       slideShow: this.get(STORAGE_KEYS.slideShow, 'no'),
       browserStyle: this.get(STORAGE_KEYS.browserStyle, '2'),
       player1Photo: this.get(STORAGE_KEYS.player1Photo, ''),
@@ -267,6 +267,9 @@ class ShotClock {
    */
   hide() {
     this.clockDisplay.classList.replace('fadeInElm', 'fadeOutElm');
+
+	// Also hide progress bar when hiding clock
+	this.progressBar.classList.replace('fadeInElm', 'fadeOutElm');
   }
 
   // Private methods
@@ -566,59 +569,45 @@ class UI {
   }
 
   /**
-   * Show Salotto logo
+   * Show right sponsor logo
    */
   showSalottoLogo() {
-    document.getElementById(DOM_IDS.salottoLogo).classList.replace('fadeOutElm', 'fadeInElm');
+    document.getElementById(DOM_IDS.rightSponsorLogoImg).classList.replace('fadeOutElm', 'fadeInElm');
   }
 
   /**
-   * Hide Salotto logo
+   * Hide right sponsor logo
    */
   hideSalottoLogo() {
-    document.getElementById(DOM_IDS.salottoLogo).classList.replace('fadeInElm', 'fadeOutElm');
+    document.getElementById(DOM_IDS.rightSponsorLogoImg).classList.replace('fadeInElm', 'fadeOutElm');
   }
 
   /**
-   * Show custom logo
+   * Show left sponsor logo
    */
   showCustomLogo() {
-    const logo = document.getElementById(DOM_IDS.g4Logo);
-    logo.style.removeProperty('display');
-    setTimeout(() => {
-      if (logo.classList.contains('logoSlide')) {
-        logo.classList.replace('logoSlide', 'fadeOutElm');
-      }
-      if (logo.classList.contains('fade')) {
-        logo.classList.replace('fade', 'fadeOutElm');
-      }
-      logo.classList.replace('fadeOutElm', 'fadeInElm');
-    }, 100);
+    document.getElementById(DOM_IDS.leftSponsorLogoImg).classList.replace('fadeOutElm', 'fadeInElm');
   }
 
   /**
    * Hide custom logo
    */
   hideCustomLogo() {
-    const logo = document.getElementById(DOM_IDS.g4Logo);
-    logo.classList.replace('fadeInElm', 'fadeOutElm');
-    setTimeout(() => {
-      logo.style.display = 'none';
-    }, 1000);
+    document.getElementById(DOM_IDS.leftSponsorLogoImg).classList.replace('fadeInElm', 'fadeOutElm');
   }
 
   /**
    * Load logos from localStorage
    */
   loadLogos() {
-    const customLogo0 = localStorage.getItem('customLogo0');
-    const customLogo4 = localStorage.getItem('customLogo4');
+    const leftSponsorLogo = localStorage.getItem(STORAGE_KEYS.leftSponsorLogo);
+    const rightSponsorLogo = localStorage.getItem(STORAGE_KEYS.rightSponsorLogo);
 
-    if (customLogo0 && customLogo0 !== '') {
-      document.getElementById(DOM_IDS.g4Logo).src = customLogo0;
+    if (leftSponsorLogo && leftSponsorLogo !== '') {
+      document.getElementById(DOM_IDS.leftSponsorLogoImg).src = leftSponsorLogo;
     }
-    if (customLogo4 && customLogo4 !== '') {
-      document.getElementById(DOM_IDS.salottoLogo).src = customLogo4;
+    if (rightSponsorLogo && rightSponsorLogo !== '') {
+      document.getElementById(DOM_IDS.rightSponsorLogoImg).src = rightSponsorLogo;
     }
   }
 
@@ -626,14 +615,8 @@ class UI {
    * Start logo slideshow
    */
   startSlideshow() {
-    this.hideCustomLogo();
-
     const slideshowDiv = document.getElementById(DOM_IDS.logoSlideshow);
-    const g4Logo = document.getElementById(DOM_IDS.g4Logo);
-
     slideshowDiv.classList.replace('fadeOutElm', 'fadeInElm');
-    g4Logo.classList.replace('fadeOutElm', 'logoSlide');
-    setTimeout(() => g4Logo.classList.add('fade'), 500);
 
     [1, 2, 3].forEach(i => {
       const logoData = localStorage.getItem(`customLogo${i}`);
@@ -796,9 +779,13 @@ class Messaging {
         break;
       case 'noClock':
         this.ui.toggleExtensionIcons(false);
+		// Ensure clock and progress bar are hidden when clock feature is disabled
+		this.shotClock.hide();
         break;
       case 'useClock':
-        this.ui.toggleExtensionIcons(true);
+		this.ui.toggleExtensionIcons(true);
+		// When clock feature is enabled, show the clock display by default
+		this.shotClock.show(data.selectedTime);
         break;
       case 'p1extension':
         this.shotClock.addExtension(1);
@@ -812,16 +799,16 @@ class Messaging {
       case 'p2ExtReset':
         this.ui.resetExtension(2);
         break;
-      case 'hidesalotto':
+      case 'hideRightSponsorLogo':
         this.ui.hideSalottoLogo();
         break;
-      case 'showsalotto':
+      case 'showRightSponsorLogo':
         this.ui.showSalottoLogo();
         break;
-      case 'hidecustomLogo':
+      case 'hideLeftSponsorLogo':
         this.ui.hideCustomLogo();
         break;
-      case 'showcustomLogo':
+      case 'showLeftSponsorLogo':
         this.ui.showCustomLogo();
         break;
       case 'postLogo':
@@ -925,24 +912,21 @@ class BrowserSource {
       logoElement.src = logoData || './common/images/placeholder.png';
     });
 
-    // Show/hide features
-    if (state.useCustomLogo === 'yes') {
+    // Show/hide sponsor logos
+    if (state.showLeftSponsorLogo === 'yes') {
       this.ui.showCustomLogo();
     }
-    if (state.useSalotto === 'yes') {
+    if (state.showRightSponsorLogo === 'yes') {
       this.ui.showSalottoLogo();
     }
 
     // Clock settings
     this.ui.toggleExtensionIcons(state.useClock === 'yes');
 
-    // Slideshow
+    // Slideshow (kept for future advertiser module)
     if (state.slideShow === 'yes') {
       const slideshowDiv = document.getElementById(DOM_IDS.logoSlideshow);
-      const g4Logo = document.getElementById(DOM_IDS.g4Logo);
       slideshowDiv.classList.replace('fadeOutElm', 'fadeInElm');
-      g4Logo.classList.replace('fadeOutElm', 'logoSlide');
-      g4Logo.classList.add('fade');
     }
 
     // Style/scaling
